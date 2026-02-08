@@ -1,0 +1,134 @@
+/* Mobile and tablet responsive breakpoints */
+
+/* Tablet: sidebar collapses to toggle */
+@media (max-width: 900px) {
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 110;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .cols-2 {
+    grid-template-columns: 1fr;
+  }
+  .cols-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+/* Mobile: single column */
+@media (max-width: 600px) {
+  .topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .topbar-brand {
+    font-size: 14px;
+  }
+
+  .content {
+    padding: 12px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .card {
+    padding: 10px 12px;
+  }
+  .card-value {
+    font-size: 18px;
+  }
+
+  .cols-2,
+  .cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table {
+    font-size: 12px;
+  }
+  .data-table th,
+  .data-table td {
+    padding: 6px 8px;
+  }
+
+  .filter-bar {
+    gap: 6px;
+  }
+  .filter-btn {
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    margin: 16px 0 8px;
+  }
+
+  .page-title {
+    font-size: 16px;
+  }
+
+  /* Topology scales down */
+  .topology-full .topology-container {
+    height: calc(100vh - var(--topbar-height) - 100px);
+  }
+
+  .topo-legend {
+    font-size: 10px;
+    gap: 10px;
+  }
+
+  .station-card {
+    padding: 10px 12px;
+  }
+  .station-name {
+    font-size: 13px;
+  }
+
+  .alert-row {
+    padding: 8px 10px;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .path-card {
+    padding: 12px;
+  }
+}
+
+/* Sidebar overlay backdrop */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 105;
+}
+
+@media (max-width: 900px) {
+  .sidebar-backdrop.visible {
+    display: block;
+  }
+}

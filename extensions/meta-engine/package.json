@@ -1,0 +1,17 @@
+{
+  "name": "@openclaw/meta-engine",
+  "version": "2026.2.4",
+  "description": "OpenClaw autonomous model selection: task classification, scoring, and routing",
+  "type": "module",
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

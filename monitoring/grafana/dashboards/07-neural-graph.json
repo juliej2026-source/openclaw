@@ -1,0 +1,280 @@
+{
+  "uid": "neural-graph",
+  "title": "Neural Graph",
+  "tags": ["openclaw", "neural-graph", "ai"],
+  "timezone": "browser",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "title": "Maturation Phase",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_maturation_phase",
+          "legendFormat": "Phase",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "Genesis", "color": "blue" } } },
+            {
+              "type": "value",
+              "options": { "1": { "text": "Differentiation", "color": "yellow" } }
+            },
+            { "type": "value", "options": { "2": { "text": "Synaptogenesis", "color": "green" } } },
+            { "type": "value", "options": { "3": { "text": "Pruning", "color": "orange" } } },
+            { "type": "value", "options": { "4": { "text": "Myelination", "color": "purple" } } }
+          ],
+          "thresholds": { "steps": [{ "color": "blue", "value": null }] }
+        }
+      }
+    },
+    {
+      "title": "Total Nodes",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 3, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_node_count{type=\"total\"}",
+          "legendFormat": "Nodes",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }] }
+        }
+      }
+    },
+    {
+      "title": "Total Edges",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 3, "x": 9, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_edge_count",
+          "legendFormat": "Edges",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "blue", "value": null }] }
+        }
+      }
+    },
+    {
+      "title": "Myelinated Edges",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 3, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_myelinated_edges",
+          "legendFormat": "Myelinated",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "purple", "value": null }] }
+        }
+      }
+    },
+    {
+      "title": "Convex Connected",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 3, "x": 15, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_connected",
+          "legendFormat": "Connected",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "Disconnected", "color": "red" } } },
+            { "type": "value", "options": { "1": { "text": "Connected", "color": "green" } } }
+          ],
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Node Count by Type",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_node_count{type!=\"total\"}",
+          "legendFormat": "{{type}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 15 }
+        }
+      }
+    },
+    {
+      "title": "Node Fitness Distribution",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_node_fitness{node!=\"avg\"}",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "color": { "mode": "continuous-GrYlRd" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 40 },
+              { "color": "green", "value": 70 }
+            ]
+          }
+        }
+      },
+      "options": { "orientation": "horizontal", "displayMode": "gradient" }
+    },
+    {
+      "title": "Average Fitness",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_node_fitness{node=\"avg\"}",
+          "legendFormat": "Average",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 40 },
+              { "color": "green", "value": 70 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Graph Executions",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "rate(neural_graph_execution_total[5m]) * 60",
+          "legendFormat": "Executions/min",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 20 },
+          "color": { "fixedColor": "green", "mode": "fixed" }
+        }
+      }
+    },
+    {
+      "title": "Evolution Events Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "rate(neural_graph_evolution_events_total[15m]) * 60",
+          "legendFormat": "Events/min",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 20 },
+          "color": { "fixedColor": "orange", "mode": "fixed" }
+        }
+      }
+    },
+    {
+      "title": "Edge Weight Distribution",
+      "type": "histogram",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_edge_weight_bucket",
+          "legendFormat": "{{le}}",
+          "refId": "A",
+          "format": "heatmap"
+        }
+      ]
+    },
+    {
+      "title": "Maturation Phase Timeline",
+      "type": "state-timeline",
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "ds-prometheus" },
+      "targets": [
+        {
+          "expr": "neural_graph_maturation_phase",
+          "legendFormat": "Phase",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "Genesis", "color": "blue" } } },
+            {
+              "type": "value",
+              "options": { "1": { "text": "Differentiation", "color": "yellow" } }
+            },
+            { "type": "value", "options": { "2": { "text": "Synaptogenesis", "color": "green" } } },
+            { "type": "value", "options": { "3": { "text": "Pruning", "color": "orange" } } },
+            { "type": "value", "options": { "4": { "text": "Myelination", "color": "purple" } } }
+          ]
+        }
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "version": 1
+}

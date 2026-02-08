@@ -1,0 +1,17 @@
+{
+  "name": "@openclaw/model-manager",
+  "version": "2026.2.4",
+  "description": "OpenClaw local model management (Ollama + llama.cpp): download, inventory, hardware detection",
+  "type": "module",
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

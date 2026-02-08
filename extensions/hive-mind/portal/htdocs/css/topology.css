@@ -1,0 +1,322 @@
+/* SVG neural network topology styles and animations */
+
+.topology-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  overflow: hidden;
+}
+
+.topology-container.mini {
+  padding: 12px;
+}
+
+.topology-svg {
+  width: 100%;
+  display: block;
+}
+
+/* ---- Links (edges between nodes) ---- */
+.topo-link {
+  stroke-width: 2;
+  fill: none;
+  transition:
+    stroke 0.3s ease,
+    stroke-width 0.3s ease;
+}
+
+.topo-link.up {
+  stroke: var(--green);
+  opacity: 0.5;
+}
+.topo-link.down {
+  stroke: var(--red);
+  opacity: 0.6;
+}
+.topo-link.wired {
+  stroke-dasharray: none;
+}
+.topo-link.wireless {
+  stroke-dasharray: 6 4;
+}
+.topo-link.api {
+  stroke-dasharray: 2 4;
+}
+
+.topo-link.active-wan {
+  stroke-width: 3;
+  opacity: 0.8;
+  filter: url(#link-glow);
+}
+
+/* ---- Nodes ---- */
+.topo-node {
+  cursor: pointer;
+}
+
+.topo-node-circle {
+  transition:
+    fill 0.3s ease,
+    r 0.2s ease;
+}
+
+.topo-node.up .topo-node-circle {
+  fill: rgba(63, 185, 80, 0.2);
+  stroke: var(--green);
+  stroke-width: 2;
+}
+
+.topo-node.down .topo-node-circle {
+  fill: rgba(248, 81, 73, 0.2);
+  stroke: var(--red);
+  stroke-width: 2;
+  animation: pulse-node 2s ease-in-out infinite;
+}
+
+.topo-node.unknown .topo-node-circle {
+  fill: rgba(139, 148, 158, 0.2);
+  stroke: var(--text-dim);
+  stroke-width: 2;
+}
+
+.topo-node:hover .topo-node-circle {
+  stroke-width: 3;
+}
+
+.topo-node.up:hover .topo-node-circle {
+  fill: rgba(63, 185, 80, 0.35);
+}
+
+/* ---- Node labels ---- */
+.topo-label {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-bright);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.topo-sublabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.topo-latency {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--cyan);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+/* ---- Node icons (text glyphs inside circles) ---- */
+.topo-icon {
+  font-size: 16px;
+  fill: var(--text-bright);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* ---- Role badges on nodes ---- */
+.topo-role {
+  font-family: var(--font);
+  font-size: 8px;
+  font-weight: 700;
+  fill: var(--bg);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.topo-role-bg {
+  rx: 6;
+  ry: 6;
+}
+
+/* ---- Tooltip ---- */
+.topo-tooltip {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  max-width: 260px;
+  display: none;
+}
+
+.topo-tooltip.visible {
+  display: block;
+}
+
+.topo-tooltip-title {
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+}
+
+.topo-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 2px;
+}
+
+.topo-tooltip-key {
+  color: var(--text-dim);
+}
+.topo-tooltip-val {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ---- Legend ---- */
+.topo-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.topo-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topo-legend-line {
+  width: 20px;
+  height: 2px;
+}
+
+.topo-legend-line.wired {
+  background: var(--green);
+}
+.topo-legend-line.wireless {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--green) 0px,
+    var(--green) 4px,
+    transparent 4px,
+    transparent 7px
+  );
+}
+.topo-legend-line.api {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--blue) 0px,
+    var(--blue) 2px,
+    transparent 2px,
+    transparent 5px
+  );
+}
+
+.topo-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.topo-legend-dot.up {
+  background: var(--green);
+}
+.topo-legend-dot.down {
+  background: var(--red);
+}
+
+/* ---- WAN status banner ---- */
+.wan-banner {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.wan-banner.normal {
+  background: rgba(63, 185, 80, 0.1);
+  border: 1px solid var(--green);
+  color: var(--green);
+}
+
+.wan-banner.failover {
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid var(--red);
+  color: var(--red);
+  animation: pulse-banner 3s ease-in-out infinite;
+}
+
+/* ---- SVG filters (glow effects) ---- */
+/* Applied via <defs> in the SVG element itself */
+
+/* ---- Animations ---- */
+@keyframes pulse-node {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulse-banner {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes data-flow {
+  0% {
+    stroke-dashoffset: 20;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.topo-link.data-flowing {
+  animation: data-flow 1s linear infinite;
+  stroke-dasharray: 4 4;
+}
+
+/* ---- Full-page topology view ---- */
+.topology-full {
+  min-height: calc(100vh - var(--topbar-height) - 80px);
+}
+
+.topology-full .topology-container {
+  height: calc(100vh - var(--topbar-height) - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.topology-full .topology-svg {
+  flex: 1;
+}
+
+.topology-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@openclaw/neural-graph",
+  "version": "2026.2.8",
+  "description": "LangGraph + Convex neural graph backbone for OpenClaw — unified AI framework orchestration with maturation lifecycle",
+  "type": "module",
+  "dependencies": {
+    "@langchain/core": "^0.3.26",
+    "@langchain/langgraph": "^0.2.36",
+    "convex": "^1.17.4"
+  },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

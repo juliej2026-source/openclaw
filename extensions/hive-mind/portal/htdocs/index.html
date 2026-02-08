@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenClaw Hive Mind</title>
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+    <link rel="stylesheet" href="/css/variables.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/cards.css" />
+    <link rel="stylesheet" href="/css/topology.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+  </head>
+  <body>
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation">
+        &#9776;
+      </button>
+      <div class="topbar-brand">
+        <img src="/img/favicon.svg" alt="" class="brand-icon" />
+        <span>OpenClaw Hive Mind</span>
+      </div>
+      <div class="topbar-status">
+        <span class="live-dot" id="live-dot"></span>
+        <span class="refresh-label" id="refresh-label">connecting…</span>
+      </div>
+    </header>
+
+    <!-- Sidebar backdrop (mobile) -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <ul class="nav-list">
+        <li>
+          <a href="#/" class="nav-link" data-route="/">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 1L1 5.5V14h5V9h4v5h5V5.5L8 1z" />
+            </svg>
+            Overview
+          </a>
+        </li>
+        <li>
+          <a href="#/topology" class="nav-link" data-route="/topology">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M3 3a2 2 0 114 0 2 2 0 01-4 0zm6 0a2 2 0 114 0 2 2 0 01-4 0zM6 11a2 2 0 114 0 2 2 0 01-4 0zM5 4.5L7 9.5M11 4.5L9 9.5"
+              />
+            </svg>
+            Neural Topology
+          </a>
+        </li>
+        <li>
+          <a href="#/stations" class="nav-link" data-route="/stations">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 2h12v10H2V2zm1 1v8h10V3H3zm2 10h6v1H5v-1z" />
+            </svg>
+            Stations
+          </a>
+        </li>
+        <li>
+          <a href="#/alerts" class="nav-link" data-route="/alerts">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1a1 1 0 01.993.883L9 2v.5A4.5 4.5 0 0112.5 7v3l1.5 2H2l1.5-2V7A4.5 4.5 0 017 2.5V2a1 1 0 011-1zM6.5 13h3a1.5 1.5 0 01-3 0z"
+              />
+            </svg>
+            Alert Center
+            <span class="nav-badge" id="alert-badge" style="display: none">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="#/models" class="nav-link" data-route="/models">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1C4.7 1 2 3.1 2 6c0 1.7 1 3.2 2.5 4.1V14l3.5-2 3.5 2v-3.9C13 9.2 14 7.7 14 6c0-2.9-2.7-5-6-5z"
+              />
+            </svg>
+            AI Performance
+          </a>
+        </li>
+        <li>
+          <a href="#/training" class="nav-link" data-route="/training">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 1L1 5l7 4 7-4-7-4zM2 7.5v4L8 15l6-3.5v-4L8 11 2 7.5z" />
+            </svg>
+            Training
+          </a>
+        </li>
+        <li>
+          <a href="#/wan" class="nav-link" data-route="/wan">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M1 12h2V8h-2v4zm4 0h2V4H5v8zm4 0h2V6H9v6zm4 0h2V2h-2v10z" />
+            </svg>
+            WAN Monitor
+          </a>
+        </li>
+        <li>
+          <a href="#/network" class="nav-link" data-route="/network">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 2C5.2 2 2.8 3.5 1.5 5.5L3 7c1-1.5 2.8-2.5 5-2.5S11 5.5 12 7l1.5-1.5C12.2 3.5 10.8 2 8 2zm0 4C6.3 6 4.9 6.9 4 8l1.5 1.5C6.2 8.5 7 8 8 8s1.8.5 2.5 1.5L12 8c-.9-1.1-2.3-2-4-2zm0 4a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
+              />
+            </svg>
+            Network
+          </a>
+        </li>
+        <li>
+          <a href="#/apache" class="nav-link" data-route="/apache">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 1h12v2H2V1zm0 3h12v1H2V4zm1 2h10v8H3V6zm2 1v6h6V7H5zm1 1h4v4H6V8z" />
+            </svg>
+            Apache
+          </a>
+        </li>
+        <li>
+          <a href="#/neural-graph" class="nav-link" data-route="/neural-graph">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1a2 2 0 110 4 2 2 0 010-4zM3 6a2 2 0 110 4 2 2 0 010-4zm10 0a2 2 0 110 4 2 2 0 010-4zM8 11a2 2 0 110 4 2 2 0 010-4zM5.5 4.5L4.5 6M10.5 4.5l1 1.5M5 9.5l1.5 2M11 9.5l-1.5 2"
+              />
+            </svg>
+            Neural Graph
+          </a>
+        </li>
+      </ul>
+      <div class="nav-footer">
+        <a href="/grafana/" class="nav-link" target="_blank" rel="noopener">Grafana</a>
+        <a href="/metrics" class="nav-link" target="_blank" rel="noopener">Metrics</a>
+        <a href="/monitor" class="nav-link" target="_blank" rel="noopener">Legacy Monitor</a>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content" id="app">
+      <div class="loading">Loading…</div>
+    </main>
+
+    <script type="module" src="/js/router.js"></script>
+  </body>
+</html>

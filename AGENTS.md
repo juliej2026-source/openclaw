@@ -1,7 +1,37 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Repository Guidelines
 
 - Repo: https://github.com/openclaw/openclaw
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
+
+## What is OpenClaw
+
+OpenClaw is a personal AI assistant you self-host. It exposes a **Gateway** (WebSocket server + HTTP API + control UI) that bridges messages between **channels** (WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Google Chat, Microsoft Teams, Matrix, etc.) and a **Pi agent** runtime (LLM-powered assistant with tools, memory, skills, and sandbox). Native apps exist for macOS (menubar), iOS, and Android. The CLI (`openclaw`) is the primary interface for config, onboarding, and ad-hoc commands.
+
+## Architecture Overview
+
+```
+CLI (commander.js)
+ └─► Gateway server (WebSocket + Hono HTTP)
+      ├─► Channel plugins (built-in + extensions)
+      │    ├─► Incoming message → routing → agent session
+      │    └─► Outgoing reply → chunking → channel delivery
+      ├─► Agent runtime (@mariozechner/pi-*)
+      │    ├─► Model auth (OAuth, API keys, failover)
+      │    ├─► Tools, skills, memory, sandbox
+      │    └─► Session management
+      ├─► Control UI (Lit web components, served at /ui)
+      └─► Native app bridge (macOS/iOS/Android protocol)
+```
+
+**Key data flow:** Incoming message on any channel → `ChannelPlugin.messaging` adapter → `resolveRoute()` (session key + routing rules) → agent session → auto-reply templating + chunking → outbound delivery via channel plugin.
+
+**Dependency injection:** CLI commands receive deps via `createDefaultDeps()` (`src/cli/deps.ts`). Channel send functions, config, and services are wired through function parameters rather than globals.
+
+**Plugin system:** Plugins live in `extensions/` as workspace packages. They register via `plugin.config.json` manifests and can provide channels, auth adapters, agent tools, and hooks. The SDK is exported at `openclaw/plugin-sdk`.
 
 ## Project Structure & Module Organization
 
@@ -63,6 +93,8 @@
 - Format check: `pnpm format` (oxfmt --check)
 - Format fix: `pnpm format:fix` (oxfmt --write)
 - Tests: `pnpm test` (vitest); coverage: `pnpm test:coverage`
+- Run a single test file: `vitest run src/path/to/file.test.ts`
+- Run tests matching a pattern: `vitest run -t "test name pattern"`
 
 ## Coding Style & Naming Conventions
 
@@ -70,7 +102,7 @@
 - Formatting/linting via Oxlint and Oxfmt; run `pnpm check` before commits.
 - Add brief code comments for tricky or non-obvious logic.
 - Keep files concise; extract helpers instead of “V2” copies. Use existing patterns for CLI options and dependency injection via `createDefaultDeps`.
-- Aim to keep files under ~700 LOC; guideline only (not a hard guardrail). Split/refactor when it improves clarity or testability.
+- Aim to keep files under ~500 LOC; guideline only (not a hard guardrail). Split/refactor when it improves clarity or testability. (`pnpm check:loc` enforces `--max 500`.)
 - Naming: use **OpenClaw** for product/app/docs headings; use `openclaw` for CLI command, package/binary, paths, and config keys.
 
 ## Release Channels (Naming)
