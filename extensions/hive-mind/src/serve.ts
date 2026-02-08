@@ -23,6 +23,12 @@ import {
   setDualNetworkGetter,
 } from "./network-api.js";
 import { createNetworkScanner } from "./network-scanner.js";
+import {
+  handleNeuralStatus,
+  handleNeuralTopology,
+  handleNeuralEvents,
+  handleNeuralPending,
+} from "./neural-api.js";
 import { buildStationIdentity } from "./station-identity.js";
 import { STATION_PORT, STATION_ID } from "./types.js";
 import {
@@ -55,6 +61,10 @@ const ROUTES: Record<
   "/api/unifi/health": handleUnifiHealth,
   "/api/unifi/stations": handleUnifiStations,
   "/api/unifi/alerts": handleUnifiAlerts,
+  "/api/neural/status": handleNeuralStatus,
+  "/api/neural/topology": handleNeuralTopology,
+  "/api/neural/events": handleNeuralEvents,
+  "/api/neural/pending": handleNeuralPending,
   "/metrics": handleMetrics,
   "/monitor": handleMonitor,
 };
