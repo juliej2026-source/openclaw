@@ -12,6 +12,7 @@ const ROUTES = {
   "/network": () => import("./pages/network.js"),
   "/apache": () => import("./pages/apache.js"),
   "/neural-graph": () => import("./pages/neural-graph.js"),
+  "/hotel-scraper": () => import("./pages/hotel-scraper.js"),
 };
 
 const REFRESH_INTERVAL = 30_000; // 30s — matches Prometheus scrape interval

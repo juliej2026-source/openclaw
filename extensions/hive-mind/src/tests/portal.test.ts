@@ -255,11 +255,11 @@ describe("Portal — httpd.conf", () => {
 describe("Portal — topology.js", () => {
   const src = readPortalFile("js/topology.js");
 
-  const expectedNodes = ["UDM-Pro", "HR02-5G", "JULIA", "IOT-HUB", "SCRAPER", "CLERK", "Bravia"];
+  const expectedNodes = ["UDM-Pro", "HR02-5G", "Julie", "IOT-HUB", "SCRAPER", "CLERK", "Bravia"];
 
   for (const node of expectedNodes) {
     it(`defines node ${node}`, () => {
-      expect(src).toContain(`id: '${node}'`);
+      expect(src).toContain(`id: "${node}"`);
     });
   }
 
@@ -270,9 +270,9 @@ describe("Portal — topology.js", () => {
   });
 
   it("supports wired, wireless, and API link types", () => {
-    expect(src).toContain("'wired'");
-    expect(src).toContain("'wireless'");
-    expect(src).toContain("'api'");
+    expect(src).toContain('"wired"');
+    expect(src).toContain('"wireless"');
+    expect(src).toContain('"api"');
   });
 
   it("exports renderTopology function", () => {
@@ -316,17 +316,18 @@ describe("Portal — deploy.sh", () => {
 describe("Portal — router.js", () => {
   const src = readPortalFile("js/router.js");
 
-  it("defines all 10 routes", () => {
-    expect(src).toContain("'/':"); // overview
-    expect(src).toContain("'/topology':");
-    expect(src).toContain("'/stations':");
-    expect(src).toContain("'/alerts':");
-    expect(src).toContain("'/models':");
-    expect(src).toContain("'/training':");
-    expect(src).toContain("'/wan':");
-    expect(src).toContain("'/network':");
-    expect(src).toContain("'/apache':");
-    expect(src).toContain("'/neural-graph':");
+  it("defines all 11 routes", () => {
+    expect(src).toContain('"/":'); // overview
+    expect(src).toContain('"/topology":');
+    expect(src).toContain('"/stations":');
+    expect(src).toContain('"/alerts":');
+    expect(src).toContain('"/models":');
+    expect(src).toContain('"/training":');
+    expect(src).toContain('"/wan":');
+    expect(src).toContain('"/network":');
+    expect(src).toContain('"/apache":');
+    expect(src).toContain('"/neural-graph":');
+    expect(src).toContain('"/hotel-scraper":');
   });
 
   it("uses dynamic import for lazy loading", () => {

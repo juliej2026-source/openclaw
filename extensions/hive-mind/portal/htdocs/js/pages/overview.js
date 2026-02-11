@@ -39,7 +39,7 @@ function buildStatusCards(metrics) {
   const stationsTotal = stationsAll.length;
   const failover = getScalar(metrics, "hivemind_wan_failover_active");
   const alertCount = getScalar(metrics, "hivemind_alert_active_count");
-  const juliaUp = getScalar(metrics, "hivemind_julia_registered");
+  const julieUp = getScalar(metrics, "hivemind_julie_registered");
   const modelsRunning = getScalar(metrics, "hivemind_model_running_count");
   const modelsInstalled = getScalar(metrics, "hivemind_model_installed_count");
 
@@ -69,9 +69,9 @@ function buildStatusCards(metrics) {
       status: (alertCount ?? 0) > 0 ? "crit" : "ok",
     }),
     card({
-      label: "JULIA",
-      value: juliaUp === 1 ? "Online" : "Offline",
-      status: statusClass(juliaUp === 1),
+      label: "Julie",
+      value: julieUp === 1 ? "Online" : "Offline",
+      status: statusClass(julieUp === 1),
     }),
     card({
       label: "Models Running",

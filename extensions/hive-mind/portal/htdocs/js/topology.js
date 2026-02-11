@@ -21,7 +21,7 @@ const NODES = [
     y: 50,
     icon: "\u25B2",
   },
-  { id: "JULIA", label: "JULIA", ip: "10.1.7.87", role: "ai", x: 150, y: 180, icon: "\u2605" },
+  { id: "Julie", label: "Julie", ip: "10.1.7.87", role: "ai", x: 150, y: 180, icon: "\u2605" },
   {
     id: "IOT-HUB",
     label: "IOT-HUB",
@@ -35,7 +35,7 @@ const NODES = [
     id: "SCRAPER",
     label: "SCRAPER",
     ip: "10.1.7.180",
-    role: "worker",
+    role: "decommissioned",
     x: 500,
     y: 180,
     icon: "\u25CF",
@@ -57,10 +57,10 @@ const LINKS = [
   { from: "UDM-Pro", to: "IOT-HUB", type: "wired" },
   { from: "UDM-Pro", to: "SCRAPER", type: "wired" },
   { from: "UDM-Pro", to: "CLERK", type: "wired" },
-  { from: "UDM-Pro", to: "JULIA", type: "wired" },
+  { from: "UDM-Pro", to: "Julie", type: "wired" },
   { from: "UDM-Pro", to: "Bravia", type: "wired" },
-  { from: "HR02-5G", to: "JULIA", type: "wireless" },
-  { from: "JULIA", to: "IOT-HUB", type: "api" },
+  { from: "HR02-5G", to: "Julie", type: "wireless" },
+  { from: "Julie", to: "IOT-HUB", type: "api" },
 ];
 
 const ROLE_COLORS = {
@@ -70,6 +70,7 @@ const ROLE_COLORS = {
   hub: "#39d2c0",
   worker: "#3fb950",
   device: "#8b949e",
+  decommissioned: "#6e7681",
 };
 
 /**
