@@ -185,8 +185,8 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Julia Registration",
-      "description": "Whether Julia agent is registered",
+      "title": "Julie Registration",
+      "description": "Whether Julie agent is registered",
       "datasource": {
         "type": "prometheus",
         "uid": "ds-prometheus"
@@ -200,7 +200,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "hivemind_julia_registered{station=~\"$station\"}",
+          "expr": "hivemind_julie_registered{station=~\"$station\"}",
           "legendFormat": "{{station}}",
           "instant": true
         }

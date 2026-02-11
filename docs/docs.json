@@ -984,6 +984,16 @@
                 "pages": ["plugins/voice-call", "plugins/zalouser"]
               },
               {
+                "group": "AI Extensions",
+                "pages": [
+                  "plugins/neural-graph",
+                  "plugins/hive-mind",
+                  "plugins/neural-graph-network",
+                  "plugins/neural-graph-api",
+                  "plugins/meta-engine"
+                ]
+              },
+              {
                 "group": "Automation",
                 "pages": [
                   "automation/hooks",

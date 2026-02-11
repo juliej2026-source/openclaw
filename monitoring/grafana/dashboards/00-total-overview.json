@@ -313,8 +313,8 @@
     {
       "id": 6,
       "type": "stat",
-      "title": "JULIA Registration",
-      "description": "Whether Julia agent is registered",
+      "title": "Julie Registration",
+      "description": "Whether Julie agent is registered",
       "datasource": {
         "type": "prometheus",
         "uid": "ds-prometheus"
@@ -328,8 +328,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "hivemind_julia_registered",
-          "legendFormat": "JULIA",
+          "expr": "hivemind_julie_registered",
+          "legendFormat": "Julie",
           "instant": true
         }
       ],
