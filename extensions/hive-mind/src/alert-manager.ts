@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { STATION_ID } from "./types.js";
+import { DECOMMISSIONED_STATIONS } from "./unifi-types.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -55,11 +56,20 @@ export type AlertManagerOptions = {
 export class AlertManager {
   private readonly filePath: string;
   private readonly onAlert?: (alert: HiveAlert) => void;
+  private listeners: Array<(alert: HiveAlert) => void> = [];
 
   constructor(opts?: AlertManagerOptions) {
     const base = opts?.openclawDir ?? path.join(process.env.HOME ?? os.homedir(), ".openclaw");
     this.filePath = path.join(base, ALERT_DIR, ALERT_FILE);
     this.onAlert = opts?.onAlert;
+  }
+
+  /** Subscribe to alert events. Returns an unsubscribe function. */
+  addListener(fn: (alert: HiveAlert) => void): () => void {
+    this.listeners.push(fn);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== fn);
+    };
   }
 
   private load(): AlertData {
@@ -108,6 +118,13 @@ export class AlertManager {
 
     this.save(data);
     this.onAlert?.(alert);
+    for (const fn of this.listeners) {
+      try {
+        fn(alert);
+      } catch {
+        /* listener errors are non-fatal */
+      }
+    }
     return alert;
   }
 
@@ -181,6 +198,9 @@ export function diffStationStates(
   const emitted: HiveAlert[] = [];
 
   for (const station of stations) {
+    // Skip decommissioned stations (no alerts for powered-off hardware)
+    if (DECOMMISSIONED_STATIONS.has(station.ip)) continue;
+
     const wasReachable = previousStationStates.get(station.ip);
 
     // Skip first scan (no previous state to compare)

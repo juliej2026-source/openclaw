@@ -1,9 +1,10 @@
 {
   "name": "@openclaw/hive-mind",
   "version": "2026.2.4",
-  "description": "OpenClaw hive mind network integration: station API, JULIA orchestrator registration, and execution reporting",
+  "description": "OpenClaw hive mind network integration: station API, Julie orchestrator registration, and execution reporting",
   "type": "module",
   "devDependencies": {
+    "discord-api-types": "^0.38.38",
     "openclaw": "workspace:*"
   },
   "peerDependencies": {

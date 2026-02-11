@@ -23,13 +23,13 @@ afterEach(() => {
 describe("AlertManager", () => {
   it("emits and persists an alert", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
-    const alert = mgr.emit("station_offline", "JULIA went offline", {
+    const alert = mgr.emit("station_offline", "Julie went offline", {
       target: "10.1.7.87",
     });
 
     expect(alert.type).toBe("station_offline");
     expect(alert.severity).toBe("warning");
-    expect(alert.message).toBe("JULIA went offline");
+    expect(alert.message).toBe("Julie went offline");
     expect(alert.source).toBe("iot-hub");
     expect(alert.target).toBe("10.1.7.87");
     expect(alert.acknowledged).toBe(false);
@@ -127,7 +127,7 @@ describe("diffStationStates", () => {
   it("emits station_offline when station becomes unreachable", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
     const stations = [
-      { ip: "10.1.7.87", label: "JULIA", reachable: true },
+      { ip: "10.1.7.87", label: "Julie", reachable: true },
       { ip: "10.1.7.188", label: "SCRAPER", reachable: true },
     ];
 
@@ -137,7 +137,7 @@ describe("diffStationStates", () => {
     // Second scan: SCRAPER goes down
     const alerts = diffStationStates(
       [
-        { ip: "10.1.7.87", label: "JULIA", reachable: true },
+        { ip: "10.1.7.87", label: "Julie", reachable: true },
         { ip: "10.1.7.188", label: "SCRAPER", reachable: false },
       ],
       mgr,
@@ -152,10 +152,10 @@ describe("diffStationStates", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
 
     // Baseline
-    diffStationStates([{ ip: "10.1.7.87", label: "JULIA", reachable: false }], mgr);
+    diffStationStates([{ ip: "10.1.7.87", label: "Julie", reachable: false }], mgr);
 
     // Recovery
-    const alerts = diffStationStates([{ ip: "10.1.7.87", label: "JULIA", reachable: true }], mgr);
+    const alerts = diffStationStates([{ ip: "10.1.7.87", label: "Julie", reachable: true }], mgr);
 
     expect(alerts).toHaveLength(1);
     expect(alerts[0].type).toBe("station_online");
@@ -163,10 +163,32 @@ describe("diffStationStates", () => {
 
   it("emits no alerts when state is unchanged", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
-    const stations = [{ ip: "10.1.7.87", label: "JULIA", reachable: true }];
+    const stations = [{ ip: "10.1.7.87", label: "Julie", reachable: true }];
 
     diffStationStates(stations, mgr);
     const alerts = diffStationStates(stations, mgr);
+
+    expect(alerts).toHaveLength(0);
+  });
+
+  it("skips decommissioned stations (no alerts for 10.1.7.180)", () => {
+    const mgr = new AlertManager({ openclawDir: tmpDir });
+    const stations = [
+      { ip: "10.1.7.87", label: "Julie", reachable: true },
+      { ip: "10.1.7.180", label: "SCRAPER", reachable: true },
+    ];
+
+    // Baseline
+    diffStationStates(stations, mgr);
+
+    // SCRAPER goes offline but is decommissioned — should not alert
+    const alerts = diffStationStates(
+      [
+        { ip: "10.1.7.87", label: "Julie", reachable: true },
+        { ip: "10.1.7.180", label: "SCRAPER", reachable: false },
+      ],
+      mgr,
+    );
 
     expect(alerts).toHaveLength(0);
   });

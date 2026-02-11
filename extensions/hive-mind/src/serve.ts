@@ -6,9 +6,10 @@ import {
   setDualNetworkInstance,
   setAlertManagerInstance,
 } from "./command-dispatch.js";
+import { initDiscord, shutdownDiscord } from "./discord/index.js";
 import { createDualNetworkManager } from "./dual-network.js";
 import { ExecutionLog } from "./execution-log.js";
-import { JuliaClient } from "./julia-client.js";
+import { JulieClient } from "./julie-client.js";
 import { setMetricsContext } from "./metrics-exporter.js";
 import {
   handlePing,
@@ -114,33 +115,33 @@ server.listen(STATION_PORT, "127.0.0.1", () => {
     console.log(`  ${path}`);
   }
 
-  // Register with JULIA on startup
-  const julia = new JuliaClient();
-  let juliaRegistered = false;
+  // Register with Julie on startup
+  const julie = new JulieClient();
+  let julieRegistered = false;
   let lastHeartbeat = Date.now();
 
   const identity = buildStationIdentity();
-  julia
+  julie
     .register(identity)
     .then((res) => {
-      juliaRegistered = res.success;
+      julieRegistered = res.success;
       lastHeartbeat = Date.now();
       console.log(
-        `[hive-mind] Registered with JULIA: ${res.success ? "OK" : "FAILED"} (dynamic=${res.dynamic})`,
+        `[hive-mind] Registered with Julie: ${res.success ? "OK" : "FAILED"} (dynamic=${res.dynamic})`,
       );
     })
     .catch((err) => {
-      console.warn(`[hive-mind] JULIA registration failed: ${err.message}`);
+      console.warn(`[hive-mind] Julie registration failed: ${err.message}`);
     });
 
   // Re-register every 5 minutes
   setInterval(
     () => {
       const identity = buildStationIdentity();
-      julia
+      julie
         .register(identity)
         .then((res) => {
-          juliaRegistered = res.success;
+          julieRegistered = res.success;
           lastHeartbeat = Date.now();
         })
         .catch(() => {});
@@ -235,15 +236,42 @@ server.listen(STATION_PORT, "127.0.0.1", () => {
     startTime,
     getScan: () => scanner.getLatestScan(),
     getDualNetwork: () => dualNet.getState(),
-    isJuliaRegistered: () => juliaRegistered,
-    getJuliaHeartbeatAge: () => Math.floor((Date.now() - lastHeartbeat) / 1000),
+    isJulieRegistered: () => julieRegistered,
+    getJulieHeartbeatAge: () => Math.floor((Date.now() - lastHeartbeat) / 1000),
   });
 
-  console.log("[hive-mind] Metrics context wired (scanner + dual-WAN + JULIA + alerts)");
+  console.log("[hive-mind] Metrics context wired (scanner + dual-WAN + Julie + alerts)");
+
+  // Initialize Discord integration (non-fatal)
+  const discordToken = process.env.DISCORD_BOT_TOKEN;
+  const discordGuild = process.env.DISCORD_GUILD_ID;
+  if (discordToken && discordGuild) {
+    initDiscord(
+      {
+        token: discordToken,
+        guildId: discordGuild,
+        categoryName: process.env.DISCORD_CATEGORY_NAME,
+        enabled: process.env.DISCORD_ENABLED !== "false",
+      },
+      {
+        alertManager,
+        getScan: () => scanner.getLatestScan(),
+        getDualNetwork: () => dualNet.getState(),
+        startTime,
+      },
+    )
+      .then(() => console.log("[hive-mind] Discord integration active"))
+      .catch((err) =>
+        console.warn(
+          `[hive-mind] Discord integration failed: ${err instanceof Error ? err.message : String(err)}`,
+        ),
+      );
+  }
 
   // Graceful shutdown
   function shutdown(signal: string) {
     console.log(`[hive-mind] ${signal} received, shutting down...`);
+    shutdownDiscord();
     scanner.stop();
     dualNet.stop();
     server.close(() => {
