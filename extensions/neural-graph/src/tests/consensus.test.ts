@@ -17,26 +17,26 @@ const mockProposal: EvolutionProposal = {
 
 describe("Neural Graph — consensus protocol", () => {
   it("creates a consensus request", () => {
-    const request = proposeConsensus(mockProposal, "iot-hub", ["julia", "scraper"]);
+    const request = proposeConsensus(mockProposal, "iot-hub", ["julie", "scraper"]);
     expect(request.proposalId).toBeDefined();
-    expect(request.affectedStationIds).toEqual(["julia", "scraper"]);
+    expect(request.affectedStationIds).toEqual(["julie", "scraper"]);
     expect(request.proposerStationId).toBe("iot-hub");
   });
 
   it("accepts votes", () => {
-    const request = proposeConsensus(mockProposal, "iot-hub", ["julia"]);
-    const ok = castVote(request.proposalId, "julia", "approve");
+    const request = proposeConsensus(mockProposal, "iot-hub", ["julie"]);
+    const ok = castVote(request.proposalId, "julie", "approve");
     expect(ok).toBe(true);
   });
 
   it("rejects votes for unknown proposals", () => {
-    const ok = castVote("nonexistent", "julia", "approve");
+    const ok = castVote("nonexistent", "julie", "approve");
     expect(ok).toBe(false);
   });
 
   it("resolves with majority approval", () => {
-    const request = proposeConsensus(mockProposal, "iot-hub", ["julia", "scraper"]);
-    castVote(request.proposalId, "julia", "approve");
+    const request = proposeConsensus(mockProposal, "iot-hub", ["julie", "scraper"]);
+    castVote(request.proposalId, "julie", "approve");
     castVote(request.proposalId, "scraper", "approve");
 
     const result = resolveConsensus(request.proposalId);
@@ -45,8 +45,8 @@ describe("Neural Graph — consensus protocol", () => {
   });
 
   it("resolves with majority rejection", () => {
-    const request = proposeConsensus(mockProposal, "iot-hub", ["julia", "scraper"]);
-    castVote(request.proposalId, "julia", "reject");
+    const request = proposeConsensus(mockProposal, "iot-hub", ["julie", "scraper"]);
+    castVote(request.proposalId, "julie", "reject");
     castVote(request.proposalId, "scraper", "reject");
 
     const result = resolveConsensus(request.proposalId);
@@ -55,8 +55,8 @@ describe("Neural Graph — consensus protocol", () => {
   });
 
   it("returns null if not all votes are in yet", () => {
-    const request = proposeConsensus(mockProposal, "iot-hub", ["julia", "scraper"]);
-    castVote(request.proposalId, "julia", "approve");
+    const request = proposeConsensus(mockProposal, "iot-hub", ["julie", "scraper"]);
+    castVote(request.proposalId, "julie", "approve");
     // scraper hasn't voted
 
     const result = resolveConsensus(request.proposalId);
@@ -65,7 +65,7 @@ describe("Neural Graph — consensus protocol", () => {
 
   it("tracks pending consensus requests", () => {
     const before = getPendingConsensus().length;
-    proposeConsensus(mockProposal, "iot-hub", ["julia"]);
+    proposeConsensus(mockProposal, "iot-hub", ["julie"]);
     expect(getPendingConsensus().length).toBe(before + 1);
   });
 });

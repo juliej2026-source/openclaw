@@ -5,7 +5,7 @@
 // Node types in the neural graph
 export type NodeType =
   | "capability" // AI extension wrapper (meta-engine, model-manager, etc.)
-  | "station" // Physical/logical station (iot-hub, julia, etc.)
+  | "station" // Physical/logical station (iot-hub, julie, etc.)
   | "model" // Specific AI model instance
   | "synthetic"; // Dynamically created by evolution
 
@@ -174,7 +174,7 @@ export const CORE_NODE_IDS = [
   "model-trainer",
   "memory-lancedb",
   "iot-hub",
-  "julia",
+  "julie",
 ] as const;
 
 export const FITNESS_WEIGHTS = {

@@ -17,7 +17,7 @@ describe("Neural Graph — types & constants", () => {
     expect(CORE_NODE_IDS).toContain("model-trainer");
     expect(CORE_NODE_IDS).toContain("memory-lancedb");
     expect(CORE_NODE_IDS).toContain("iot-hub");
-    expect(CORE_NODE_IDS).toContain("julia");
+    expect(CORE_NODE_IDS).toContain("julie");
   });
 
   it("fitness weights sum to 100", () => {

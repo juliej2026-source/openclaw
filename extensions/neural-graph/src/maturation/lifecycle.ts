@@ -66,9 +66,9 @@ const GENESIS_NODES: GenesisNode[] = [
     capabilities: ["iot", "smart_home", "sensors", "network_monitoring", "linux"],
   },
   {
-    nodeId: "julia",
+    nodeId: "julie",
     nodeType: "station",
-    name: "JULIA Orchestrator",
+    name: "Julie Orchestrator",
     description: "Central hive mind orchestrator — coordinates station network",
     capabilities: ["orchestration", "station_management"],
   },
@@ -89,8 +89,8 @@ const GENESIS_EDGES: GenesisEdge[] = [
   { sourceNodeId: "iot-hub", targetNodeId: "model-manager", edgeType: "activation" },
   { sourceNodeId: "iot-hub", targetNodeId: "model-trainer", edgeType: "activation" },
   { sourceNodeId: "iot-hub", targetNodeId: "memory-lancedb", edgeType: "activation" },
-  { sourceNodeId: "julia", targetNodeId: "iot-hub", edgeType: "activation" },
-  { sourceNodeId: "julia", targetNodeId: "meta-engine", edgeType: "data_flow" },
+  { sourceNodeId: "julie", targetNodeId: "iot-hub", edgeType: "activation" },
+  { sourceNodeId: "julie", targetNodeId: "meta-engine", edgeType: "data_flow" },
 ];
 
 export async function seedGenesis(stationId: string): Promise<{

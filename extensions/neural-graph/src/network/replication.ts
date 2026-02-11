@@ -6,7 +6,7 @@ import { getConvexClient, isConvexHealthy } from "../persistence/convex-client.j
 // Network replication — 3 modes based on connectivity
 // ---------------------------------------------------------------------------
 
-export type ReplicationMode = "convex-realtime" | "julia-relay" | "offline";
+export type ReplicationMode = "convex-realtime" | "julie-relay" | "offline";
 
 export type GraphDelta = {
   nodesAdded: GraphNode[];
@@ -25,15 +25,15 @@ export async function detectReplicationMode(): Promise<ReplicationMode> {
   const convexOk = await isConvexHealthy();
   if (convexOk) return "convex-realtime";
 
-  // Check if JULIA is reachable
-  const juliaUrl = process.env.JULIA_BASE_URL ?? "http://10.1.7.87:8000";
+  // Check if Julie is reachable
+  const julieUrl = process.env.JULIE_BASE_URL ?? "http://10.1.7.87:8000";
   try {
-    const resp = await fetch(`${juliaUrl}/health`, {
+    const resp = await fetch(`${julieUrl}/health`, {
       signal: AbortSignal.timeout(3000),
     });
-    if (resp.ok) return "julia-relay";
+    if (resp.ok) return "julie-relay";
   } catch {
-    // JULIA not reachable
+    // Julie not reachable
   }
 
   return "offline";
@@ -54,25 +54,25 @@ export async function replicateViaConvex(
 }
 
 // ---------------------------------------------------------------------------
-// JULIA-relay: batch graph deltas through JULIA's API
+// Julie-relay: batch graph deltas through Julie's API
 // ---------------------------------------------------------------------------
 
-export async function replicateViaJulia(
+export async function replicateViaJulie(
   delta: GraphDelta,
-): Promise<{ success: boolean; mode: "julia-relay" }> {
-  const juliaUrl = process.env.JULIA_BASE_URL ?? "http://10.1.7.87:8000";
+): Promise<{ success: boolean; mode: "julie-relay" }> {
+  const julieUrl = process.env.JULIE_BASE_URL ?? "http://10.1.7.87:8000";
 
   try {
-    const resp = await fetch(`${juliaUrl}/api/neural/sync`, {
+    const resp = await fetch(`${julieUrl}/api/neural/sync`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(delta),
       signal: AbortSignal.timeout(10_000),
     });
 
-    return { success: resp.ok, mode: "julia-relay" };
+    return { success: resp.ok, mode: "julie-relay" };
   } catch {
-    return { success: false, mode: "julia-relay" };
+    return { success: false, mode: "julie-relay" };
   }
 }
 
@@ -106,8 +106,8 @@ export async function replicateDelta(
   switch (mode) {
     case "convex-realtime":
       return replicateViaConvex(delta);
-    case "julia-relay":
-      return replicateViaJulia(delta);
+    case "julie-relay":
+      return replicateViaJulie(delta);
     case "offline":
       queueForOfflineSync(delta);
       return { success: true, mode: "offline" };

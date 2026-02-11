@@ -41,7 +41,7 @@ function makeEdge(src: string, tgt: string, stationId = "iot-hub"): GraphEdge {
 
 describe("Neural Graph — subgraph extraction", () => {
   it("extracts nodes belonging to a station", () => {
-    const allNodes = [makeNode("a", "iot-hub"), makeNode("b", "iot-hub"), makeNode("c", "julia")];
+    const allNodes = [makeNode("a", "iot-hub"), makeNode("b", "iot-hub"), makeNode("c", "julie")];
     const allEdges = [makeEdge("a", "b", "iot-hub"), makeEdge("b", "c", "iot-hub")];
 
     const sub = extractSubgraph(allNodes, allEdges, "iot-hub");
@@ -53,7 +53,7 @@ describe("Neural Graph — subgraph extraction", () => {
   });
 
   it("includes connected nodes from other stations", () => {
-    const allNodes = [makeNode("local", "iot-hub"), makeNode("remote", "julia")];
+    const allNodes = [makeNode("local", "iot-hub"), makeNode("remote", "julie")];
     const allEdges = [makeEdge("local", "remote")];
 
     const sub = extractSubgraph(allNodes, allEdges, "iot-hub");
@@ -61,9 +61,9 @@ describe("Neural Graph — subgraph extraction", () => {
   });
 
   it("excludes unrelated nodes and edges", () => {
-    const allNodes = [makeNode("a", "iot-hub"), makeNode("x", "julia"), makeNode("y", "julia")];
+    const allNodes = [makeNode("a", "iot-hub"), makeNode("x", "julie"), makeNode("y", "julie")];
     const allEdges = [
-      makeEdge("x", "y", "julia"), // No connection to iot-hub
+      makeEdge("x", "y", "julie"), // No connection to iot-hub
     ];
 
     const sub = extractSubgraph(allNodes, allEdges, "iot-hub");
@@ -82,9 +82,9 @@ describe("Neural Graph — subgraph merge", () => {
     };
 
     const remote = {
-      nodes: [makeNode("b", "julia")],
+      nodes: [makeNode("b", "julie")],
       edges: [makeEdge("a", "b")],
-      stationId: "julia",
+      stationId: "julie",
       extractedAt: new Date().toISOString(),
     };
 
@@ -105,7 +105,7 @@ describe("Neural Graph — subgraph merge", () => {
     const remote = {
       nodes: [{ ...makeNode("a", "iot-hub"), fitnessScore: 30 }],
       edges: [],
-      stationId: "julia",
+      stationId: "julie",
       extractedAt: new Date().toISOString(),
     };
 
