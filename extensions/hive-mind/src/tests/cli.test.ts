@@ -17,8 +17,8 @@ vi.mock("../station-identity.js", () => ({
   }),
 }));
 
-vi.mock("../julia-client.js", () => ({
-  JuliaClient: vi.fn().mockImplementation(function () {
+vi.mock("../julie-client.js", () => ({
+  JulieClient: vi.fn().mockImplementation(function () {
     return {
       isAvailable: vi.fn().mockResolvedValue(false),
       register: vi.fn().mockResolvedValue({ success: true, agent_id: "iot-hub" }),

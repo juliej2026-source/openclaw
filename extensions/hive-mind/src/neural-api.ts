@@ -58,9 +58,9 @@ const GENESIS_NODES = [
     activationCount: 0,
   },
   {
-    nodeId: "julia",
+    nodeId: "julie",
     nodeType: "station",
-    name: "JULIA",
+    name: "Julie",
     status: "active",
     fitnessScore: 55,
     maturationPhase: "genesis",
@@ -143,8 +143,8 @@ const GENESIS_EDGES = [
     activationCount: 0,
   },
   {
-    edgeId: "julia->iot-hub",
-    sourceNodeId: "julia",
+    edgeId: "julie->iot-hub",
+    sourceNodeId: "julie",
     targetNodeId: "iot-hub",
     edgeType: "activation",
     weight: 0.5,
@@ -152,8 +152,8 @@ const GENESIS_EDGES = [
     activationCount: 0,
   },
   {
-    edgeId: "julia->meta-engine",
-    sourceNodeId: "julia",
+    edgeId: "julie->meta-engine",
+    sourceNodeId: "julie",
     targetNodeId: "meta-engine",
     edgeType: "data_flow",
     weight: 0.5,

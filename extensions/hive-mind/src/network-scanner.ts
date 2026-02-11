@@ -1,4 +1,5 @@
 import type { UnifiHealthSubsystem } from "./unifi-types.js";
+import { STATION_IP } from "./types.js";
 import { KNOWN_STATIONS } from "./unifi-types.js";
 
 // ---------------------------------------------------------------------------
@@ -58,9 +59,11 @@ export type StationPingResult = {
 
 export async function pingStation(ip: string, port: number): Promise<StationPingResult> {
   const label = KNOWN_STATIONS[ip];
+  // When pinging ourselves, use loopback (server binds to 127.0.0.1)
+  const target = ip === STATION_IP ? "127.0.0.1" : ip;
   const start = Date.now();
   try {
-    await fetch(`http://${ip}:${port}/health`, {
+    await fetch(`http://${target}:${port}/health`, {
       signal: AbortSignal.timeout(3_000),
     });
     return {

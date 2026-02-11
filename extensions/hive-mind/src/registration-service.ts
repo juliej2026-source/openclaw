@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { JuliaClient } from "./julia-client.js";
+import type { JulieClient } from "./julie-client.js";
 import { buildStationIdentity } from "./station-identity.js";
 import { REGISTRATION_INTERVAL_MS } from "./types.js";
 
@@ -31,7 +31,7 @@ function loadState(stateDir: string): Record<string, unknown> {
   }
 }
 
-export function createRegistrationService(juliaClient: JuliaClient) {
+export function createRegistrationService(julieClient: JulieClient) {
   let intervalId: ReturnType<typeof setInterval> | undefined;
 
   return {
@@ -41,11 +41,11 @@ export function createRegistrationService(juliaClient: JuliaClient) {
       const doRegister = async () => {
         try {
           const identity = buildStationIdentity();
-          await juliaClient.register(identity);
+          await julieClient.register(identity);
           saveState(ctx.stateDir, {
             last_registered: new Date().toISOString(),
           });
-          ctx.logger.info("Hive-Mind: registered with JULIA");
+          ctx.logger.info("Hive-Mind: registered with Julie");
         } catch (err) {
           ctx.logger.warn?.(
             `Hive-Mind: registration failed: ${err instanceof Error ? err.message : String(err)}`,

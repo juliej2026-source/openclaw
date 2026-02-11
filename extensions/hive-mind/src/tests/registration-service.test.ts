@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import type { JuliaClient } from "../julia-client.js";
+import type { JulieClient } from "../julie-client.js";
 import { createRegistrationService } from "../registration-service.js";
 
 vi.mock("../station-identity.js", () => ({
@@ -36,13 +36,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function mockJuliaClient(overrides: Partial<JuliaClient> = {}): JuliaClient {
+function mockJulieClient(overrides: Partial<JulieClient> = {}): JulieClient {
   return {
     register: vi.fn().mockResolvedValue({ success: true, agent_id: "iot-hub" }),
     reportExecution: vi.fn().mockResolvedValue({ received: true }),
     isAvailable: vi.fn().mockResolvedValue(true),
     ...overrides,
-  } as unknown as JuliaClient;
+  } as unknown as JulieClient;
 }
 
 function mockServiceCtx() {
@@ -60,12 +60,12 @@ function mockServiceCtx() {
 
 describe("createRegistrationService", () => {
   it("returns a service with correct id", () => {
-    const service = createRegistrationService(mockJuliaClient());
+    const service = createRegistrationService(mockJulieClient());
     expect(service.id).toBe("hive-mind-registration");
   });
 
   it("registers immediately on start", async () => {
-    const client = mockJuliaClient();
+    const client = mockJulieClient();
     const service = createRegistrationService(client);
     const ctx = mockServiceCtx();
 
@@ -76,7 +76,7 @@ describe("createRegistrationService", () => {
   });
 
   it("registers again after 5 minutes", async () => {
-    const client = mockJuliaClient();
+    const client = mockJulieClient();
     const service = createRegistrationService(client);
     const ctx = mockServiceCtx();
 
@@ -90,7 +90,7 @@ describe("createRegistrationService", () => {
   });
 
   it("stops interval on stop()", async () => {
-    const client = mockJuliaClient();
+    const client = mockJulieClient();
     const service = createRegistrationService(client);
     const ctx = mockServiceCtx();
 
@@ -103,9 +103,9 @@ describe("createRegistrationService", () => {
   });
 
   it("silently handles registration failure", async () => {
-    const client = mockJuliaClient({
+    const client = mockJulieClient({
       register: vi.fn().mockRejectedValue(new Error("ECONNREFUSED")),
-    } as unknown as Partial<JuliaClient>);
+    } as unknown as Partial<JulieClient>);
     const service = createRegistrationService(client);
     const ctx = mockServiceCtx();
 
@@ -117,7 +117,7 @@ describe("createRegistrationService", () => {
   });
 
   it("saves last_registered timestamp to state file", async () => {
-    const client = mockJuliaClient();
+    const client = mockJulieClient();
     const service = createRegistrationService(client);
     const ctx = mockServiceCtx();
 
@@ -133,7 +133,7 @@ describe("createRegistrationService", () => {
   });
 
   it("logs successful registration", async () => {
-    const client = mockJuliaClient();
+    const client = mockJulieClient();
     const service = createRegistrationService(client);
     const ctx = mockServiceCtx();
 

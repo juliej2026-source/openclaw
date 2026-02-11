@@ -94,7 +94,7 @@ function testSnapshot(): UnifiSnapshot {
     ],
     stations: [
       { ip: "10.1.7.180", label: "SCRAPER", connected: true, mac: "11:22:33:44:55:66" },
-      { ip: "10.1.7.87", label: "JULIA", connected: false },
+      { ip: "10.1.7.87", label: "Julie", connected: false },
     ],
     health: [
       { subsystem: "wan", status: "ok" },

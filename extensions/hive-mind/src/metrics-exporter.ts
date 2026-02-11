@@ -23,8 +23,8 @@ export type MetricsContext = {
   getPerformanceSummary?: () => PerformanceSummaryEntry[];
   getPerformanceTotal?: () => number;
   modelCounts?: { installed: number; running: number };
-  isJuliaRegistered?: () => boolean;
-  getJuliaHeartbeatAge?: () => number;
+  isJulieRegistered?: () => boolean;
+  getJulieHeartbeatAge?: () => number;
   startTime: number;
 };
 
@@ -234,22 +234,22 @@ export function generateMetrics(ctx?: MetricsContext): string {
     lines.push("");
   }
 
-  // -- JULIA registration
-  if (c.isJuliaRegistered) {
+  // -- Julie registration
+  if (c.isJulieRegistered) {
     lines.push(
-      "# HELP hivemind_julia_registered Whether IOT-HUB is registered with JULIA (1=yes, 0=no)",
+      "# HELP hivemind_julie_registered Whether IOT-HUB is registered with Julie (1=yes, 0=no)",
     );
-    lines.push("# TYPE hivemind_julia_registered gauge");
-    lines.push(`hivemind_julia_registered ${c.isJuliaRegistered() ? 1 : 0}`);
+    lines.push("# TYPE hivemind_julie_registered gauge");
+    lines.push(`hivemind_julie_registered ${c.isJulieRegistered() ? 1 : 0}`);
     lines.push("");
   }
 
-  if (c.getJuliaHeartbeatAge) {
+  if (c.getJulieHeartbeatAge) {
     lines.push(
-      "# HELP hivemind_julia_last_heartbeat_age_seconds Seconds since last JULIA heartbeat",
+      "# HELP hivemind_julie_last_heartbeat_age_seconds Seconds since last Julie heartbeat",
     );
-    lines.push("# TYPE hivemind_julia_last_heartbeat_age_seconds gauge");
-    lines.push(`hivemind_julia_last_heartbeat_age_seconds ${c.getJuliaHeartbeatAge()}`);
+    lines.push("# TYPE hivemind_julie_last_heartbeat_age_seconds gauge");
+    lines.push(`hivemind_julie_last_heartbeat_age_seconds ${c.getJulieHeartbeatAge()}`);
     lines.push("");
   }
 

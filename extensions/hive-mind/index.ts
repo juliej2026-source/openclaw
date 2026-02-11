@@ -5,7 +5,7 @@ import { registerHiveCli } from "./src/cli/hive-cli.js";
 import { setAlertManagerInstance, setExecutionTracker } from "./src/command-dispatch.js";
 import { ExecutionLog } from "./src/execution-log.js";
 import { createExecutionReporter, recordCommandExecution } from "./src/execution-reporter.js";
-import { JuliaClient } from "./src/julia-client.js";
+import { JulieClient } from "./src/julie-client.js";
 import { setMetricsContext } from "./src/metrics-exporter.js";
 import {
   handlePing,
@@ -21,17 +21,17 @@ const hiveMindPlugin = {
   id: "hive-mind",
   name: "Hive Mind",
   description:
-    "Network integration for JULIA orchestrator hive mind: station API, " +
+    "Network integration for Julie orchestrator hive mind: station API, " +
     "self-registration, and execution reporting.",
   configSchema: emptyPluginConfigSchema(),
 
   register(api: OpenClawPluginApi) {
-    const juliaClient = new JuliaClient();
+    const julieClient = new JulieClient();
     const executionLog = new ExecutionLog();
     const alertManager = new AlertManager({
       onAlert: (alert) => {
-        // Best-effort push to JULIA
-        juliaClient
+        // Best-effort push to Julie
+        julieClient
           .reportExecution({
             station_id: "iot-hub",
             task_type: "tool-use",
@@ -79,15 +79,15 @@ const hiveMindPlugin = {
         success,
         latencyMs,
         executionLog,
-        juliaClient,
+        julieClient,
       }).catch(() => {});
     });
 
     // Background registration service (5-min heartbeat)
-    api.registerService(createRegistrationService(juliaClient));
+    api.registerService(createRegistrationService(julieClient));
 
     // Execution reporting hook
-    api.on("agent_end", createExecutionReporter(juliaClient, executionLog));
+    api.on("agent_end", createExecutionReporter(julieClient, executionLog));
 
     // CLI commands
     api.registerCli(

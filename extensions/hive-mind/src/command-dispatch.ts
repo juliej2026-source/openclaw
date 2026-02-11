@@ -106,6 +106,12 @@ async function getNeuralQuery() {
   return handleNeuralQuery;
 }
 
+async function getHuggingFaceManager() {
+  const { HuggingFaceManager, loadHfToken } = await import("./huggingface-manager.js");
+  const token = loadHfToken();
+  return new HuggingFaceManager({ token });
+}
+
 let networkScannerInstance: {
   getLatestScan: () => import("./network-scanner.js").NetworkScanResult | null;
 } | null = null;
@@ -607,6 +613,83 @@ const HANDLERS: Record<string, CommandHandler> = {
       complexity: params.complexity as string | undefined,
       stationId: STATION_ID,
     });
+  },
+
+  // -- HuggingFace management -----------------------------------------------
+
+  "hf:spaces": async (params) => {
+    const mgr = await getHuggingFaceManager();
+    const limit = typeof params.limit === "number" ? params.limit : 20;
+    const author = typeof params.author === "string" ? params.author : undefined;
+    const spaces = await mgr.listSpaces({ limit, author });
+    return { count: spaces.length, spaces };
+  },
+
+  "hf:spaces:info": async (params) => {
+    const id = params.id ?? params.space_id;
+    if (!id || typeof id !== "string") throw new Error("Missing required parameter: id");
+    const mgr = await getHuggingFaceManager();
+    return mgr.getSpaceInfo(id);
+  },
+
+  "hf:datasets": async (params) => {
+    const mgr = await getHuggingFaceManager();
+    const limit = typeof params.limit === "number" ? params.limit : 20;
+    const author = typeof params.author === "string" ? params.author : undefined;
+    const datasets = await mgr.listDatasets({ limit, author });
+    return { count: datasets.length, datasets };
+  },
+
+  "hf:datasets:info": async (params) => {
+    const id = params.id ?? params.dataset_id;
+    if (!id || typeof id !== "string") throw new Error("Missing required parameter: id");
+    const mgr = await getHuggingFaceManager();
+    return mgr.getDatasetInfo(id);
+  },
+
+  "hf:models": async (params) => {
+    const mgr = await getHuggingFaceManager();
+    const limit = typeof params.limit === "number" ? params.limit : 20;
+    const author = typeof params.author === "string" ? params.author : undefined;
+    const models = await mgr.listModels({ limit, author });
+    return { count: models.length, models };
+  },
+
+  "hf:models:info": async (params) => {
+    const id = params.id ?? params.model_id;
+    if (!id || typeof id !== "string") throw new Error("Missing required parameter: id");
+    const mgr = await getHuggingFaceManager();
+    return mgr.getModelInfo(id);
+  },
+
+  "hf:jobs": async () => {
+    const mgr = await getHuggingFaceManager();
+    const jobs = await mgr.listJobs();
+    return { count: jobs.length, jobs };
+  },
+
+  "hf:jobs:info": async (params) => {
+    const id = params.id ?? params.job_id;
+    if (!id || typeof id !== "string") throw new Error("Missing required parameter: id");
+    const mgr = await getHuggingFaceManager();
+    return mgr.getJobInfo(id);
+  },
+
+  "hf:status": async () => {
+    const mgr = await getHuggingFaceManager();
+    const [spaces, datasets, models, jobs] = await Promise.all([
+      mgr.listSpaces({ limit: 100 }).catch(() => []),
+      mgr.listDatasets({ limit: 100 }).catch(() => []),
+      mgr.listModels({ limit: 100 }).catch(() => []),
+      mgr.listJobs().catch(() => []),
+    ]);
+    return {
+      spaces_count: spaces.length,
+      datasets_count: datasets.length,
+      models_count: models.length,
+      jobs_count: jobs.length,
+      active_jobs: (jobs as Array<{ status: string }>).filter((j) => j.status === "running").length,
+    };
   },
 };
 

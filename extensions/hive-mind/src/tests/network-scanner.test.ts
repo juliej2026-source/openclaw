@@ -147,7 +147,7 @@ describe("scanStations", () => {
   it("scans all known stations and returns results", async () => {
     // 5 known stations — mock all fetch calls
     mockFetch
-      .mockResolvedValueOnce(new Response("ok", { status: 200 })) // JULIA
+      .mockResolvedValueOnce(new Response("ok", { status: 200 })) // Julie
       .mockResolvedValueOnce(new Response("ok", { status: 200 })) // SCRAPER
       .mockRejectedValueOnce(new Error("timeout")) // CLERK
       .mockResolvedValueOnce(new Response("ok", { status: 200 })) // IOT-HUB
@@ -156,9 +156,9 @@ describe("scanStations", () => {
     const results = await scanStations(3001);
 
     expect(results).toHaveLength(5);
-    const julia = results.find((r) => r.label === "JULIA");
-    expect(julia).toBeDefined();
-    expect(julia!.reachable).toBe(true);
+    const julie = results.find((r) => r.label === "Julie");
+    expect(julie).toBeDefined();
+    expect(julie!.reachable).toBe(true);
 
     const clerk = results.find((r) => r.label === "CLERK");
     expect(clerk).toBeDefined();

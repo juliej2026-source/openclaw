@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { StationIdentity, ExecutionRecord } from "../types.js";
-import { JuliaClient } from "../julia-client.js";
+import { JulieClient } from "../julie-client.js";
 
 const mockFetch = vi.fn();
 const originalFetch = globalThis.fetch;
@@ -48,9 +48,9 @@ const mockExecution: ExecutionRecord = {
   timestamp: new Date().toISOString(),
 };
 
-describe("JuliaClient", () => {
+describe("JulieClient", () => {
   it("uses default base URL when none provided", () => {
-    const client = new JuliaClient();
+    const client = new JulieClient();
     // Verify by making a call
     mockFetch.mockResolvedValueOnce(okJson({ success: true, agent_id: "iot-hub" }));
     client.register(mockIdentity);
@@ -58,7 +58,7 @@ describe("JuliaClient", () => {
   });
 
   it("uses custom base URL when provided", () => {
-    const client = new JuliaClient({ baseUrl: "http://custom:9000" });
+    const client = new JulieClient({ baseUrl: "http://custom:9000" });
     mockFetch.mockResolvedValueOnce(okJson({ success: true, agent_id: "iot-hub" }));
     client.register(mockIdentity);
     expect(mockFetch.mock.calls[0]?.[0]).toContain("custom:9000");
@@ -69,7 +69,7 @@ describe("JuliaClient", () => {
       mockFetch.mockResolvedValueOnce(
         okJson({ success: true, agent_id: "iot-hub", dynamic: true }),
       );
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       const result = await client.register(mockIdentity);
 
@@ -82,7 +82,7 @@ describe("JuliaClient", () => {
 
     it("includes identity data in request body", async () => {
       mockFetch.mockResolvedValueOnce(okJson({ success: true, agent_id: "iot-hub" }));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       await client.register(mockIdentity);
 
@@ -94,14 +94,14 @@ describe("JuliaClient", () => {
 
     it("throws on non-ok response", async () => {
       mockFetch.mockResolvedValueOnce(errorResponse(500, "Internal Server Error"));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       await expect(client.register(mockIdentity)).rejects.toThrow(/registration failed: 500/);
     });
 
     it("throws on network error", async () => {
       mockFetch.mockRejectedValueOnce(new Error("ECONNREFUSED"));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       await expect(client.register(mockIdentity)).rejects.toThrow(/ECONNREFUSED/);
     });
@@ -110,7 +110,7 @@ describe("JuliaClient", () => {
   describe("reportExecution", () => {
     it("sends POST to hive/record endpoint", async () => {
       mockFetch.mockResolvedValueOnce(okJson({ received: true }));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       const result = await client.reportExecution(mockExecution);
 
@@ -123,7 +123,7 @@ describe("JuliaClient", () => {
 
     it("includes execution record in request body", async () => {
       mockFetch.mockResolvedValueOnce(okJson({ received: true }));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       await client.reportExecution(mockExecution);
 
@@ -135,16 +135,16 @@ describe("JuliaClient", () => {
 
     it("throws on non-ok response", async () => {
       mockFetch.mockResolvedValueOnce(errorResponse(503, "Service Unavailable"));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       await expect(client.reportExecution(mockExecution)).rejects.toThrow(/report failed: 503/);
     });
   });
 
   describe("isAvailable", () => {
-    it("returns true when JULIA responds ok", async () => {
+    it("returns true when Julie responds ok", async () => {
       mockFetch.mockResolvedValueOnce(okJson({ status: "ok" }));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       expect(await client.isAvailable()).toBe(true);
       expect(mockFetch.mock.calls[0]?.[0]).toBe("http://mock:8000/api/v1/health");
@@ -152,14 +152,14 @@ describe("JuliaClient", () => {
 
     it("returns false on network error", async () => {
       mockFetch.mockRejectedValueOnce(new Error("ECONNREFUSED"));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       expect(await client.isAvailable()).toBe(false);
     });
 
     it("returns false on non-ok response", async () => {
       mockFetch.mockResolvedValueOnce(errorResponse(502, "Bad Gateway"));
-      const client = new JuliaClient({ baseUrl: "http://mock:8000" });
+      const client = new JulieClient({ baseUrl: "http://mock:8000" });
 
       expect(await client.isAvailable()).toBe(false);
     });

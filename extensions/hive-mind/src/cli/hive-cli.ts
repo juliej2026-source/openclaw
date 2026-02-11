@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { ExecutionLog } from "../execution-log.js";
-import { JuliaClient } from "../julia-client.js";
+import { JulieClient } from "../julie-client.js";
 import { buildStationIdentity } from "../station-identity.js";
 
 export function registerHiveCli(program: Command): void {
@@ -13,8 +13,8 @@ export function registerHiveCli(program: Command): void {
     .description("Show station identity and hive mind status")
     .action(async () => {
       const identity = buildStationIdentity();
-      const client = new JuliaClient();
-      const juliaUp = await client.isAvailable();
+      const client = new JulieClient();
+      const julieUp = await client.isAvailable();
 
       console.log(`Station: ${identity.station_id}`);
       console.log(`Host:    ${identity.hostname}`);
@@ -32,7 +32,7 @@ export function registerHiveCli(program: Command): void {
         );
       }
       console.log();
-      console.log(`JULIA (10.1.7.87): ${juliaUp ? "reachable" : "unreachable"}`);
+      console.log(`Julie (10.1.7.87): ${julieUp ? "reachable" : "unreachable"}`);
     });
 
   cmd
@@ -51,19 +51,19 @@ export function registerHiveCli(program: Command): void {
       console.log(`Showing ${entries.length} of ${log.totalEntries} entries:\n`);
       for (const entry of entries) {
         const status = entry.success ? "OK" : "FAIL";
-        const julia = entry.reported_to_julia ? "reported" : "local-only";
+        const julie = entry.reported_to_julie ? "reported" : "local-only";
         console.log(
-          `  ${entry.timestamp}  ${status}  ${entry.task_type}  ${entry.latency_ms}ms  [${julia}]`,
+          `  ${entry.timestamp}  ${status}  ${entry.task_type}  ${entry.latency_ms}ms  [${julie}]`,
         );
       }
     });
 
   cmd
     .command("register")
-    .description("Force immediate re-registration with JULIA")
+    .description("Force immediate re-registration with Julie")
     .action(async () => {
       const identity = buildStationIdentity();
-      const client = new JuliaClient();
+      const client = new JulieClient();
 
       try {
         const result = await client.register(identity);

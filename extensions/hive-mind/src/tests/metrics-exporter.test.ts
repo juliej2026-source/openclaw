@@ -118,7 +118,7 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "JULIA", reachable: true, latencyMs: 1.2 },
+            { ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1.2 },
             { ip: "10.1.7.188", label: "SCRAPER", reachable: false },
           ],
           health: [],
@@ -126,9 +126,9 @@ describe("generateMetrics", () => {
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="JULIA",ip="10.1.7.87"} 1');
+      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.7.87"} 1');
       expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.7.188"} 0');
-      expect(output).toContain('hivemind_station_latency_ms{station="JULIA",ip="10.1.7.87"} 1.2');
+      expect(output).toContain('hivemind_station_latency_ms{station="Julie",ip="10.1.7.87"} 1.2');
       // SCRAPER has no latency (unreachable), should not appear in latency metrics
       expect(output).not.toContain('hivemind_station_latency_ms{station="SCRAPER"');
     });
@@ -139,7 +139,7 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "JULIA", reachable: true, latencyMs: 1.0 },
+            { ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1.0 },
             { ip: "10.1.7.188", label: "SCRAPER", reachable: true, latencyMs: 2.0 },
             { ip: "10.1.7.130", label: "CLERK", reachable: true, latencyMs: 0.5 },
           ],
@@ -148,10 +148,10 @@ describe("generateMetrics", () => {
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="JULIA",ip="10.1.7.87"} 1');
+      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.7.87"} 1');
       expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.7.188"} 1');
       expect(output).toContain('hivemind_station_reachable{station="CLERK",ip="10.1.7.130"} 1');
-      expect(output).toContain('hivemind_station_latency_ms{station="JULIA",ip="10.1.7.87"} 1');
+      expect(output).toContain('hivemind_station_latency_ms{station="Julie",ip="10.1.7.87"} 1');
       expect(output).toContain('hivemind_station_latency_ms{station="SCRAPER",ip="10.1.7.188"} 2');
       expect(output).toContain('hivemind_station_latency_ms{station="CLERK",ip="10.1.7.130"} 0.5');
     });
@@ -162,7 +162,7 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "JULIA", reachable: false },
+            { ip: "10.1.7.87", label: "Julie", reachable: false },
             { ip: "10.1.7.188", label: "SCRAPER", reachable: false },
           ],
           health: [],
@@ -170,7 +170,7 @@ describe("generateMetrics", () => {
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="JULIA",ip="10.1.7.87"} 0');
+      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.7.87"} 0');
       expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.7.188"} 0');
       // No latency data lines when all unreachable (HELP/TYPE headers may still be present)
       expect(output).not.toMatch(/hivemind_station_latency_ms\{/);
@@ -218,7 +218,7 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: "JULIA", reachable: true, latencyMs: 1 }],
+          stations: [{ ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1 }],
           health: [],
         }),
       });
@@ -364,9 +364,9 @@ describe("generateMetrics", () => {
   describe("alert metrics", () => {
     it("includes alert active count and breakdown by type", () => {
       const mgr = new AlertManager({ openclawDir: tmpDir });
-      mgr.emit("station_offline", "JULIA down", { target: "10.1.7.87" });
+      mgr.emit("station_offline", "Julie down", { target: "10.1.7.87" });
       mgr.emit("station_offline", "SCRAPER down", { target: "10.1.7.188" });
-      mgr.emit("station_online", "JULIA back", { target: "10.1.7.87" });
+      mgr.emit("station_online", "Julie back", { target: "10.1.7.87" });
 
       const ctx = makeContext({ alertManager: mgr });
       const output = generateMetrics(ctx);
@@ -378,7 +378,7 @@ describe("generateMetrics", () => {
 
     it("reports 0 active alerts when all acknowledged", () => {
       const mgr = new AlertManager({ openclawDir: tmpDir });
-      const a1 = mgr.emit("station_offline", "JULIA down");
+      const a1 = mgr.emit("station_offline", "Julie down");
       mgr.acknowledge(a1.id);
 
       const ctx = makeContext({ alertManager: mgr });
@@ -527,7 +527,7 @@ describe("generateMetrics", () => {
         task_type: "coding",
         success: true,
         latency_ms: 100,
-        reported_to_julia: false,
+        reported_to_julie: false,
       });
       log.record({
         id: "e2",
@@ -535,7 +535,7 @@ describe("generateMetrics", () => {
         task_type: "chat",
         success: false,
         latency_ms: 200,
-        reported_to_julia: false,
+        reported_to_julie: false,
       });
 
       const ctx = makeContext({ executionLog: log });
@@ -554,7 +554,7 @@ describe("generateMetrics", () => {
           task_type: "coding",
           success: true,
           latency_ms: 100,
-          reported_to_julia: false,
+          reported_to_julie: false,
         });
       }
 
@@ -573,7 +573,7 @@ describe("generateMetrics", () => {
           task_type: "coding",
           success: false,
           latency_ms: 100,
-          reported_to_julia: false,
+          reported_to_julie: false,
         });
       }
 
@@ -621,58 +621,58 @@ describe("generateMetrics", () => {
 
   // -- JULIA registration ---------------------------------------------------
 
-  describe("JULIA registration metrics", () => {
+  describe("Julie registration metrics", () => {
     it("reports registered state", () => {
       const ctx = makeContext({
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 120,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 120,
       });
       const output = generateMetrics(ctx);
-      expect(output).toContain("hivemind_julia_registered 1");
-      expect(output).toContain("hivemind_julia_last_heartbeat_age_seconds 120");
+      expect(output).toContain("hivemind_julie_registered 1");
+      expect(output).toContain("hivemind_julie_last_heartbeat_age_seconds 120");
     });
 
     it("reports unregistered state", () => {
       const ctx = makeContext({
-        isJuliaRegistered: () => false,
-        getJuliaHeartbeatAge: () => 600,
+        isJulieRegistered: () => false,
+        getJulieHeartbeatAge: () => 600,
       });
       const output = generateMetrics(ctx);
-      expect(output).toContain("hivemind_julia_registered 0");
-      expect(output).toContain("hivemind_julia_last_heartbeat_age_seconds 600");
+      expect(output).toContain("hivemind_julie_registered 0");
+      expect(output).toContain("hivemind_julie_last_heartbeat_age_seconds 600");
     });
 
     it("handles zero heartbeat age (just received)", () => {
       const ctx = makeContext({
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 0,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 0,
       });
       const output = generateMetrics(ctx);
-      expect(output).toContain("hivemind_julia_last_heartbeat_age_seconds 0");
+      expect(output).toContain("hivemind_julie_last_heartbeat_age_seconds 0");
     });
 
     it("handles very large heartbeat age", () => {
       const ctx = makeContext({
-        isJuliaRegistered: () => false,
-        getJuliaHeartbeatAge: () => 86400,
+        isJulieRegistered: () => false,
+        getJulieHeartbeatAge: () => 86400,
       });
       const output = generateMetrics(ctx);
-      expect(output).toContain("hivemind_julia_last_heartbeat_age_seconds 86400");
+      expect(output).toContain("hivemind_julie_last_heartbeat_age_seconds 86400");
     });
 
-    it("omits registration when isJuliaRegistered not provided", () => {
-      const ctx = makeContext({ getJuliaHeartbeatAge: () => 100 });
+    it("omits registration when isJulieRegistered not provided", () => {
+      const ctx = makeContext({ getJulieHeartbeatAge: () => 100 });
       const output = generateMetrics(ctx);
-      expect(output).not.toContain("hivemind_julia_registered");
+      expect(output).not.toContain("hivemind_julie_registered");
       // heartbeat should still appear
-      expect(output).toContain("hivemind_julia_last_heartbeat_age_seconds 100");
+      expect(output).toContain("hivemind_julie_last_heartbeat_age_seconds 100");
     });
 
-    it("omits heartbeat when getJuliaHeartbeatAge not provided", () => {
-      const ctx = makeContext({ isJuliaRegistered: () => true });
+    it("omits heartbeat when getJulieHeartbeatAge not provided", () => {
+      const ctx = makeContext({ isJulieRegistered: () => true });
       const output = generateMetrics(ctx);
-      expect(output).toContain("hivemind_julia_registered 1");
-      expect(output).not.toContain("hivemind_julia_last_heartbeat_age_seconds");
+      expect(output).toContain("hivemind_julie_registered 1");
+      expect(output).not.toContain("hivemind_julie_last_heartbeat_age_seconds");
     });
   });
 
@@ -690,7 +690,7 @@ describe("generateMetrics", () => {
       expect(output).not.toContain("hivemind_perf_success_rate");
       expect(output).not.toContain("hivemind_exec_total");
       expect(output).not.toContain("hivemind_model_installed_count");
-      expect(output).not.toContain("hivemind_julia_registered");
+      expect(output).not.toContain("hivemind_julie_registered");
     });
   });
 
@@ -699,7 +699,7 @@ describe("generateMetrics", () => {
   describe("full context", () => {
     it("generates all sections when all data sources are provided", () => {
       const mgr = new AlertManager({ openclawDir: tmpDir });
-      mgr.emit("station_offline", "JULIA down");
+      mgr.emit("station_offline", "Julie down");
 
       const log = new ExecutionLog(tmpDir);
       log.record({
@@ -708,14 +708,14 @@ describe("generateMetrics", () => {
         task_type: "coding",
         success: true,
         latency_ms: 100,
-        reported_to_julia: false,
+        reported_to_julie: false,
       });
 
       const ctx = makeContext({
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: "JULIA", reachable: true, latencyMs: 1 }],
+          stations: [{ ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1 }],
           health: [],
         }),
         getDualNetwork: () => ({
@@ -748,8 +748,8 @@ describe("generateMetrics", () => {
         ],
         getPerformanceTotal: () => 10,
         modelCounts: { installed: 3, running: 1 },
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 60,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 60,
       });
 
       const output = generateMetrics(ctx);
@@ -770,8 +770,8 @@ describe("generateMetrics", () => {
       expect(output).toContain("hivemind_exec_success_rate");
       expect(output).toContain("hivemind_model_installed_count");
       expect(output).toContain("hivemind_model_running_count");
-      expect(output).toContain("hivemind_julia_registered");
-      expect(output).toContain("hivemind_julia_last_heartbeat_age_seconds");
+      expect(output).toContain("hivemind_julie_registered");
+      expect(output).toContain("hivemind_julie_last_heartbeat_age_seconds");
     });
   });
 
@@ -782,8 +782,8 @@ describe("generateMetrics", () => {
       const ctx = makeContext({
         alertManager: new AlertManager({ openclawDir: tmpDir }),
         modelCounts: { installed: 3, running: 1 },
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 60,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 60,
       });
 
       const output = generateMetrics(ctx);
@@ -803,8 +803,8 @@ describe("generateMetrics", () => {
       const ctx = makeContext({
         alertManager: mgr,
         modelCounts: { installed: 1, running: 0 },
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 0,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 0,
         getPerformanceSummary: () => [
           { modelId: "m", taskType: "t", totalRuns: 1, successRate: 1, avgLatencyMs: 1 },
         ],
@@ -949,8 +949,8 @@ describe("generateMetrics", () => {
       const ctx = makeContext({
         startTime: Date.now() - 100_000,
         modelCounts: { installed: 5, running: 2 },
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 60,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 60,
       });
 
       const output1 = generateMetrics(ctx);
@@ -969,7 +969,7 @@ describe("generateMetrics", () => {
         task_type: "t",
         success: true,
         latency_ms: 1,
-        reported_to_julia: false,
+        reported_to_julie: false,
       });
 
       const ctx = makeContext({
@@ -1009,8 +1009,8 @@ describe("generateMetrics", () => {
         ],
         getPerformanceTotal: () => 1,
         modelCounts: { installed: 1, running: 0 },
-        isJuliaRegistered: () => true,
-        getJuliaHeartbeatAge: () => 0,
+        isJulieRegistered: () => true,
+        getJulieHeartbeatAge: () => 0,
       });
 
       const output = generateMetrics(ctx);
@@ -1022,7 +1022,7 @@ describe("generateMetrics", () => {
         "hivemind_perf_success_rate",
         "hivemind_exec_total",
         "hivemind_model_installed_count",
-        "hivemind_julia_registered",
+        "hivemind_julie_registered",
       ];
 
       let lastIndex = -1;

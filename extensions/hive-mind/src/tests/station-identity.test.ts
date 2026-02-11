@@ -36,10 +36,10 @@ describe("buildStationIdentity", () => {
     expect(identity.station_id).toBe(STATION_ID);
   });
 
-  it("includes all 16 capabilities", () => {
+  it("includes all 21 capabilities", () => {
     const identity = buildStationIdentity({ openclawDir: tmpDir });
     expect(identity.capabilities).toEqual(ALL_CAPABILITIES);
-    expect(identity.capabilities).toHaveLength(16);
+    expect(identity.capabilities).toHaveLength(21);
   });
 
   it("includes platform info from os module", () => {
@@ -51,15 +51,20 @@ describe("buildStationIdentity", () => {
     expect(identity.uptime_seconds).toBeGreaterThan(0);
   });
 
-  it("includes all 3 layer descriptors", () => {
+  it("includes all 6 layer descriptors", () => {
     const identity = buildStationIdentity({ openclawDir: tmpDir });
     expect(identity.layers).toHaveProperty("model_manager");
     expect(identity.layers).toHaveProperty("meta_engine");
     expect(identity.layers).toHaveProperty("model_trainer");
+    expect(identity.layers).toHaveProperty("neural_graph");
+    expect(identity.layers).toHaveProperty("huggingface");
+    expect(identity.layers).toHaveProperty("hotel_scraper");
 
     expect(identity.layers.model_manager.tools).toHaveLength(5);
     expect(identity.layers.meta_engine.tools).toHaveLength(3);
     expect(identity.layers.model_trainer.tools).toHaveLength(5);
+    expect(identity.layers.huggingface.tools).toHaveLength(5);
+    expect(identity.layers.hotel_scraper.tools).toHaveLength(4);
   });
 
   it("reads models from inventory.json when available", () => {

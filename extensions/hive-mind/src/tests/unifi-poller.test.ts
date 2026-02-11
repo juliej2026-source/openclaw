@@ -57,7 +57,7 @@ function mockClient(overrides: Partial<UnifiClient> = {}): UnifiClient {
         _id: "c2",
         mac: "77:88:99:aa:bb:cc",
         ip: "10.1.7.87",
-        hostname: "julia",
+        hostname: "julie",
         is_wired: true,
         rx_bytes: 500,
         tx_bytes: 600,
@@ -110,7 +110,7 @@ describe("buildStationViews", () => {
 
     expect(julia).toBeDefined();
     expect(julia!.connected).toBe(false);
-    expect(julia!.label).toBe("JULIA");
+    expect(julia!.label).toBe("Julie");
     expect(julia!.mac).toBeUndefined();
   });
 

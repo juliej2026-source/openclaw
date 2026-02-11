@@ -5,21 +5,21 @@ import type {
   ExecutionReportResponse,
   RegistrationPayload,
 } from "./types.js";
-import { JULIA_BASE_URL, STATION_ID } from "./types.js";
+import { JULIE_BASE_URL, STATION_ID } from "./types.js";
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
-export type JuliaClientOptions = {
+export type JulieClientOptions = {
   baseUrl?: string;
   timeoutMs?: number;
 };
 
-export class JuliaClient {
+export class JulieClient {
   private readonly baseUrl: string;
   private readonly timeoutMs: number;
 
-  constructor(opts?: JuliaClientOptions) {
-    this.baseUrl = (opts?.baseUrl ?? JULIA_BASE_URL).replace(/\/+$/, "");
+  constructor(opts?: JulieClientOptions) {
+    this.baseUrl = (opts?.baseUrl ?? JULIE_BASE_URL).replace(/\/+$/, "");
     this.timeoutMs = opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   }
 
@@ -43,7 +43,7 @@ export class JuliaClient {
     });
 
     if (!res.ok) {
-      throw new Error(`JULIA registration failed: ${res.status} ${res.statusText}`);
+      throw new Error(`Julie registration failed: ${res.status} ${res.statusText}`);
     }
 
     return (await res.json()) as RegistrationResponse;
@@ -58,7 +58,7 @@ export class JuliaClient {
     });
 
     if (!res.ok) {
-      throw new Error(`JULIA execution report failed: ${res.status} ${res.statusText}`);
+      throw new Error(`Julie execution report failed: ${res.status} ${res.statusText}`);
     }
 
     return (await res.json()) as ExecutionReportResponse;

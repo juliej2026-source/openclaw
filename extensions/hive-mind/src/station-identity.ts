@@ -58,6 +58,16 @@ function detectLayerStatus(openclawDir: string, subdir: string, dataFile: string
   return fileExists(filePath) ? "active" : "unavailable";
 }
 
+function detectHuggingFaceStatus(): LayerStatus {
+  if (process.env.HF_TOKEN) return "active";
+  try {
+    const tokenPath = path.join(process.env.HOME ?? os.homedir(), ".cache", "huggingface", "token");
+    return fileExists(tokenPath) ? "active" : "unavailable";
+  } catch {
+    return "unavailable";
+  }
+}
+
 function detectNeuralGraphStatus(): LayerStatus {
   // Check if Convex is reachable (non-blocking best-effort)
   try {
@@ -123,6 +133,25 @@ function buildLayers(openclawDir: string): Record<string, LayerInfo> {
       hooks: ["gateway_start", "agent_end"],
       providers: ["convex", "langgraph"],
       status: detectNeuralGraphStatus(),
+    },
+    huggingface: {
+      name: "HuggingFace Manager",
+      description: "HF Hub account management — spaces, datasets, models, and jobs",
+      tools: ["hf_spaces_list", "hf_datasets_list", "hf_models_list", "hf_jobs_list", "hf_status"],
+      cli_commands: 0,
+      hooks: [],
+      providers: ["huggingface"],
+      status: detectHuggingFaceStatus(),
+    },
+    hotel_scraper: {
+      name: "Hotel Scraper",
+      description:
+        "Niseko hotel price comparison — 5 data sources, entity resolution, scheduling, Prometheus metrics",
+      tools: ["hotel_scrape", "hotel_prices", "hotel_compare", "hotel_resolve"],
+      cli_commands: 6,
+      hooks: ["gateway_start"],
+      providers: ["ratehawk", "apify", "nisade", "playwright", "roomboss"],
+      status: "active",
     },
   };
 }

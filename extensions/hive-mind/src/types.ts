@@ -18,7 +18,12 @@ export type StationCapability =
   | "network_monitoring"
   | "dual_wan"
   | "linux"
-  | "neural_graph";
+  | "neural_graph"
+  | "web_scraping"
+  | "data_collection"
+  | "huggingface_management"
+  | "hotel_scraping"
+  | "price_comparison";
 
 export type LayerStatus = "active" | "degraded" | "unavailable";
 
@@ -75,7 +80,7 @@ export type CommandResponse = {
 };
 
 // ---------------------------------------------------------------------------
-// JULIA hive mind communication
+// Julie hive mind communication
 // ---------------------------------------------------------------------------
 
 export type ExecutionRecord = {
@@ -122,7 +127,7 @@ export type ExecutionLogEntry = {
   task_type: string;
   success: boolean;
   latency_ms: number;
-  reported_to_julia: boolean;
+  reported_to_julie: boolean;
 };
 
 export type ExecutionLogData = {
@@ -139,7 +144,7 @@ export const STATION_IP = "10.1.7.158";
 export const STATION_PORT = 3001;
 export const STATION_VERSION = "1.0.0";
 
-export const JULIA_BASE_URL = "http://10.1.7.87:8000";
+export const JULIE_BASE_URL = "http://10.1.7.87:8000";
 export const REGISTRATION_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export const ALL_CAPABILITIES: StationCapability[] = [
@@ -159,4 +164,9 @@ export const ALL_CAPABILITIES: StationCapability[] = [
   "dual_wan",
   "linux",
   "neural_graph",
+  "web_scraping",
+  "data_collection",
+  "huggingface_management",
+  "hotel_scraping",
+  "price_comparison",
 ];

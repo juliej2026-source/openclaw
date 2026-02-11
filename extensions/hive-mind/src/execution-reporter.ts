@@ -1,5 +1,5 @@
 import type { ExecutionLog } from "./execution-log.js";
-import type { JuliaClient } from "./julia-client.js";
+import type { JulieClient } from "./julie-client.js";
 import type { ExecutionRecord, ExecutionLogEntry } from "./types.js";
 import { STATION_ID } from "./types.js";
 
@@ -37,7 +37,7 @@ export type ExecutionReporterOptions = {
 };
 
 export function createExecutionReporter(
-  juliaClient: JuliaClient,
+  julieClient: JulieClient,
   executionLog: ExecutionLog,
   opts?: ExecutionReporterOptions,
 ) {
@@ -77,12 +77,12 @@ export function createExecutionReporter(
       // Best-effort: performance DB write failure is non-fatal
     }
 
-    let reportedToJulia = false;
+    let reportedToJulie = false;
     try {
-      await juliaClient.reportExecution(record);
-      reportedToJulia = true;
+      await julieClient.reportExecution(record);
+      reportedToJulie = true;
     } catch {
-      // Best-effort: JULIA might be unreachable
+      // Best-effort: Julie might be unreachable
     }
 
     const logEntry: ExecutionLogEntry = {
@@ -91,7 +91,7 @@ export function createExecutionReporter(
       task_type: classification.primary,
       success: record.success,
       latency_ms: record.latency_ms,
-      reported_to_julia: reportedToJulia,
+      reported_to_julie: reportedToJulie,
     };
 
     executionLog.record(logEntry);
@@ -107,7 +107,7 @@ export async function recordCommandExecution(opts: {
   success: boolean;
   latencyMs: number;
   executionLog: ExecutionLog;
-  juliaClient: JuliaClient;
+  julieClient: JulieClient;
 }): Promise<void> {
   const timestamp = new Date().toISOString();
 
@@ -136,12 +136,12 @@ export async function recordCommandExecution(opts: {
     task_type: taskType,
     success: opts.success,
     latency_ms: opts.latencyMs,
-    reported_to_julia: false,
+    reported_to_julie: false,
   };
 
-  // Best-effort JULIA report
+  // Best-effort Julie report
   try {
-    await opts.juliaClient.reportExecution({
+    await opts.julieClient.reportExecution({
       station_id: STATION_ID,
       task_type: taskType,
       success: opts.success,
@@ -149,9 +149,9 @@ export async function recordCommandExecution(opts: {
       capabilities_used: [opts.command],
       timestamp,
     });
-    logEntry.reported_to_julia = true;
+    logEntry.reported_to_julie = true;
   } catch {
-    // JULIA unreachable
+    // Julie unreachable
   }
 
   opts.executionLog.record(logEntry);

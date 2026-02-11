@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { ExecutionLog } from "../execution-log.js";
-import type { JuliaClient } from "../julia-client.js";
+import type { JulieClient } from "../julie-client.js";
 import { createExecutionReporter } from "../execution-reporter.js";
 
 // Injected mock classifier — avoids dynamic import mocking issues
@@ -14,12 +14,12 @@ const mockClassifyTask = vi.fn().mockReturnValue({
   complexity: "moderate",
 });
 
-function mockJuliaClient(): JuliaClient {
+function mockJulieClient(): JulieClient {
   return {
     register: vi.fn().mockResolvedValue({ success: true }),
     reportExecution: vi.fn().mockResolvedValue({ received: true }),
     isAvailable: vi.fn().mockResolvedValue(true),
-  } as unknown as JuliaClient;
+  } as unknown as JulieClient;
 }
 
 function mockExecutionLog(): ExecutionLog {
@@ -32,11 +32,11 @@ function mockExecutionLog(): ExecutionLog {
 }
 
 describe("createExecutionReporter", () => {
-  let client: JuliaClient;
+  let client: JulieClient;
   let log: ExecutionLog;
 
   beforeEach(() => {
-    client = mockJuliaClient();
+    client = mockJulieClient();
     log = mockExecutionLog();
     mockClassifyTask.mockClear();
   });
@@ -48,7 +48,7 @@ describe("createExecutionReporter", () => {
     expect(typeof reporter).toBe("function");
   });
 
-  it("reports execution to JULIA on agent_end", async () => {
+  it("reports execution to Julie on agent_end", async () => {
     const reporter = createExecutionReporter(client, log, {
       classifyTask: mockClassifyTask,
     });
@@ -89,8 +89,8 @@ describe("createExecutionReporter", () => {
     expect(entry).toHaveProperty("success", true);
   });
 
-  it("silently handles JULIA reporting failure", async () => {
-    const failClient = mockJuliaClient();
+  it("silently handles Julie reporting failure", async () => {
+    const failClient = mockJulieClient();
     (failClient.reportExecution as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
       new Error("ECONNREFUSED"),
     );
@@ -109,10 +109,10 @@ describe("createExecutionReporter", () => {
     // Still logs locally
     expect(log.record).toHaveBeenCalledOnce();
     const entry = (log.record as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
-    expect(entry.reported_to_julia).toBe(false);
+    expect(entry.reported_to_julie).toBe(false);
   });
 
-  it("marks reported_to_julia true on success", async () => {
+  it("marks reported_to_julie true on success", async () => {
     const reporter = createExecutionReporter(client, log, {
       classifyTask: mockClassifyTask,
     });
@@ -125,7 +125,7 @@ describe("createExecutionReporter", () => {
     await reporter(event as never, {} as never);
 
     const entry = (log.record as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
-    expect(entry.reported_to_julia).toBe(true);
+    expect(entry.reported_to_julie).toBe(true);
   });
 
   it("skips reporting when no user message found", async () => {
