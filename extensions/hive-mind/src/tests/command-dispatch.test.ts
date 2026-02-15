@@ -384,8 +384,8 @@ describe("dispatchCommand", () => {
   describe("network:alerts", () => {
     beforeEach(() => {
       const mgr = new AlertManager({ openclawDir: tmpDir });
-      mgr.emit("station_offline", "Test station down", { target: "10.1.7.87" });
-      mgr.emit("station_online", "Test station up", { target: "10.1.7.87" });
+      mgr.emit("station_offline", "Test station down", { target: "10.1.8.87" });
+      mgr.emit("station_online", "Test station up", { target: "10.1.8.87" });
       setAlertManagerInstance(mgr);
     });
 

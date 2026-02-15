@@ -5,6 +5,9 @@ import {
   capabilityModelManager,
   capabilityModelTrainer,
   capabilityMemory,
+  capabilityScraperIntel,
+  capabilityClerkLearning,
+  capabilitySocialIntel,
 } from "./capability-nodes.js";
 import { evaluation, shouldEvolve, mutation, needsApproval } from "./evolution-nodes.js";
 import { humanGate } from "./human-gate.js";
@@ -16,7 +19,7 @@ import { NeuralGraphState } from "./state.js";
 // Compile the Neural Graph StateGraph
 //
 // Topology:
-//   START → meta_orchestrator → [conditional: 5 capability/network nodes]
+//   START → meta_orchestrator → [conditional: 8 capability/network/peer nodes]
 //                                   ↓ (all feed into)
 //                              evaluation → [conditional: shouldEvolve?]
 //                                   ↓ yes          ↓ no
@@ -34,6 +37,9 @@ export function compileNeuralGraph() {
     .addNode("capability_model_trainer", capabilityModelTrainer)
     .addNode("capability_memory", capabilityMemory)
     .addNode("network_ops", networkOps)
+    .addNode("scraper_intel", capabilityScraperIntel)
+    .addNode("clerk_learning", capabilityClerkLearning)
+    .addNode("social_intel", capabilitySocialIntel)
     .addNode("evaluation", evaluation)
     .addNode("mutation", mutation)
     .addNode("human_gate", humanGate)
@@ -51,6 +57,9 @@ export function compileNeuralGraph() {
     .addEdge("capability_model_trainer", "evaluation")
     .addEdge("capability_memory", "evaluation")
     .addEdge("network_ops", "evaluation")
+    .addEdge("scraper_intel", "evaluation")
+    .addEdge("clerk_learning", "evaluation")
+    .addEdge("social_intel", "evaluation")
 
     // Evaluation conditionally routes to mutation or END
     .addConditionalEdges("evaluation", shouldEvolve, {

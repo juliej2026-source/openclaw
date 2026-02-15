@@ -59,7 +59,7 @@ export function createExecutionReporter(
       task_type: classification.primary,
       success: event.success ?? false,
       latency_ms: event.durationMs ?? 0,
-      capabilities_used: ["task_classification"],
+      capabilities_used: ["task_classification", "model_scoring"],
       timestamp: new Date().toISOString(),
     };
 
@@ -146,7 +146,7 @@ export async function recordCommandExecution(opts: {
       task_type: taskType,
       success: opts.success,
       latency_ms: opts.latencyMs,
-      capabilities_used: [opts.command],
+      capabilities_used: inferCapabilitiesUsed(opts.command),
       timestamp,
     });
     logEntry.reported_to_julie = true;
@@ -177,4 +177,36 @@ function inferTaskTypeFromCommand(
     return "tool-use";
   }
   return "chat";
+}
+
+/** Derive actual capabilities used from command prefix for Julie reporting. */
+export function inferCapabilitiesUsed(command: string): string[] {
+  const caps: string[] = [];
+  if (command.startsWith("meta:classify") || command.startsWith("meta:recommend")) {
+    caps.push("task_classification");
+  }
+  if (command.startsWith("meta:model") || command.startsWith("meta:hardware")) {
+    caps.push("model_management", "hardware_detection");
+  }
+  if (command.startsWith("meta:train")) caps.push("model_training");
+  if (command.startsWith("meta:search")) caps.push("huggingface_search");
+  if (command.startsWith("meta:score")) caps.push("model_scoring");
+  if (command.startsWith("meta:dashboard") || command.startsWith("meta:status")) {
+    caps.push("model_management", "task_classification");
+  }
+  if (command.startsWith("network:scan") || command.startsWith("network:station")) {
+    caps.push("network_monitoring");
+  }
+  if (command.startsWith("network:switch") || command.startsWith("network:5g")) {
+    caps.push("network_control", "dual_wan");
+  }
+  if (command.startsWith("network:path") || command.startsWith("network:failover")) {
+    caps.push("network_control", "dual_wan");
+  }
+  if (command.startsWith("network:alert")) caps.push("alert_management");
+  if (command.startsWith("unifi:")) caps.push("network_monitoring");
+  if (command.startsWith("neural:")) caps.push("neural_graph");
+  if (command.startsWith("hf:")) caps.push("huggingface_management");
+  if (caps.length === 0) caps.push(command);
+  return caps;
 }

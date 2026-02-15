@@ -72,6 +72,78 @@ const GENESIS_NODES: GenesisNode[] = [
     description: "Central hive mind orchestrator — coordinates station network",
     capabilities: ["orchestration", "station_management"],
   },
+  {
+    nodeId: "scraper",
+    nodeType: "station",
+    name: "SCRAPER Station",
+    description:
+      "Intelligence node — hotel price scraping, anomaly detection, family reports, local LLM (qwen2.5:7b)",
+    capabilities: [
+      "niseko_intel",
+      "price_monitoring",
+      "hotel_scraping",
+      "anomaly_detection",
+      "local_llm",
+      "family_report",
+      "tandem_tasks",
+      "web_scraping",
+    ],
+  },
+  {
+    nodeId: "clerk",
+    nodeType: "station",
+    name: "CLERK Station",
+    description:
+      "Learning node — HuggingFace inference (Mistral-7B), embeddings, summarization, analysis, evolve-and-document",
+    capabilities: [
+      "hf_inference",
+      "embeddings",
+      "summarization",
+      "analysis",
+      "reporting",
+      "evolve_and_document",
+      "tandem_tasks",
+    ],
+  },
+  {
+    nodeId: "social-intel",
+    nodeType: "station",
+    name: "SOCIAL-INTEL Station",
+    description:
+      "Social intelligence node — co-hosted on Julie, Telegram integration, sentiment analysis, content monitoring",
+    capabilities: [
+      "social_monitoring",
+      "telegram_integration",
+      "social_analytics",
+      "content_analysis",
+      "sentiment_analysis",
+    ],
+  },
+  // Peer capability nodes — aggregated routing targets
+  {
+    nodeId: "scraper_intel",
+    nodeType: "capability",
+    name: "Scraper Intelligence",
+    description:
+      "Routes hotel pricing, anomaly detection, and family report tasks to SCRAPER station via peer network",
+    capabilities: ["hotel_scraping", "price_monitoring", "anomaly_detection", "family_report"],
+  },
+  {
+    nodeId: "clerk_learning",
+    nodeType: "capability",
+    name: "Clerk Learning",
+    description:
+      "Routes HuggingFace inference, embeddings, and summarization tasks to CLERK station via peer network",
+    capabilities: ["hf_inference", "embeddings", "summarization", "peer_inference"],
+  },
+  {
+    nodeId: "social_intel",
+    nodeType: "capability",
+    name: "Social Intelligence",
+    description:
+      "Routes social monitoring, Telegram, and sentiment tasks to SOCIAL-INTEL station via peer network",
+    capabilities: ["social_monitoring", "telegram_integration", "sentiment_analysis"],
+  },
 ];
 
 type GenesisEdge = {
@@ -81,16 +153,41 @@ type GenesisEdge = {
 };
 
 const GENESIS_EDGES: GenesisEdge[] = [
+  // Local capability data flows
   { sourceNodeId: "meta-engine", targetNodeId: "model-manager", edgeType: "data_flow" },
   { sourceNodeId: "meta-engine", targetNodeId: "model-trainer", edgeType: "data_flow" },
   { sourceNodeId: "meta-engine", targetNodeId: "memory-lancedb", edgeType: "data_flow" },
   { sourceNodeId: "model-manager", targetNodeId: "model-trainer", edgeType: "dependency" },
+
+  // IOT-HUB activates local capabilities
   { sourceNodeId: "iot-hub", targetNodeId: "meta-engine", edgeType: "activation" },
   { sourceNodeId: "iot-hub", targetNodeId: "model-manager", edgeType: "activation" },
   { sourceNodeId: "iot-hub", targetNodeId: "model-trainer", edgeType: "activation" },
   { sourceNodeId: "iot-hub", targetNodeId: "memory-lancedb", edgeType: "activation" },
+
+  // Julie orchestrates all stations
   { sourceNodeId: "julie", targetNodeId: "iot-hub", edgeType: "activation" },
   { sourceNodeId: "julie", targetNodeId: "meta-engine", edgeType: "data_flow" },
+  { sourceNodeId: "julie", targetNodeId: "scraper", edgeType: "activation" },
+  { sourceNodeId: "julie", targetNodeId: "clerk", edgeType: "activation" },
+  { sourceNodeId: "julie", targetNodeId: "social-intel", edgeType: "activation" },
+
+  // IOT-HUB tandem connections to peer stations
+  { sourceNodeId: "iot-hub", targetNodeId: "scraper", edgeType: "data_flow" },
+  { sourceNodeId: "iot-hub", targetNodeId: "clerk", edgeType: "data_flow" },
+
+  // Station → capability node activations
+  { sourceNodeId: "scraper", targetNodeId: "scraper_intel", edgeType: "activation" },
+  { sourceNodeId: "clerk", targetNodeId: "clerk_learning", edgeType: "activation" },
+  { sourceNodeId: "social-intel", targetNodeId: "social_intel", edgeType: "activation" },
+
+  // Meta-engine routes to peer capability nodes
+  { sourceNodeId: "meta-engine", targetNodeId: "scraper_intel", edgeType: "data_flow" },
+  { sourceNodeId: "meta-engine", targetNodeId: "clerk_learning", edgeType: "data_flow" },
+  { sourceNodeId: "meta-engine", targetNodeId: "social_intel", edgeType: "data_flow" },
+
+  // Peer tandem data flows (SCRAPER ↔ CLERK)
+  { sourceNodeId: "scraper", targetNodeId: "clerk", edgeType: "data_flow" },
 ];
 
 export async function seedGenesis(stationId: string): Promise<{

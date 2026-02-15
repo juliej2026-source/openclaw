@@ -10,14 +10,17 @@ import {
 } from "../types.js";
 
 describe("Neural Graph — types & constants", () => {
-  it("defines 6 core node IDs", () => {
-    expect(CORE_NODE_IDS).toHaveLength(6);
+  it("defines 9 core node IDs (6 original + 3 peer stations)", () => {
+    expect(CORE_NODE_IDS).toHaveLength(9);
     expect(CORE_NODE_IDS).toContain("meta-engine");
     expect(CORE_NODE_IDS).toContain("model-manager");
     expect(CORE_NODE_IDS).toContain("model-trainer");
     expect(CORE_NODE_IDS).toContain("memory-lancedb");
     expect(CORE_NODE_IDS).toContain("iot-hub");
     expect(CORE_NODE_IDS).toContain("julie");
+    expect(CORE_NODE_IDS).toContain("scraper");
+    expect(CORE_NODE_IDS).toContain("clerk");
+    expect(CORE_NODE_IDS).toContain("social-intel");
   });
 
   it("fitness weights sum to 100", () => {

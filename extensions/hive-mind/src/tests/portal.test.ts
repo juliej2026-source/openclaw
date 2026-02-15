@@ -255,7 +255,7 @@ describe("Portal — httpd.conf", () => {
 describe("Portal — topology.js", () => {
   const src = readPortalFile("js/topology.js");
 
-  const expectedNodes = ["UDM-Pro", "HR02-5G", "Julie", "IOT-HUB", "SCRAPER", "CLERK", "Bravia"];
+  const expectedNodes = ["UDM-Pro", "HR02-5G", "Julie", "IOT-HUB", "Caesar", "BRAVIA"];
 
   for (const node of expectedNodes) {
     it(`defines node ${node}`, () => {

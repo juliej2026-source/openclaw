@@ -88,6 +88,16 @@ export class ChannelManager {
     return this.channelIds.get(name) ?? null;
   }
 
+  /** Get all cached hive channel IDs as a Set (for message command filtering). */
+  getHiveChannelIds(): Set<string> {
+    return new Set(this.channelIds.values());
+  }
+
+  /** Expose REST client for operations that need direct API access. */
+  getRestClient(): DiscordRestClient {
+    return this.client;
+  }
+
   /** Send a message to a named channel. */
   async send(channel: ChannelName, message: DiscordMessage): Promise<void> {
     const channelId = this.channelIds.get(channel);

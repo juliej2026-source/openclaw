@@ -28,7 +28,7 @@ function errorResponse(status: number, text: string): Response {
 const mockIdentity: StationIdentity = {
   station_id: "iot-hub",
   hostname: "test-host",
-  ip_address: "10.1.7.158",
+  ip_address: "10.1.8.158",
   port: 3001,
   platform: "linux",
   arch: "x64",
@@ -54,7 +54,7 @@ describe("JulieClient", () => {
     // Verify by making a call
     mockFetch.mockResolvedValueOnce(okJson({ success: true, agent_id: "iot-hub" }));
     client.register(mockIdentity);
-    expect(mockFetch.mock.calls[0]?.[0]).toContain("10.1.7.87:8000");
+    expect(mockFetch.mock.calls[0]?.[0]).toContain("10.1.8.143:8000");
   });
 
   it("uses custom base URL when provided", () => {

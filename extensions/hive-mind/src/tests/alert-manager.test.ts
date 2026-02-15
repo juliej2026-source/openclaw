@@ -24,14 +24,14 @@ describe("AlertManager", () => {
   it("emits and persists an alert", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
     const alert = mgr.emit("station_offline", "Julie went offline", {
-      target: "10.1.7.87",
+      target: "10.1.8.87",
     });
 
     expect(alert.type).toBe("station_offline");
     expect(alert.severity).toBe("warning");
     expect(alert.message).toBe("Julie went offline");
     expect(alert.source).toBe("iot-hub");
-    expect(alert.target).toBe("10.1.7.87");
+    expect(alert.target).toBe("10.1.8.87");
     expect(alert.acknowledged).toBe(false);
     expect(alert.id).toMatch(/^alert-/);
   });
@@ -127,8 +127,8 @@ describe("diffStationStates", () => {
   it("emits station_offline when station becomes unreachable", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
     const stations = [
-      { ip: "10.1.7.87", label: "Julie", reachable: true },
-      { ip: "10.1.7.188", label: "SCRAPER", reachable: true },
+      { ip: "10.1.8.87", label: "Julie", reachable: true },
+      { ip: "10.1.8.188", label: "SCRAPER", reachable: true },
     ];
 
     // First scan: establishes baseline (no alerts)
@@ -137,25 +137,25 @@ describe("diffStationStates", () => {
     // Second scan: SCRAPER goes down
     const alerts = diffStationStates(
       [
-        { ip: "10.1.7.87", label: "Julie", reachable: true },
-        { ip: "10.1.7.188", label: "SCRAPER", reachable: false },
+        { ip: "10.1.8.87", label: "Julie", reachable: true },
+        { ip: "10.1.8.188", label: "SCRAPER", reachable: false },
       ],
       mgr,
     );
 
     expect(alerts).toHaveLength(1);
     expect(alerts[0].type).toBe("station_offline");
-    expect(alerts[0].target).toBe("10.1.7.188");
+    expect(alerts[0].target).toBe("10.1.8.188");
   });
 
   it("emits station_online when station recovers", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
 
     // Baseline
-    diffStationStates([{ ip: "10.1.7.87", label: "Julie", reachable: false }], mgr);
+    diffStationStates([{ ip: "10.1.8.87", label: "Julie", reachable: false }], mgr);
 
     // Recovery
-    const alerts = diffStationStates([{ ip: "10.1.7.87", label: "Julie", reachable: true }], mgr);
+    const alerts = diffStationStates([{ ip: "10.1.8.87", label: "Julie", reachable: true }], mgr);
 
     expect(alerts).toHaveLength(1);
     expect(alerts[0].type).toBe("station_online");
@@ -163,7 +163,7 @@ describe("diffStationStates", () => {
 
   it("emits no alerts when state is unchanged", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
-    const stations = [{ ip: "10.1.7.87", label: "Julie", reachable: true }];
+    const stations = [{ ip: "10.1.8.87", label: "Julie", reachable: true }];
 
     diffStationStates(stations, mgr);
     const alerts = diffStationStates(stations, mgr);
@@ -171,26 +171,27 @@ describe("diffStationStates", () => {
     expect(alerts).toHaveLength(0);
   });
 
-  it("skips decommissioned stations (no alerts for 10.1.7.180)", () => {
+  it("alerts when SCRAPER goes offline (no longer decommissioned)", () => {
     const mgr = new AlertManager({ openclawDir: tmpDir });
     const stations = [
-      { ip: "10.1.7.87", label: "Julie", reachable: true },
-      { ip: "10.1.7.180", label: "SCRAPER", reachable: true },
+      { ip: "10.1.8.87", label: "Julie", reachable: true },
+      { ip: "10.1.8.180", label: "SCRAPER", reachable: true },
     ];
 
     // Baseline
     diffStationStates(stations, mgr);
 
-    // SCRAPER goes offline but is decommissioned — should not alert
+    // SCRAPER goes offline — should alert since it's an active station
     const alerts = diffStationStates(
       [
-        { ip: "10.1.7.87", label: "Julie", reachable: true },
-        { ip: "10.1.7.180", label: "SCRAPER", reachable: false },
+        { ip: "10.1.8.87", label: "Julie", reachable: true },
+        { ip: "10.1.8.180", label: "SCRAPER", reachable: false },
       ],
       mgr,
     );
 
-    expect(alerts).toHaveLength(0);
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]!.type).toBe("station_offline");
   });
 });
 

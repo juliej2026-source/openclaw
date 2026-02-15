@@ -47,7 +47,7 @@ describe("fetchUdmSystemInfo", () => {
   it("parses UDM Pro system info from /api/system", async () => {
     mockFetch.mockResolvedValueOnce(udmSystemResponse());
 
-    const info = await fetchUdmSystemInfo("10.1.7.1");
+    const info = await fetchUdmSystemInfo("10.1.8.1");
 
     expect(info).not.toBeNull();
     expect(info!.name).toBe("1898 Hotel Dream Machine Pro");
@@ -61,17 +61,17 @@ describe("fetchUdmSystemInfo", () => {
   it("calls correct URL with HTTPS and rejectUnauthorized=false", async () => {
     mockFetch.mockResolvedValueOnce(udmSystemResponse());
 
-    await fetchUdmSystemInfo("10.1.7.1");
+    await fetchUdmSystemInfo("10.1.8.1");
 
     const [url, opts] = mockFetch.mock.calls[0];
-    expect(url).toBe("https://10.1.7.1/api/system");
+    expect(url).toBe("https://10.1.8.1/api/system");
     expect(opts.signal).toBeDefined();
   });
 
   it("returns null on network error", async () => {
     mockFetch.mockRejectedValueOnce(new Error("ECONNREFUSED"));
 
-    const info = await fetchUdmSystemInfo("10.1.7.1");
+    const info = await fetchUdmSystemInfo("10.1.8.1");
 
     expect(info).toBeNull();
   });
@@ -79,7 +79,7 @@ describe("fetchUdmSystemInfo", () => {
   it("returns null on non-200 response", async () => {
     mockFetch.mockResolvedValueOnce(new Response("Unauthorized", { status: 401 }));
 
-    const info = await fetchUdmSystemInfo("10.1.7.1");
+    const info = await fetchUdmSystemInfo("10.1.8.1");
 
     expect(info).toBeNull();
   });
@@ -87,7 +87,7 @@ describe("fetchUdmSystemInfo", () => {
   it("returns null on invalid JSON", async () => {
     mockFetch.mockResolvedValueOnce(new Response("not json", { status: 200 }));
 
-    const info = await fetchUdmSystemInfo("10.1.7.1");
+    const info = await fetchUdmSystemInfo("10.1.8.1");
 
     expect(info).toBeNull();
   });
@@ -95,7 +95,7 @@ describe("fetchUdmSystemInfo", () => {
   it("includes lastChecked timestamp", async () => {
     mockFetch.mockResolvedValueOnce(udmSystemResponse());
 
-    const info = await fetchUdmSystemInfo("10.1.7.1");
+    const info = await fetchUdmSystemInfo("10.1.8.1");
 
     expect(info!.lastChecked).toBeDefined();
     // Should be a valid ISO timestamp
@@ -112,9 +112,9 @@ describe("pingStation", () => {
     // Simulate a successful HTTP health check to the station
     mockFetch.mockResolvedValueOnce(new Response("ok", { status: 200 }));
 
-    const result = await pingStation("10.1.7.87", 3001);
+    const result = await pingStation("10.1.8.87", 3001);
 
-    expect(result.ip).toBe("10.1.7.87");
+    expect(result.ip).toBe("10.1.8.87");
     expect(result.reachable).toBe(true);
     expect(result.latencyMs).toBeGreaterThanOrEqual(0);
   });
@@ -122,9 +122,9 @@ describe("pingStation", () => {
   it("returns reachable=false on timeout/error", async () => {
     mockFetch.mockRejectedValueOnce(new Error("ETIMEDOUT"));
 
-    const result = await pingStation("10.1.7.99", 3001);
+    const result = await pingStation("10.1.8.99", 3001);
 
-    expect(result.ip).toBe("10.1.7.99");
+    expect(result.ip).toBe("10.1.8.99");
     expect(result.reachable).toBe(false);
     expect(result.latencyMs).toBeUndefined();
   });
@@ -132,10 +132,10 @@ describe("pingStation", () => {
   it("calls correct URL for station health endpoint", async () => {
     mockFetch.mockResolvedValueOnce(new Response("ok", { status: 200 }));
 
-    await pingStation("10.1.7.87", 3001);
+    await pingStation("10.1.8.87", 3001);
 
     const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe("http://10.1.7.87:3001/health");
+    expect(url).toBe("http://10.1.8.87:3001/health");
   });
 });
 
@@ -145,24 +145,23 @@ describe("pingStation", () => {
 
 describe("scanStations", () => {
   it("scans all known stations and returns results", async () => {
-    // 5 known stations — mock all fetch calls
+    // 4 known stations — mock all fetch calls
     mockFetch
       .mockResolvedValueOnce(new Response("ok", { status: 200 })) // Julie
-      .mockResolvedValueOnce(new Response("ok", { status: 200 })) // SCRAPER
-      .mockRejectedValueOnce(new Error("timeout")) // CLERK
+      .mockRejectedValueOnce(new Error("timeout")) // Caesar
       .mockResolvedValueOnce(new Response("ok", { status: 200 })) // IOT-HUB
-      .mockResolvedValueOnce(new Response("ok", { status: 200 })); // Bravia TV
+      .mockResolvedValueOnce(new Response("ok", { status: 200 })); // BRAVIA TV
 
     const results = await scanStations(3001);
 
-    expect(results).toHaveLength(5);
+    expect(results).toHaveLength(4);
     const julie = results.find((r) => r.label === "Julie");
     expect(julie).toBeDefined();
     expect(julie!.reachable).toBe(true);
 
-    const clerk = results.find((r) => r.label === "CLERK");
-    expect(clerk).toBeDefined();
-    expect(clerk!.reachable).toBe(false);
+    const caesar = results.find((r) => r.label === "Caesar");
+    expect(caesar).toBeDefined();
+    expect(caesar!.reachable).toBe(false);
   });
 });
 
@@ -180,14 +179,14 @@ describe("createNetworkScanner", () => {
   });
 
   it("polls immediately on start", async () => {
-    // UDM system + 5 station pings
+    // UDM system + 4 station pings
     mockFetch.mockResolvedValue(udmSystemResponse());
 
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     await scanner.start();
 
-    // At least 1 call for UDM system + 5 station pings = 6
-    expect(mockFetch.mock.calls.length).toBeGreaterThanOrEqual(6);
+    // At least 1 call for UDM system + 4 station pings = 5
+    expect(mockFetch.mock.calls.length).toBeGreaterThanOrEqual(5);
 
     scanner.stop();
   });
@@ -195,21 +194,21 @@ describe("createNetworkScanner", () => {
   it("returns latest scan result", async () => {
     mockFetch.mockResolvedValue(udmSystemResponse());
 
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     await scanner.start();
 
     const result = scanner.getLatestScan();
     expect(result).not.toBeNull();
     expect(result!.udm).not.toBeNull();
     expect(result!.udm!.name).toBe("1898 Hotel Dream Machine Pro");
-    expect(result!.stations).toHaveLength(5);
+    expect(result!.stations).toHaveLength(4);
     expect(result!.timestamp).toBeDefined();
 
     scanner.stop();
   });
 
   it("returns null before first scan", () => {
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     expect(scanner.getLatestScan()).toBeNull();
   });
 
@@ -219,7 +218,7 @@ describe("createNetworkScanner", () => {
     // Override first call (UDM system) to return proper JSON
     mockFetch.mockResolvedValueOnce(udmSystemResponse());
 
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     await scanner.start();
 
     const result = scanner.getLatestScan();
@@ -231,15 +230,15 @@ describe("createNetworkScanner", () => {
   it("continues scanning when UDM is unreachable", async () => {
     // UDM fails, stations succeed
     mockFetch.mockRejectedValueOnce(new Error("ECONNREFUSED"));
-    // Remaining 5 calls for station pings
+    // Remaining 4 calls for station pings
     mockFetch.mockResolvedValue(new Response("ok", { status: 200 }));
 
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     await scanner.start();
 
     const result = scanner.getLatestScan();
     expect(result!.udm).toBeNull();
-    expect(result!.stations).toHaveLength(5);
+    expect(result!.stations).toHaveLength(4);
 
     scanner.stop();
   });
@@ -248,7 +247,7 @@ describe("createNetworkScanner", () => {
     mockFetch.mockResolvedValue(udmSystemResponse());
 
     const scanner = createNetworkScanner({
-      udmHost: "10.1.7.1",
+      udmHost: "10.1.8.1",
       stationPort: 3001,
       intervalMs: 30_000,
     });
@@ -268,7 +267,7 @@ describe("createNetworkScanner", () => {
     mockFetch.mockResolvedValue(udmSystemResponse());
 
     const scanner = createNetworkScanner({
-      udmHost: "10.1.7.1",
+      udmHost: "10.1.8.1",
       stationPort: 3001,
       intervalMs: 30_000,
     });
@@ -285,7 +284,7 @@ describe("createNetworkScanner", () => {
   it("builds health entry from UDM system info", async () => {
     mockFetch.mockResolvedValue(udmSystemResponse());
 
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     await scanner.start();
 
     const result = scanner.getLatestScan();
@@ -314,7 +313,7 @@ describe("createNetworkScanner", () => {
     // Station pings
     mockFetch.mockResolvedValue(new Response("ok", { status: 200 }));
 
-    const scanner = createNetworkScanner({ udmHost: "10.1.7.1", stationPort: 3001 });
+    const scanner = createNetworkScanner({ udmHost: "10.1.8.1", stationPort: 3001 });
     await scanner.start();
 
     const result = scanner.getLatestScan();

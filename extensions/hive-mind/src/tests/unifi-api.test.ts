@@ -70,7 +70,7 @@ function testSnapshot(): UnifiSnapshot {
       {
         _id: "d1",
         mac: "aa:bb:cc:dd:ee:ff",
-        ip: "10.1.7.2",
+        ip: "10.1.8.2",
         name: "USW-Flex",
         model: "USW-Flex-2.5G-8-PoE",
         type: "usw",
@@ -84,7 +84,7 @@ function testSnapshot(): UnifiSnapshot {
       {
         _id: "c1",
         mac: "11:22:33:44:55:66",
-        ip: "10.1.7.180",
+        ip: "10.1.8.180",
         hostname: "scraper",
         is_wired: true,
         rx_bytes: 1000,
@@ -93,8 +93,8 @@ function testSnapshot(): UnifiSnapshot {
       },
     ],
     stations: [
-      { ip: "10.1.7.180", label: "SCRAPER", connected: true, mac: "11:22:33:44:55:66" },
-      { ip: "10.1.7.87", label: "Julie", connected: false },
+      { ip: "10.1.8.180", label: "SCRAPER", connected: true, mac: "11:22:33:44:55:66" },
+      { ip: "10.1.8.87", label: "Julie", connected: false },
     ],
     health: [
       { subsystem: "wan", status: "ok" },

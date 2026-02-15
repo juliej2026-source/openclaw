@@ -153,6 +153,34 @@ export function setAlertManagerInstance(manager: typeof alertManagerInstance): v
   alertManagerInstance = manager;
 }
 
+let braviaInstance: {
+  getLatestStatus: () => import("./bravia-client.js").BraviaStatus | null;
+  client: import("./bravia-client.js").BraviaClient;
+} | null = null;
+
+export function setBraviaInstance(instance: typeof braviaInstance): void {
+  braviaInstance = instance;
+}
+
+let cloudApacheInstance: {
+  deploy: () => Promise<{ instanceId: string; publicIp: string }>;
+  destroy: () => Promise<void>;
+  getState: () => import("./alibaba-apache.js").CloudApacheState;
+  start: () => Promise<void>;
+  stop: () => void;
+  fetchApacheStatus: () => Promise<import("./apache-status.js").ApacheStatus>;
+  execCommand: (cmd: string) => Promise<{ stdout: string; stderr: string; code: number }>;
+  pushContent: (content: string, remotePath: string) => Promise<void>;
+  pushFile: (localPath: string, remotePath: string) => Promise<void>;
+  deploySite: (localDir: string, remotePath?: string) => Promise<void>;
+  fetchLogs: (lines?: number, type?: "access" | "error") => Promise<string>;
+  getSshConfig: () => import("./cloud-ssh.js").SshConfig | null;
+} | null = null;
+
+export function setCloudApacheInstance(instance: typeof cloudApacheInstance): void {
+  cloudApacheInstance = instance;
+}
+
 async function getNetworkScan() {
   if (networkScannerInstance) {
     return networkScannerInstance.getLatestScan();
@@ -160,7 +188,7 @@ async function getNetworkScan() {
   // Fallback: do a one-shot scan
   const { fetchUdmSystemInfo, scanStations } = await import("./network-scanner.js");
   const [udm, stations] = await Promise.all([
-    fetchUdmSystemInfo(process.env.UNIFI_HOST ?? "10.1.7.1"),
+    fetchUdmSystemInfo(process.env.UNIFI_HOST ?? "10.1.8.1"),
     scanStations(3001),
   ]);
   return { timestamp: new Date().toISOString(), udm, stations, health: [] };
@@ -306,7 +334,7 @@ const HANDLERS: Record<string, CommandHandler> = {
   "unifi:status": async () => {
     const client = await getUnifiClient();
     const available = await client.isAvailable();
-    return { available, host: process.env.UNIFI_HOST ?? "10.1.7.1" };
+    return { available, host: process.env.UNIFI_HOST ?? "10.1.8.1" };
   },
 
   "unifi:devices": async () => {
@@ -691,7 +719,355 @@ const HANDLERS: Record<string, CommandHandler> = {
       active_jobs: (jobs as Array<{ status: string }>).filter((j) => j.status === "running").length,
     };
   },
+
+  // -- SCRAPER station (peer dispatch) ---------------------------------------
+
+  "scraper:status": async () => {
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    const health = await peer.checkPeerHealth("scraper");
+    if (!health) {
+      return { station: "scraper", reachable: false, error: "SCRAPER station unreachable" };
+    }
+    const result = await peer.dispatchCommand("scraper", { command: "ping" });
+    return { station: "scraper", reachable: true, peer_data: result.data };
+  },
+
+  "scraper:prices": async (params) => {
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    return (
+      await peer.dispatchCommand("scraper", {
+        command: "scraper:prices",
+        params,
+      })
+    ).data;
+  },
+
+  "scraper:jobs": async (params) => {
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    return (
+      await peer.dispatchCommand("scraper", {
+        command: "scraper:jobs",
+        params,
+      })
+    ).data;
+  },
+
+  "scraper:run": async (params) => {
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    return (
+      await peer.dispatchCommand("scraper", {
+        command: "scraper:run",
+        params,
+      })
+    ).data;
+  },
+
+  "peer:status": async () => {
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    const peers = peer.getPeers();
+    const results = await Promise.all(
+      peers.map(async (p) => ({
+        station_id: p.station_id,
+        ip: p.ip,
+        port: p.port,
+        platform: p.platform,
+        llm_model: p.llm_model,
+        reachable: await peer.checkPeerHealth(p.station_id),
+        capabilities: p.capabilities,
+      })),
+    );
+    return {
+      peer_count: results.length,
+      online: results.filter((r) => r.reachable).length,
+      peers: results,
+    };
+  },
+
+  "peer:tandem": async (params) => {
+    const target = params.station ?? params.target;
+    const taskType = params.task_type ?? params.command;
+    if (!target || typeof target !== "string") {
+      throw new Error("Missing required parameter: station");
+    }
+    if (!taskType || typeof taskType !== "string") {
+      throw new Error("Missing required parameter: task_type");
+    }
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    return peer.sendTandemTask(target, taskType, (params.payload as Record<string, unknown>) ?? {});
+  },
+
+  "peer:delegate": async (params) => {
+    const target = params.station ?? params.target;
+    const command = params.command;
+    if (!target || typeof target !== "string") {
+      throw new Error("Missing required parameter: station");
+    }
+    if (!command || typeof command !== "string") {
+      throw new Error("Missing required parameter: command");
+    }
+    const { PeerClient } = await import("./peer-client.js");
+    const peer = new PeerClient();
+    return peer.delegateTask(target, command, (params.params as Record<string, unknown>) ?? {});
+  },
+
+  // -----------------------------------------------------------------------
+  // BRAVIA TV control
+  // -----------------------------------------------------------------------
+
+  "bravia:status": async () => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA poller not initialized" };
+    }
+    const status = braviaInstance.getLatestStatus();
+    if (!status) {
+      return { error: "No BRAVIA status available yet" };
+    }
+    return status;
+  },
+
+  "bravia:power": async (params) => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    const action = params.action as string | undefined;
+    if (!action || !["on", "off", "toggle"].includes(action)) {
+      return { error: "Missing or invalid action (on|off|toggle)" };
+    }
+    const current = braviaInstance.getLatestStatus()?.power;
+    const turnOn = action === "on" || (action === "toggle" && current !== "active");
+    await braviaInstance.client.setPower(turnOn);
+    return { success: true, power: turnOn ? "active" : "standby" };
+  },
+
+  "bravia:volume": async (params) => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    const level = params.level as number | undefined;
+    const mute = params.mute as boolean | undefined;
+
+    if (level !== undefined) {
+      await braviaInstance.client.setVolume(level);
+    }
+    if (mute !== undefined) {
+      await braviaInstance.client.setMute(mute);
+    }
+    if (level === undefined && mute === undefined) {
+      return braviaInstance.client.getVolume();
+    }
+    return { success: true, level, mute };
+  },
+
+  "bravia:input": async (params) => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    const port = params.port as number | undefined;
+    if (!port || port < 1 || port > 4) {
+      return { error: "Missing or invalid port (1-4)" };
+    }
+    await braviaInstance.client.switchInput(`extInput:hdmi?port=${port}`);
+    return { success: true, input: `HDMI ${port}` };
+  },
+
+  "bravia:app": async (params) => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    const name = params.name as string | undefined;
+    if (!name) {
+      return { error: "Missing required parameter: name" };
+    }
+    // Common app shortcuts → IRCC codes
+    const appKeys: Record<string, string> = {
+      netflix: "Netflix",
+      youtube: "YouTube",
+      home: "Home",
+    };
+    const irccKey = appKeys[name.toLowerCase()];
+    if (irccKey) {
+      await braviaInstance.client.sendRemoteKey(irccKey);
+    } else {
+      await braviaInstance.client.launchApp(name);
+    }
+    return { success: true, app: name };
+  },
+
+  "bravia:remote": async (params) => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    const key = params.key as string | undefined;
+    if (!key) {
+      return { error: "Missing required parameter: key" };
+    }
+    await braviaInstance.client.sendRemoteKey(key);
+    return { success: true, key };
+  },
+
+  "bravia:wake": async () => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    await braviaInstance.client.wakeOnLan();
+    return { success: true, message: "WOL packet sent to 80:99:E7:27:A2:C6" };
+  },
+
+  "bravia:cast": async () => {
+    if (!braviaInstance) {
+      return { error: "BRAVIA not initialized" };
+    }
+    const cast = await braviaInstance.client.getCastInfo();
+    if (!cast) {
+      return { error: "Cast info unavailable" };
+    }
+    return cast;
+  },
+
+  // -----------------------------------------------------------------------
+  // Alibaba Cloud Apache
+  // -----------------------------------------------------------------------
+
+  "cloud:deploy": async () => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized (missing ALIBABA credentials)" };
+    }
+    const result = await cloudApacheInstance.deploy();
+    // Start monitoring after deploy
+    await cloudApacheInstance.start();
+    return { success: true, ...result };
+  },
+
+  "cloud:status": async () => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    return cloudApacheInstance.getState();
+  },
+
+  "cloud:stop": async () => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    const state = cloudApacheInstance.getState();
+    if (!state.instanceId) {
+      return { error: "No instance deployed" };
+    }
+    cloudApacheInstance.stop();
+    return { success: true, instanceId: state.instanceId };
+  },
+
+  "cloud:start": async () => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    await cloudApacheInstance.start();
+    return { success: true };
+  },
+
+  "cloud:destroy": async () => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    cloudApacheInstance.stop();
+    await cloudApacheInstance.destroy();
+    return { success: true, message: "Cloud Apache instance destroyed" };
+  },
+
+  "cloud:exec": async (params) => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    const cmd = params.cmd as string | undefined;
+    if (!cmd || typeof cmd !== "string") {
+      throw new Error("Missing required parameter: cmd");
+    }
+    const state = cloudApacheInstance.getState();
+    if (!state.deployed) {
+      return { error: "No instance deployed" };
+    }
+    const result = await cloudApacheInstance.execCommand(cmd);
+    return { success: result.code === 0, ...result };
+  },
+
+  "cloud:push": async (params) => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    const content = params.content as string | undefined;
+    const remotePath = params.path as string | undefined;
+    if (!content || typeof content !== "string") {
+      throw new Error("Missing required parameter: content");
+    }
+    if (!remotePath || typeof remotePath !== "string") {
+      throw new Error("Missing required parameter: path");
+    }
+    const state = cloudApacheInstance.getState();
+    if (!state.deployed) {
+      return { error: "No instance deployed" };
+    }
+    await cloudApacheInstance.pushContent(content, remotePath);
+    return { success: true, path: remotePath, bytes: content.length };
+  },
+
+  "cloud:site": async (params) => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    const dir = params.dir as string | undefined;
+    if (!dir || typeof dir !== "string") {
+      throw new Error("Missing required parameter: dir");
+    }
+    const state = cloudApacheInstance.getState();
+    if (!state.deployed) {
+      return { error: "No instance deployed" };
+    }
+    const remote = (params.remote as string) ?? "/var/www/html";
+    await cloudApacheInstance.deploySite(dir, remote);
+    return { success: true, source: dir, destination: remote };
+  },
+
+  "cloud:logs": async (params) => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    const state = cloudApacheInstance.getState();
+    if (!state.deployed) {
+      return { error: "No instance deployed" };
+    }
+    const lines = typeof params.lines === "number" ? params.lines : 100;
+    const type = (params.type as "access" | "error") ?? "access";
+    const logs = await cloudApacheInstance.fetchLogs(lines, type);
+    return { success: true, type, lines, output: logs };
+  },
+
+  "cloud:ssh": async () => {
+    if (!cloudApacheInstance) {
+      return { error: "Cloud Apache manager not initialized" };
+    }
+    const sshConfig = cloudApacheInstance.getSshConfig();
+    if (!sshConfig) {
+      return { error: "SSH not configured (instance may not be deployed with key pair)" };
+    }
+    return {
+      host: sshConfig.host,
+      user: sshConfig.user ?? "root",
+      keyPath: sshConfig.keyPath,
+      command: `ssh -i ${sshConfig.keyPath} ${sshConfig.user ?? "root"}@${sshConfig.host}`,
+    };
+  },
 };
+
+/** Returns all registered command names for capability reporting. */
+export function getAvailableCommands(): string[] {
+  return Object.keys(HANDLERS);
+}
 
 // ---------------------------------------------------------------------------
 // Execution tracking (injected from index.ts for the learning loop, UC-4)

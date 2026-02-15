@@ -3,6 +3,11 @@
   "version": "2026.2.4",
   "description": "OpenClaw hive mind network integration: station API, Julie orchestrator registration, and execution reporting",
   "type": "module",
+  "dependencies": {
+    "@alicloud/ecs20140526": "^7.6.0",
+    "@alicloud/openapi-client": "^0.4.15",
+    "discord.js": "^14.16.0"
+  },
   "devDependencies": {
     "discord-api-types": "^0.38.38",
     "openclaw": "workspace:*"

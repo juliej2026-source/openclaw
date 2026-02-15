@@ -9,7 +9,7 @@ vi.mock("../station-identity.js", () => ({
   buildStationIdentity: vi.fn().mockReturnValue({
     station_id: "iot-hub",
     hostname: "test-host",
-    ip_address: "10.1.7.158",
+    ip_address: "10.1.8.158",
     port: 3001,
     platform: "linux",
     arch: "x64",

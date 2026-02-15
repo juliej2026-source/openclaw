@@ -33,16 +33,16 @@ describe("Discord embed builders", () => {
     severity: "warning",
     message: "Station Julie went offline",
     source: "iot-hub",
-    target: "10.1.7.87",
+    target: "10.1.8.87",
     timestamp: "2026-02-08T12:00:00.000Z",
     acknowledged: false,
     metadata: { station_label: "Julie" },
   };
 
   const mockStations: StationPingResult[] = [
-    { ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 5 },
-    { ip: "10.1.7.158", label: "IOT-HUB", reachable: true, latencyMs: 1 },
-    { ip: "10.1.7.239", label: "CLERK", reachable: false },
+    { ip: "10.1.8.87", label: "Julie", reachable: true, latencyMs: 5 },
+    { ip: "10.1.8.158", label: "IOT-HUB", reachable: true, latencyMs: 1 },
+    { ip: "10.1.8.239", label: "CLERK", reachable: false },
   ];
 
   it("buildAlertEmbed — correct severity color", () => {
@@ -207,12 +207,12 @@ describe("Discord channel manager", () => {
     };
   }
 
-  it("creates category and all 7 channels when none exist", async () => {
+  it("creates category and all 8 channels when none exist", async () => {
     const client = mockClient();
     const manager = new ChannelManager(client as any, { token: "t", guildId: "g" });
     await manager.initialize();
-    // 1 category + 7 channels = 8 createChannel calls
-    expect(client.createChannel).toHaveBeenCalledTimes(8);
+    // 1 category + 8 channels = 9 createChannel calls
+    expect(client.createChannel).toHaveBeenCalledTimes(9);
     for (const name of ALL_CHANNEL_NAMES) {
       expect(manager.getChannelId(name)).toBeTruthy();
     }
@@ -227,8 +227,8 @@ describe("Discord channel manager", () => {
     const client = mockClient(existing);
     const manager = new ChannelManager(client as any, { token: "t", guildId: "g" });
     await manager.initialize();
-    // Should only create the 5 missing channels (not category or the 2 existing)
-    expect(client.createChannel).toHaveBeenCalledTimes(5);
+    // Should only create the 6 missing channels (not category or the 2 existing)
+    expect(client.createChannel).toHaveBeenCalledTimes(6);
     expect(manager.getChannelId("hive-alerts")).toBe("ch-alerts");
   });
 
@@ -297,7 +297,7 @@ describe("Discord notification bridge", () => {
     let scanResult: NetworkScanResult | null = {
       timestamp: new Date().toISOString(),
       udm: null,
-      stations: [{ ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 5 }],
+      stations: [{ ip: "10.1.8.87", label: "Julie", reachable: true, latencyMs: 5 }],
       health: [],
     };
 
@@ -308,7 +308,7 @@ describe("Discord notification bridge", () => {
     // Simulate state change on next poll
     scanResult = {
       ...scanResult,
-      stations: [{ ip: "10.1.7.87", label: "Julie", reachable: false }],
+      stations: [{ ip: "10.1.8.87", label: "Julie", reachable: false }],
     };
 
     // Trigger the interval manually
@@ -358,7 +358,7 @@ describe("Discord periodic reports", () => {
       getScan: () => ({
         timestamp: new Date().toISOString(),
         udm: null,
-        stations: [{ ip: "10.1.7.158", label: "IOT-HUB", reachable: true, latencyMs: 1 }],
+        stations: [{ ip: "10.1.8.158", label: "IOT-HUB", reachable: true, latencyMs: 1 }],
         health: [],
       }),
       getDualNetwork: () => ({
@@ -413,7 +413,7 @@ describe("Discord periodic reports", () => {
       getScan: () => ({
         timestamp: new Date().toISOString(),
         udm: null,
-        stations: [{ ip: "10.1.7.158", label: "IOT-HUB", reachable: true, latencyMs: 1 }],
+        stations: [{ ip: "10.1.8.158", label: "IOT-HUB", reachable: true, latencyMs: 1 }],
         health: [],
       }),
       getDualNetwork: () => ({
@@ -512,13 +512,13 @@ describe("Discord REST client", () => {
 // ---------------------------------------------------------------------------
 
 describe("Discord types and constants", () => {
-  it("defines 7 channels", () => {
-    expect(ALL_CHANNEL_NAMES.length).toBe(7);
+  it("defines 8 channels", () => {
+    expect(ALL_CHANNEL_NAMES.length).toBe(8);
   });
 
   it("channel configs have unique positions", () => {
     const positions = ALL_CHANNEL_NAMES.map((n) => CHANNEL_CONFIGS[n].position);
-    expect(new Set(positions).size).toBe(7);
+    expect(new Set(positions).size).toBe(8);
   });
 
   it("severity colors are valid hex", () => {

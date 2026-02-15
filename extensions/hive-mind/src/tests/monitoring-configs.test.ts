@@ -230,8 +230,8 @@ describe("prometheus/prometheus.yml", () => {
     expect(config).toContain('job_name: "hive-mind"');
   });
 
-  it("targets IOT-HUB at 10.1.7.158:3001", () => {
-    expect(config).toContain("10.1.7.158:3001");
+  it("targets IOT-HUB at 10.1.8.158:3001", () => {
+    expect(config).toContain("10.1.8.158:3001");
   });
 
   it("scrapes /metrics path", () => {
@@ -421,7 +421,7 @@ describe("cross-config consistency", () => {
   it("Prometheus scrapes the correct hive-mind endpoint", () => {
     const promConfig = readConfig("prometheus/prometheus.yml");
     // Should scrape the IOT-HUB IP on port 3001 (matching STATION_PORT)
-    expect(promConfig).toContain("10.1.7.158:3001");
+    expect(promConfig).toContain("10.1.8.158:3001");
     expect(promConfig).toContain("/metrics");
   });
 

@@ -38,7 +38,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: openclaw
       GF_AUTH_ANONYMOUS_ENABLED: "false"
-      GF_SERVER_ROOT_URL: "http://10.1.7.158/grafana/"
+      GF_SERVER_ROOT_URL: "http://10.1.8.158/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     depends_on:
       - prometheus
@@ -78,7 +78,7 @@ services:
       - convex-data:/convex/data
       - ../extensions/neural-graph/convex:/convex/functions
     environment:
-      CONVEX_SITE_URL: "http://10.1.7.158"
+      CONVEX_SITE_URL: "http://10.1.8.158"
     networks: [monitoring]
 
 volumes:

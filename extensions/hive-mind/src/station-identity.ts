@@ -1,7 +1,13 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { StationIdentity, LayerInfo, LayerStatus, ModelSummary } from "./types.js";
+import type {
+  StationIdentity,
+  LayerInfo,
+  LayerStatus,
+  ModelSummary,
+  RuntimeState,
+} from "./types.js";
 import {
   STATION_ID,
   STATION_IP,
@@ -10,8 +16,26 @@ import {
   ALL_CAPABILITIES,
 } from "./types.js";
 
+export type RuntimeContext = {
+  discordConnected?: boolean;
+  discordGatewayActive?: boolean;
+  discordGuildId?: string;
+  discordChannels?: string[];
+  discordSlashCommandCount?: number;
+  activeWanPath?: string;
+  failoverActive?: boolean;
+  scannerRunning?: boolean;
+  stationsOnline?: number;
+  stationsTotal?: number;
+  activeAlertCount?: number;
+  totalAlertCount?: number;
+};
+
 type IdentityOptions = {
   openclawDir?: string;
+  runtimeContext?: RuntimeContext;
+  commands?: string[];
+  endpoints?: Array<{ path: string; method: string }>;
 };
 
 function resolveOpenclawDir(opts?: IdentityOptions): string {
@@ -78,6 +102,10 @@ function detectNeuralGraphStatus(): LayerStatus {
   } catch {
     return "unavailable";
   }
+}
+
+function detectDiscordStatus(): LayerStatus {
+  return process.env.DISCORD_BOT_TOKEN ? "active" : "unavailable";
 }
 
 function buildLayers(openclawDir: string): Record<string, LayerInfo> {
@@ -153,6 +181,60 @@ function buildLayers(openclawDir: string): Record<string, LayerInfo> {
       providers: ["ratehawk", "apify", "nisade", "playwright", "roomboss"],
       status: "active",
     },
+    discord_gateway: {
+      name: "Discord Gateway",
+      description:
+        "Bidirectional Discord control — REST notifications, WebSocket Gateway, slash commands, message commands, button interactions, 7 channels",
+      tools: ["discord_notify", "discord_slash", "discord_message", "discord_button"],
+      cli_commands: 0,
+      hooks: ["alert_fired", "scan_complete", "failover_triggered"],
+      providers: ["discord"],
+      status: detectDiscordStatus(),
+    },
+    network_control: {
+      name: "Network Control",
+      description:
+        "Dual-WAN management, failover, alert lifecycle, 5G modem control, network scanning",
+      tools: ["network_scan", "network_switch", "alert_ack", "failover_status"],
+      cli_commands: 0,
+      hooks: ["scan_complete"],
+      providers: ["udm-pro", "hr02-5g"],
+      status: "active",
+    },
+  };
+}
+
+function buildRuntimeState(ctx?: RuntimeContext): RuntimeState | undefined {
+  if (!ctx) return undefined;
+  return {
+    discord:
+      ctx.discordConnected != null
+        ? {
+            connected: ctx.discordConnected,
+            gateway_active: ctx.discordGatewayActive ?? false,
+            guild_id: ctx.discordGuildId,
+            channels: ctx.discordChannels ?? [],
+            slash_commands: ctx.discordSlashCommandCount ?? 0,
+          }
+        : undefined,
+    network:
+      ctx.activeWanPath != null
+        ? {
+            active_path: ctx.activeWanPath,
+            failover_active: ctx.failoverActive ?? false,
+            scanner_running: ctx.scannerRunning ?? false,
+            stations_online: ctx.stationsOnline ?? 0,
+            stations_total: ctx.stationsTotal ?? 0,
+          }
+        : undefined,
+    alerts:
+      ctx.activeAlertCount != null
+        ? {
+            active_count: ctx.activeAlertCount,
+            total_count: ctx.totalAlertCount ?? 0,
+          }
+        : undefined,
+    uptime_seconds: Math.floor(os.uptime()),
   };
 }
 
@@ -171,5 +253,8 @@ export function buildStationIdentity(opts?: IdentityOptions): StationIdentity {
     capabilities: [...ALL_CAPABILITIES],
     layers: buildLayers(openclawDir),
     models: loadModels(openclawDir),
+    commands: opts?.commands,
+    endpoints: opts?.endpoints,
+    runtime: buildRuntimeState(opts?.runtimeContext),
   };
 }

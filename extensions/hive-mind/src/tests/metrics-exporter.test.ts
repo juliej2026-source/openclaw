@@ -118,17 +118,17 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1.2 },
-            { ip: "10.1.7.188", label: "SCRAPER", reachable: false },
+            { ip: "10.1.8.87", label: "Julie", reachable: true, latencyMs: 1.2 },
+            { ip: "10.1.8.188", label: "SCRAPER", reachable: false },
           ],
           health: [],
         }),
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.7.87"} 1');
-      expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.7.188"} 0');
-      expect(output).toContain('hivemind_station_latency_ms{station="Julie",ip="10.1.7.87"} 1.2');
+      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.8.87"} 1');
+      expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.8.188"} 0');
+      expect(output).toContain('hivemind_station_latency_ms{station="Julie",ip="10.1.8.87"} 1.2');
       // SCRAPER has no latency (unreachable), should not appear in latency metrics
       expect(output).not.toContain('hivemind_station_latency_ms{station="SCRAPER"');
     });
@@ -139,21 +139,21 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1.0 },
-            { ip: "10.1.7.188", label: "SCRAPER", reachable: true, latencyMs: 2.0 },
-            { ip: "10.1.7.130", label: "CLERK", reachable: true, latencyMs: 0.5 },
+            { ip: "10.1.8.87", label: "Julie", reachable: true, latencyMs: 1.0 },
+            { ip: "10.1.8.188", label: "SCRAPER", reachable: true, latencyMs: 2.0 },
+            { ip: "10.1.8.130", label: "CLERK", reachable: true, latencyMs: 0.5 },
           ],
           health: [],
         }),
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.7.87"} 1');
-      expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.7.188"} 1');
-      expect(output).toContain('hivemind_station_reachable{station="CLERK",ip="10.1.7.130"} 1');
-      expect(output).toContain('hivemind_station_latency_ms{station="Julie",ip="10.1.7.87"} 1');
-      expect(output).toContain('hivemind_station_latency_ms{station="SCRAPER",ip="10.1.7.188"} 2');
-      expect(output).toContain('hivemind_station_latency_ms{station="CLERK",ip="10.1.7.130"} 0.5');
+      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.8.87"} 1');
+      expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.8.188"} 1');
+      expect(output).toContain('hivemind_station_reachable{station="CLERK",ip="10.1.8.130"} 1');
+      expect(output).toContain('hivemind_station_latency_ms{station="Julie",ip="10.1.8.87"} 1');
+      expect(output).toContain('hivemind_station_latency_ms{station="SCRAPER",ip="10.1.8.188"} 2');
+      expect(output).toContain('hivemind_station_latency_ms{station="CLERK",ip="10.1.8.130"} 0.5');
     });
 
     it("handles all stations unreachable", () => {
@@ -162,16 +162,16 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "Julie", reachable: false },
-            { ip: "10.1.7.188", label: "SCRAPER", reachable: false },
+            { ip: "10.1.8.87", label: "Julie", reachable: false },
+            { ip: "10.1.8.188", label: "SCRAPER", reachable: false },
           ],
           health: [],
         }),
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.7.87"} 0');
-      expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.7.188"} 0');
+      expect(output).toContain('hivemind_station_reachable{station="Julie",ip="10.1.8.87"} 0');
+      expect(output).toContain('hivemind_station_reachable{station="SCRAPER",ip="10.1.8.188"} 0');
       // No latency data lines when all unreachable (HELP/TYPE headers may still be present)
       expect(output).not.toMatch(/hivemind_station_latency_ms\{/);
     });
@@ -181,15 +181,15 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.99", reachable: true, latencyMs: 3.3 }],
+          stations: [{ ip: "10.1.8.99", reachable: true, latencyMs: 3.3 }],
           health: [],
         }),
       });
 
       const output = generateMetrics(ctx);
-      expect(output).toContain('hivemind_station_reachable{station="10.1.7.99",ip="10.1.7.99"} 1');
+      expect(output).toContain('hivemind_station_reachable{station="10.1.8.99",ip="10.1.8.99"} 1');
       expect(output).toContain(
-        'hivemind_station_latency_ms{station="10.1.7.99",ip="10.1.7.99"} 3.3',
+        'hivemind_station_latency_ms{station="10.1.8.99",ip="10.1.8.99"} 3.3',
       );
     });
 
@@ -218,7 +218,7 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1 }],
+          stations: [{ ip: "10.1.8.87", label: "Julie", reachable: true, latencyMs: 1 }],
           health: [],
         }),
       });
@@ -239,8 +239,8 @@ describe("generateMetrics", () => {
         primary: {
           id: "primary" as const,
           ssid: "Hotel",
-          gateway: "10.1.7.1",
-          subnet: "10.1.7.0/24",
+          gateway: "10.1.8.1",
+          subnet: "10.1.8.0/24",
           description: "Hotel WiFi",
         },
         hr02_5g: {
@@ -364,9 +364,9 @@ describe("generateMetrics", () => {
   describe("alert metrics", () => {
     it("includes alert active count and breakdown by type", () => {
       const mgr = new AlertManager({ openclawDir: tmpDir });
-      mgr.emit("station_offline", "Julie down", { target: "10.1.7.87" });
-      mgr.emit("station_offline", "SCRAPER down", { target: "10.1.7.188" });
-      mgr.emit("station_online", "Julie back", { target: "10.1.7.87" });
+      mgr.emit("station_offline", "Julie down", { target: "10.1.8.87" });
+      mgr.emit("station_offline", "SCRAPER down", { target: "10.1.8.188" });
+      mgr.emit("station_online", "Julie back", { target: "10.1.8.87" });
 
       const ctx = makeContext({ alertManager: mgr });
       const output = generateMetrics(ctx);
@@ -619,7 +619,7 @@ describe("generateMetrics", () => {
     });
   });
 
-  // -- JULIA registration ---------------------------------------------------
+  // -- Julie registration ---------------------------------------------------
 
   describe("Julie registration metrics", () => {
     it("reports registered state", () => {
@@ -715,7 +715,7 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: "Julie", reachable: true, latencyMs: 1 }],
+          stations: [{ ip: "10.1.8.87", label: "Julie", reachable: true, latencyMs: 1 }],
           health: [],
         }),
         getDualNetwork: () => ({
@@ -724,8 +724,8 @@ describe("generateMetrics", () => {
             primary: {
               id: "primary",
               ssid: "Hotel",
-              gateway: "10.1.7.1",
-              subnet: "10.1.7.0/24",
+              gateway: "10.1.8.1",
+              subnet: "10.1.8.0/24",
               description: "Hotel WiFi",
             },
             hr02_5g: {
@@ -833,8 +833,8 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "A", reachable: true, latencyMs: 1 },
-            { ip: "10.1.7.88", label: "B", reachable: true, latencyMs: 2 },
+            { ip: "10.1.8.87", label: "A", reachable: true, latencyMs: 1 },
+            { ip: "10.1.8.88", label: "B", reachable: true, latencyMs: 2 },
           ],
           health: [],
         }),
@@ -883,7 +883,7 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: 'Test "Station"', reachable: true, latencyMs: 5 }],
+          stations: [{ ip: "10.1.8.87", label: 'Test "Station"', reachable: true, latencyMs: 5 }],
           health: [],
         }),
       });
@@ -898,7 +898,7 @@ describe("generateMetrics", () => {
           timestamp: new Date().toISOString(),
           udm: null,
           stations: [
-            { ip: "10.1.7.87", label: "path\\to\\station", reachable: true, latencyMs: 1 },
+            { ip: "10.1.8.87", label: "path\\to\\station", reachable: true, latencyMs: 1 },
           ],
           health: [],
         }),
@@ -913,7 +913,7 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: "line1\nline2", reachable: true, latencyMs: 1 }],
+          stations: [{ ip: "10.1.8.87", label: "line1\nline2", reachable: true, latencyMs: 1 }],
           health: [],
         }),
       });
@@ -958,7 +958,7 @@ describe("generateMetrics", () => {
       expect(output1).toBe(output2);
     });
 
-    it("section ordering is consistent: uptime → stations → WAN → alerts → perf → exec → models → julia", () => {
+    it("section ordering is consistent: uptime → stations → WAN → alerts → perf → exec → models → julie", () => {
       const mgr = new AlertManager({ openclawDir: tmpDir });
       mgr.emit("station_offline", "test");
 
@@ -976,7 +976,7 @@ describe("generateMetrics", () => {
         getScan: () => ({
           timestamp: new Date().toISOString(),
           udm: null,
-          stations: [{ ip: "10.1.7.87", label: "J", reachable: true, latencyMs: 1 }],
+          stations: [{ ip: "10.1.8.87", label: "J", reachable: true, latencyMs: 1 }],
           health: [],
         }),
         getDualNetwork: () => ({
@@ -985,8 +985,8 @@ describe("generateMetrics", () => {
             primary: {
               id: "primary",
               ssid: "H",
-              gateway: "10.1.7.1",
-              subnet: "10.1.7.0/24",
+              gateway: "10.1.8.1",
+              subnet: "10.1.8.0/24",
               description: "H",
             },
             hr02_5g: {

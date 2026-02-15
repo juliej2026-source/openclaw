@@ -175,6 +175,9 @@ export const CORE_NODE_IDS = [
   "memory-lancedb",
   "iot-hub",
   "julie",
+  "scraper",
+  "clerk",
+  "social-intel",
 ] as const;
 
 export const FITNESS_WEIGHTS = {

@@ -158,6 +158,182 @@ export async function capabilityModelTrainer(
 }
 
 // ---------------------------------------------------------------------------
+// Scraper Intelligence capability node — routes to SCRAPER station
+// ---------------------------------------------------------------------------
+
+async function getPeerClient() {
+  const mod = await import("../../../hive-mind/src/peer-client.js");
+  return new mod.PeerClient();
+}
+
+export async function capabilityScraperIntel(
+  state: NeuralGraphStateType,
+): Promise<Partial<NeuralGraphStateType>> {
+  const start = Date.now();
+  const nodeId = "scraper_intel";
+
+  try {
+    const peerClient = await getPeerClient();
+    const scraper = peerClient.getPeer("scraper");
+
+    if (!scraper) {
+      return {
+        nodesVisited: [nodeId],
+        nodeLatencies: { [nodeId]: Date.now() - start },
+        result: { available: false, reason: "SCRAPER station not configured" },
+        success: false,
+      };
+    }
+
+    // Determine which scraper command to dispatch based on task description
+    const desc = state.taskDescription.toLowerCase();
+    let command = "intel:status";
+    if (/\bprice\b|\brate\b|\bcost\b|\bbooking\b|\bdeal\b/.test(desc)) command = "intel:prices";
+    else if (/\bscrape\b|\bcrawl\b|\bfetch\b/.test(desc)) command = "intel:scrape";
+    else if (/\bfamily\b|\breport\b/.test(desc)) command = "intel:report";
+    else if (/\banomal|\bdetect\b|\balert\b/.test(desc)) command = "intel:anomalies";
+
+    const result = await peerClient.dispatchCommand("scraper", {
+      command,
+      request_id: `neural-${Date.now()}`,
+    });
+
+    return {
+      nodesVisited: [nodeId],
+      nodeLatencies: { [nodeId]: Date.now() - start },
+      result: {
+        station: "scraper",
+        command,
+        response: result,
+        reachable: result.success,
+      },
+      success: result.success,
+    };
+  } catch (err) {
+    return {
+      nodesVisited: [nodeId],
+      nodeLatencies: { [nodeId]: Date.now() - start },
+      error: err instanceof Error ? err.message : String(err),
+      success: false,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Clerk Learning capability node — routes to CLERK station
+// ---------------------------------------------------------------------------
+
+export async function capabilityClerkLearning(
+  state: NeuralGraphStateType,
+): Promise<Partial<NeuralGraphStateType>> {
+  const start = Date.now();
+  const nodeId = "clerk_learning";
+
+  try {
+    const peerClient = await getPeerClient();
+    const clerk = peerClient.getPeer("clerk");
+
+    if (!clerk) {
+      return {
+        nodesVisited: [nodeId],
+        nodeLatencies: { [nodeId]: Date.now() - start },
+        result: { available: false, reason: "CLERK station not configured" },
+        success: false,
+      };
+    }
+
+    // Route to appropriate CLERK capability
+    const desc = state.taskDescription.toLowerCase();
+    let command = "hf:status";
+    if (/embed/.test(desc)) command = "hf:embed";
+    else if (/summar/.test(desc)) command = "hf:summarize";
+    else if (/infer|generate|complet/.test(desc)) command = "hf:infer";
+    else if (/analys|analyz/.test(desc)) command = "hf:analyze";
+
+    const result = await peerClient.dispatchCommand("clerk", {
+      command,
+      request_id: `neural-${Date.now()}`,
+    });
+
+    return {
+      nodesVisited: [nodeId],
+      nodeLatencies: { [nodeId]: Date.now() - start },
+      result: {
+        station: "clerk",
+        command,
+        response: result,
+        reachable: result.success,
+      },
+      success: result.success,
+    };
+  } catch (err) {
+    return {
+      nodesVisited: [nodeId],
+      nodeLatencies: { [nodeId]: Date.now() - start },
+      error: err instanceof Error ? err.message : String(err),
+      success: false,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Social Intelligence capability node — routes to SOCIAL-INTEL station
+// ---------------------------------------------------------------------------
+
+export async function capabilitySocialIntel(
+  state: NeuralGraphStateType,
+): Promise<Partial<NeuralGraphStateType>> {
+  const start = Date.now();
+  const nodeId = "social_intel";
+
+  try {
+    const peerClient = await getPeerClient();
+    const social = peerClient.getPeer("social-intel");
+
+    if (!social) {
+      return {
+        nodesVisited: [nodeId],
+        nodeLatencies: { [nodeId]: Date.now() - start },
+        result: { available: false, reason: "SOCIAL-INTEL station not configured" },
+        success: false,
+      };
+    }
+
+    // Route to appropriate SOCIAL-INTEL capability
+    const desc = state.taskDescription.toLowerCase();
+    let command = "social:status";
+    if (/telegram/.test(desc)) command = "social:telegram";
+    else if (/sentiment/.test(desc)) command = "social:sentiment";
+    else if (/monitor|feed|track/.test(desc)) command = "social:monitor";
+    else if (/trend/.test(desc)) command = "social:trends";
+
+    const result = await peerClient.dispatchCommand("social-intel", {
+      command,
+      request_id: `neural-${Date.now()}`,
+    });
+
+    return {
+      nodesVisited: [nodeId],
+      nodeLatencies: { [nodeId]: Date.now() - start },
+      result: {
+        station: "social-intel",
+        command,
+        response: result,
+        reachable: result.success,
+      },
+      success: result.success,
+    };
+  } catch (err) {
+    return {
+      nodesVisited: [nodeId],
+      nodeLatencies: { [nodeId]: Date.now() - start },
+      error: err instanceof Error ? err.message : String(err),
+      success: false,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Memory (LanceDB) capability node
 // ---------------------------------------------------------------------------
 

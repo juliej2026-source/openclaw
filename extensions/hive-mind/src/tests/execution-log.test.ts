@@ -26,7 +26,7 @@ function makeEntry(overrides: Partial<ExecutionLogEntry> = {}): ExecutionLogEntr
     task_type: "coding",
     success: true,
     latency_ms: 42,
-    reported_to_julia: false,
+    reported_to_julie: false,
     ...overrides,
   };
 }

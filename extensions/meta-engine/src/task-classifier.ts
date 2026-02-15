@@ -96,6 +96,35 @@ const SIGNALS: Record<TaskType, RegExp[]> = {
     /\binstall\b.*\bpackage/i,
     /\bdeploy\b/i,
   ],
+  hotel_intel: [
+    /\bhotel\b/i,
+    /\bniseko\b/i,
+    /\bprice\s*(comparison|monitor|check|alert)/i,
+    /\bscrape\b.*\b(hotel|price|booking)/i,
+    /\bbooking\s+rate/i,
+    /\baccommodation/i,
+    /\bfamily\s+report/i,
+    /\banomaly\s+detect/i,
+    /\bprice\s+anomal/i,
+    /\bholiday\s+(deal|price)/i,
+  ],
+  social_intel: [
+    /\bsocial\s+(media|monitor|intel|analysis)/i,
+    /\btelegram\b/i,
+    /\bsentiment\s+analy/i,
+    /\btrending\b.*\b(topic|post)/i,
+    /\bsocial\s+feed/i,
+    /\bcontent\s+monitor/i,
+  ],
+  peer_inference: [
+    /\bhugging\s*face\b/i,
+    /\bhf\s+(inference|model|embed)/i,
+    /\bembedding/i,
+    /\bremote\s+(inference|model|llm)/i,
+    /\bpeer\s+(inference|model)/i,
+    /\bclerk\b.*\b(infer|embed|model)/i,
+    /\bmistral\b.*\b(infer|run)/i,
+  ],
   chat: [], // Fallback — always matches if nothing else does
 };
 
@@ -141,6 +170,9 @@ export function classifyTask(prompt: string): TaskClassification {
     "tool-use": 0,
     math: 0,
     summarization: 0,
+    hotel_intel: 0,
+    social_intel: 0,
+    peer_inference: 0,
   };
 
   // Score each task type by counting pattern matches

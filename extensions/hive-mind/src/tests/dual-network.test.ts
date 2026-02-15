@@ -119,19 +119,19 @@ describe("pingGateway", () => {
     const exec = createMockExec([
       {
         stdout: [
-          "PING 10.1.7.1 (10.1.7.1) 56(84) bytes of data.",
-          "64 bytes from 10.1.7.1: icmp_seq=1 ttl=64 time=2.45 ms",
-          "64 bytes from 10.1.7.1: icmp_seq=2 ttl=64 time=1.89 ms",
-          "64 bytes from 10.1.7.1: icmp_seq=3 ttl=64 time=2.10 ms",
+          "PING 10.1.8.1 (10.1.8.1) 56(84) bytes of data.",
+          "64 bytes from 10.1.8.1: icmp_seq=1 ttl=64 time=2.45 ms",
+          "64 bytes from 10.1.8.1: icmp_seq=2 ttl=64 time=1.89 ms",
+          "64 bytes from 10.1.8.1: icmp_seq=3 ttl=64 time=2.10 ms",
           "",
-          "--- 10.1.7.1 ping statistics ---",
+          "--- 10.1.8.1 ping statistics ---",
           "3 packets transmitted, 3 received, 0% packet loss, time 2003ms",
           "rtt min/avg/max/mdev = 1.890/2.146/2.450/0.230 ms",
         ].join("\n"),
       },
     ]);
 
-    const quality = await pingGateway("10.1.7.1", exec);
+    const quality = await pingGateway("10.1.8.1", exec);
 
     expect(quality.reachable).toBe(true);
     expect(quality.latency_ms).toBeCloseTo(2.146, 1);
@@ -139,7 +139,7 @@ describe("pingGateway", () => {
   });
 
   it("returns unreachable when ping fails completely", async () => {
-    const quality = await pingGateway("10.1.7.1", failingExec());
+    const quality = await pingGateway("10.1.8.1", failingExec());
 
     expect(quality.reachable).toBe(false);
     expect(quality.latency_ms).toBeNull();
@@ -150,17 +150,17 @@ describe("pingGateway", () => {
     const exec = createMockExec([
       {
         stdout: [
-          "PING 10.1.7.1 (10.1.7.1) 56(84) bytes of data.",
-          "64 bytes from 10.1.7.1: icmp_seq=1 ttl=64 time=5.00 ms",
+          "PING 10.1.8.1 (10.1.8.1) 56(84) bytes of data.",
+          "64 bytes from 10.1.8.1: icmp_seq=1 ttl=64 time=5.00 ms",
           "",
-          "--- 10.1.7.1 ping statistics ---",
+          "--- 10.1.8.1 ping statistics ---",
           "3 packets transmitted, 1 received, 66% packet loss, time 2003ms",
           "rtt min/avg/max/mdev = 5.000/5.000/5.000/0.000 ms",
         ].join("\n"),
       },
     ]);
 
-    const quality = await pingGateway("10.1.7.1", exec);
+    const quality = await pingGateway("10.1.8.1", exec);
 
     expect(quality.reachable).toBe(true);
     expect(quality.packet_loss_pct).toBe(66);
@@ -174,7 +174,7 @@ describe("pingGateway", () => {
 describe("NETWORK_PATHS", () => {
   it("has primary and hr02_5g paths defined", () => {
     expect(NETWORK_PATHS.primary.ssid).toBe("The 1898 Moiwa");
-    expect(NETWORK_PATHS.primary.gateway).toBe("10.1.7.1");
+    expect(NETWORK_PATHS.primary.gateway).toBe("10.1.8.1");
     expect(NETWORK_PATHS.hr02_5g.ssid).toBe("HR02a-BE6444");
     expect(NETWORK_PATHS.hr02_5g.gateway).toBe("192.168.128.1");
   });

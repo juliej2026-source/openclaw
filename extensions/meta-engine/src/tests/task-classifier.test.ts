@@ -81,4 +81,23 @@ describe("classifyTask", () => {
     // Should pick up at least one of coding or reasoning
     expect(allTypes.length).toBeGreaterThanOrEqual(1);
   });
+
+  it("classifies hotel intelligence prompts", () => {
+    expect(classifyTask("Check hotel prices in Niseko").primary).toBe("hotel_intel");
+    expect(classifyTask("Scrape hotel booking rates").primary).toBe("hotel_intel");
+    expect(classifyTask("Family report for holiday accommodation").primary).toBe("hotel_intel");
+    expect(classifyTask("Detect price anomalies in hotel data").primary).toBe("hotel_intel");
+  });
+
+  it("classifies social intelligence prompts", () => {
+    expect(classifyTask("Monitor social media for trending topics").primary).toBe("social_intel");
+    expect(classifyTask("Run sentiment analysis on the content").primary).toBe("social_intel");
+    expect(classifyTask("Check the Telegram feed").primary).toBe("social_intel");
+  });
+
+  it("classifies peer inference prompts", () => {
+    expect(classifyTask("Run HuggingFace inference on this text").primary).toBe("peer_inference");
+    expect(classifyTask("Generate embeddings for this document").primary).toBe("peer_inference");
+    expect(classifyTask("Use remote inference for this prompt").primary).toBe("peer_inference");
+  });
 });

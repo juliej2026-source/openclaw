@@ -115,7 +115,7 @@ export class UnifiClient {
 }
 
 export function loadUnifiConfig(): UnifiConfig {
-  const host = process.env.UNIFI_HOST ?? "10.1.7.1";
+  const host = process.env.UNIFI_HOST ?? "10.1.8.1";
   const username = process.env.UNIFI_USERNAME;
   const password = process.env.UNIFI_PASSWORD;
   const site = process.env.UNIFI_SITE ?? "default";

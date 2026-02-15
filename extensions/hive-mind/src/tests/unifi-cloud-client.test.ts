@@ -57,7 +57,7 @@ describe("UnifiCloudClient", () => {
             id: "h1",
             type: "UDM-Pro",
             name: "UDM Pro",
-            reportedState: { hostname: "UDM", ip: "10.1.7.1" },
+            reportedState: { hostname: "UDM", ip: "10.1.8.1" },
           },
         ]),
       );
@@ -67,7 +67,7 @@ describe("UnifiCloudClient", () => {
 
       expect(hosts).toHaveLength(1);
       expect(hosts[0].id).toBe("h1");
-      expect(hosts[0].reportedState?.ip).toBe("10.1.7.1");
+      expect(hosts[0].reportedState?.ip).toBe("10.1.8.1");
     });
 
     it("uses correct API URL", async () => {
@@ -183,7 +183,7 @@ describe("UnifiCloudClient", () => {
         {
           id: "d1",
           mac: "aa:bb",
-          ip: "10.1.7.2",
+          ip: "10.1.8.2",
           name: "Switch",
           model: "USW",
           type: "usw",

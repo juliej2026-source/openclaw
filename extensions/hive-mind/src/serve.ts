@@ -1,12 +1,20 @@
 import http from "node:http";
 import { AlertManager } from "./alert-manager.js";
+import { createCloudApacheManager } from "./alibaba-apache.js";
+import { AlibabaEcsClient } from "./alibaba-client.js";
 import { handleApacheStatus } from "./apache-status.js";
+import { createBraviaClient } from "./bravia-client.js";
+import { createBraviaPoller } from "./bravia-poller.js";
 import {
   setNetworkScannerInstance,
   setDualNetworkInstance,
   setAlertManagerInstance,
+  setBraviaInstance,
+  setCloudApacheInstance,
+  getAvailableCommands,
 } from "./command-dispatch.js";
-import { initDiscord, shutdownDiscord } from "./discord/index.js";
+import { initDiscord, initDiscordGateway, shutdownDiscord } from "./discord/index.js";
+import { ALL_CHANNEL_NAMES } from "./discord/types.js";
 import { createDualNetworkManager } from "./dual-network.js";
 import { ExecutionLog } from "./execution-log.js";
 import { JulieClient } from "./julie-client.js";
@@ -18,10 +26,19 @@ import {
   handleDashboard,
   handleNetworkScan,
   handleNetworkPath,
+  handleBraviaStatus,
+  setBraviaGetter,
+  handleCloudApacheStatus,
+  setCloudApacheGetter,
   handleMetrics,
   handleMonitor,
+  handleTandemInbound,
+  handleTandemCallback,
+  handleDelegationInbound,
+  handleDelegationCallback,
   setNetworkScanGetter,
   setDualNetworkGetter,
+  handleTunnelStatus,
 } from "./network-api.js";
 import { createNetworkScanner } from "./network-scanner.js";
 import {
@@ -56,6 +73,9 @@ const ROUTES: Record<
   "/api/network/path": handleNetworkPath,
   "/api/network/dashboard": handleDashboard,
   "/api/apache/status": handleApacheStatus,
+  "/api/bravia/status": handleBraviaStatus,
+  "/api/cloud/apache": handleCloudApacheStatus,
+  "/api/tunnel/status": handleTunnelStatus,
   "/api/unifi/snapshot": handleUnifiSnapshot,
   "/api/unifi/devices": handleUnifiDevices,
   "/api/unifi/clients": handleUnifiClients,
@@ -66,9 +86,32 @@ const ROUTES: Record<
   "/api/neural/topology": handleNeuralTopology,
   "/api/neural/events": handleNeuralEvents,
   "/api/neural/pending": handleNeuralPending,
+  "/api/network/tandem": handleTandemInbound,
+  "/api/network/tandem/callback": handleTandemCallback,
+  "/api/network/delegation/inbound": handleDelegationInbound,
+  "/api/network/delegation/callback": handleDelegationCallback,
   "/metrics": handleMetrics,
   "/monitor": handleMonitor,
 };
+
+const POST_ENDPOINTS = new Set([
+  "/api/network/command",
+  "/api/network/tandem",
+  "/api/network/tandem/callback",
+  "/api/network/delegation/inbound",
+  "/api/network/delegation/callback",
+]);
+
+function getEndpointMap(): Array<{ path: string; method: string }> {
+  return Object.keys(ROUTES).map((p) => ({
+    path: p,
+    method: POST_ENDPOINTS.has(p) ? "POST" : "GET",
+  }));
+}
+
+// Track Discord connection state for runtime reporting
+let discordConnected = false;
+let discordGatewayActive = false;
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
@@ -107,47 +150,20 @@ const executionLog = new ExecutionLog();
 const startTime = Date.now();
 setAlertManagerInstance(alertManager);
 
-server.listen(STATION_PORT, "127.0.0.1", () => {
-  console.log(`[hive-mind] Network API listening on 127.0.0.1:${STATION_PORT}`);
+const BIND_ADDRESS = process.env.BIND_ADDRESS ?? "0.0.0.0";
+
+server.listen(STATION_PORT, BIND_ADDRESS, () => {
+  console.log(`[hive-mind] Network API listening on ${BIND_ADDRESS}:${STATION_PORT}`);
   console.log(`[hive-mind] Station: ${STATION_ID}`);
   console.log(`[hive-mind] Routes:`);
   for (const path of Object.keys(ROUTES)) {
     console.log(`  ${path}`);
   }
 
-  // Register with Julie on startup
+  // Julie client (registration wired after scanner + dualNet init)
   const julie = new JulieClient();
   let julieRegistered = false;
   let lastHeartbeat = Date.now();
-
-  const identity = buildStationIdentity();
-  julie
-    .register(identity)
-    .then((res) => {
-      julieRegistered = res.success;
-      lastHeartbeat = Date.now();
-      console.log(
-        `[hive-mind] Registered with Julie: ${res.success ? "OK" : "FAILED"} (dynamic=${res.dynamic})`,
-      );
-    })
-    .catch((err) => {
-      console.warn(`[hive-mind] Julie registration failed: ${err.message}`);
-    });
-
-  // Re-register every 5 minutes
-  setInterval(
-    () => {
-      const identity = buildStationIdentity();
-      julie
-        .register(identity)
-        .then((res) => {
-          julieRegistered = res.success;
-          lastHeartbeat = Date.now();
-        })
-        .catch(() => {});
-    },
-    5 * 60 * 1000,
-  );
 
   // Start UniFi poller if credentials are available
   try {
@@ -193,7 +209,7 @@ server.listen(STATION_PORT, "127.0.0.1", () => {
 
   // Always start network scanner (works without UDM Pro credentials)
   const scanner = createNetworkScanner({
-    udmHost: process.env.UNIFI_HOST ?? "10.1.7.1",
+    udmHost: process.env.UNIFI_HOST ?? "10.1.8.1",
     stationPort: STATION_PORT,
     intervalMs: 30_000,
   });
@@ -229,6 +245,47 @@ server.listen(STATION_PORT, "127.0.0.1", () => {
       );
     });
 
+  // Start BRAVIA TV poller
+  const braviaClient = createBraviaClient();
+  const braviaPoller = createBraviaPoller({ client: braviaClient, intervalMs: 30_000 });
+  setBraviaInstance({
+    getLatestStatus: () => braviaPoller.getLatestStatus(),
+    client: braviaClient,
+  });
+  setBraviaGetter(() => braviaPoller.getLatestStatus());
+  braviaPoller
+    .start()
+    .then(() => {
+      const status = braviaPoller.getLatestStatus();
+      console.log(
+        `[hive-mind] BRAVIA poller started (host=${braviaClient instanceof Object ? (process.env.BRAVIA_HOST ?? "10.1.8.194") : "unknown"}, power=${status?.power ?? "unknown"})`,
+      );
+    })
+    .catch((err) => {
+      console.warn(
+        `[hive-mind] BRAVIA poller failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    });
+
+  // Initialize Cloud Apache manager if Alibaba credentials are available
+  const aliKeyId = process.env.ALIBABA_ACCESS_KEY_ID;
+  const aliSecret = process.env.ALIBABA_ACCESS_KEY_SECRET;
+  if (aliKeyId && aliSecret) {
+    const ecsClient = new AlibabaEcsClient({
+      accessKeyId: aliKeyId,
+      accessKeySecret: aliSecret,
+      regionId: process.env.ALIBABA_REGION ?? "ap-southeast-1",
+    });
+    const cloudApache = createCloudApacheManager({ ecsClient, monitorIntervalMs: 60_000 });
+    setCloudApacheInstance(cloudApache);
+    setCloudApacheGetter(() => cloudApache.getState());
+    console.log(
+      `[hive-mind] Cloud Apache manager initialized (region=${process.env.ALIBABA_REGION ?? "ap-southeast-1"})`,
+    );
+  } else {
+    console.log("[hive-mind] Cloud Apache disabled (ALIBABA_ACCESS_KEY_ID not set)");
+  }
+
   // Wire full metrics context now that all services are created
   setMetricsContext({
     alertManager,
@@ -242,25 +299,91 @@ server.listen(STATION_PORT, "127.0.0.1", () => {
 
   console.log("[hive-mind] Metrics context wired (scanner + dual-WAN + Julie + alerts)");
 
+  // Build full identity with runtime context, commands, and endpoints
+  const buildFullIdentity = () =>
+    buildStationIdentity({
+      commands: getAvailableCommands(),
+      endpoints: getEndpointMap(),
+      runtimeContext: {
+        discordConnected,
+        discordGatewayActive,
+        discordGuildId: process.env.DISCORD_GUILD_ID,
+        discordChannels: [...ALL_CHANNEL_NAMES],
+        discordSlashCommandCount: 10,
+        activeWanPath: dualNet.getCurrentPath(),
+        failoverActive: dualNet.getState().failover_active,
+        scannerRunning: true,
+        stationsOnline: scanner.getLatestScan()?.stations.filter((s) => s.reachable).length ?? 0,
+        stationsTotal: scanner.getLatestScan()?.stations.length ?? 0,
+        activeAlertCount: alertManager.getActive().length,
+        totalAlertCount: alertManager.totalAlerts,
+      },
+    });
+
+  // Register with Julie on startup
+  julie
+    .register(buildFullIdentity())
+    .then((res) => {
+      julieRegistered = res.success;
+      lastHeartbeat = Date.now();
+      console.log(
+        `[hive-mind] Registered with Julie: ${res.success ? "OK" : "FAILED"} (dynamic=${res.dynamic})`,
+      );
+    })
+    .catch((err) => {
+      console.warn(`[hive-mind] Julie registration failed: ${err.message}`);
+    });
+
+  // Re-register every 5 minutes with fresh runtime state
+  setInterval(
+    () => {
+      julie
+        .register(buildFullIdentity())
+        .then((res) => {
+          julieRegistered = res.success;
+          lastHeartbeat = Date.now();
+        })
+        .catch(() => {});
+    },
+    5 * 60 * 1000,
+  );
+
   // Initialize Discord integration (non-fatal)
   const discordToken = process.env.DISCORD_BOT_TOKEN;
   const discordGuild = process.env.DISCORD_GUILD_ID;
   if (discordToken && discordGuild) {
-    initDiscord(
-      {
-        token: discordToken,
-        guildId: discordGuild,
-        categoryName: process.env.DISCORD_CATEGORY_NAME,
-        enabled: process.env.DISCORD_ENABLED !== "false",
-      },
-      {
-        alertManager,
-        getScan: () => scanner.getLatestScan(),
-        getDualNetwork: () => dualNet.getState(),
-        startTime,
-      },
-    )
-      .then(() => console.log("[hive-mind] Discord integration active"))
+    const discordConfig = {
+      token: discordToken,
+      guildId: discordGuild,
+      categoryName: process.env.DISCORD_CATEGORY_NAME,
+      enabled: process.env.DISCORD_ENABLED !== "false",
+    };
+    const discordServices = {
+      alertManager,
+      getScan: () => scanner.getLatestScan(),
+      getDualNetwork: () => dualNet.getState(),
+      startTime,
+    };
+    initDiscord(discordConfig, discordServices)
+      .then(async (cm) => {
+        discordConnected = !!cm;
+        console.log("[hive-mind] Discord integration active");
+        if (cm) {
+          await initDiscordGateway(
+            {
+              ...discordConfig,
+              applicationId: process.env.DISCORD_APPLICATION_ID,
+              gatewayEnabled: process.env.DISCORD_GATEWAY_ENABLED !== "false",
+              gatewayUrl: process.env.OPENCLAW_GATEWAY_URL ?? "http://127.0.0.1:18789",
+              gatewayToken: process.env.OPENCLAW_GATEWAY_TOKEN,
+              aiAgentId: process.env.OPENCLAW_AI_AGENT_ID ?? "main",
+            },
+            cm,
+          );
+          discordGatewayActive = true;
+          console.log("[hive-mind] Discord Gateway active (slash commands + message commands)");
+        }
+      })
       .catch((err) =>
         console.warn(
           `[hive-mind] Discord integration failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -271,9 +394,10 @@ server.listen(STATION_PORT, "127.0.0.1", () => {
   // Graceful shutdown
   function shutdown(signal: string) {
     console.log(`[hive-mind] ${signal} received, shutting down...`);
-    shutdownDiscord();
+    shutdownDiscord().catch(() => {});
     scanner.stop();
     dualNet.stop();
+    braviaPoller.stop();
     server.close(() => {
       console.log("[hive-mind] Server closed");
       process.exit(0);

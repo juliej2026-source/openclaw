@@ -118,5 +118,16 @@ export function createDiscordRestClient(token: string) {
     editMessage(channelId: string, messageId: string, body: DiscordMessage) {
       return request<{ id: string }>("PATCH", `/channels/${channelId}/messages/${messageId}`, body);
     },
+
+    pinMessage(channelId: string, messageId: string) {
+      return request<Record<string, never>>("PUT", `/channels/${channelId}/pins/${messageId}`);
+    },
+
+    getPinnedMessages(channelId: string) {
+      return request<Array<{ id: string; content?: string; embeds?: DiscordEmbed[] }>>(
+        "GET",
+        `/channels/${channelId}/pins`,
+      );
+    },
   };
 }

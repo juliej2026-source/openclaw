@@ -60,14 +60,13 @@ describe("Monitor page — Network Topology section", () => {
     expect(html).toContain('id="topology-container"');
   });
 
-  it("defines all 7 topology nodes in JS", () => {
+  it("defines all 6 topology nodes in JS", () => {
     expect(html).toContain('"UDM-Pro"');
     expect(html).toContain('"HR02-5G"');
     expect(html).toContain('"Julie"');
     expect(html).toContain('"IOT-HUB"');
-    expect(html).toContain('"SCRAPER"');
-    expect(html).toContain('"CLERK"');
-    expect(html).toContain('"Bravia"');
+    expect(html).toContain('"Caesar"');
+    expect(html).toContain('"BRAVIA"');
   });
 
   it("defines topology links", () => {

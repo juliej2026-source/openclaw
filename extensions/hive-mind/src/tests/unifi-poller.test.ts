@@ -32,7 +32,7 @@ function mockClient(overrides: Partial<UnifiClient> = {}): UnifiClient {
       {
         _id: "d1",
         mac: "aa:bb:cc:dd:ee:ff",
-        ip: "10.1.7.2",
+        ip: "10.1.8.2",
         name: "USW-Flex",
         model: "USW-Flex-2.5G-8-PoE",
         type: "usw",
@@ -46,8 +46,8 @@ function mockClient(overrides: Partial<UnifiClient> = {}): UnifiClient {
       {
         _id: "c1",
         mac: "11:22:33:44:55:66",
-        ip: "10.1.7.180",
-        hostname: "scraper",
+        ip: "10.1.8.82",
+        hostname: "caesar",
         is_wired: true,
         rx_bytes: 1000,
         tx_bytes: 2000,
@@ -56,7 +56,7 @@ function mockClient(overrides: Partial<UnifiClient> = {}): UnifiClient {
       {
         _id: "c2",
         mac: "77:88:99:aa:bb:cc",
-        ip: "10.1.7.87",
+        ip: "10.1.8.143",
         hostname: "julie",
         is_wired: true,
         rx_bytes: 500,
@@ -86,8 +86,8 @@ describe("buildStationViews", () => {
       {
         _id: "c1",
         mac: "11:22:33:44:55:66",
-        ip: "10.1.7.180",
-        hostname: "scraper",
+        ip: "10.1.8.82",
+        hostname: "caesar",
         is_wired: true,
         rx_bytes: 1000,
         tx_bytes: 2000,
@@ -96,28 +96,28 @@ describe("buildStationViews", () => {
     ];
 
     const views = buildStationViews(clients);
-    const scraper = views.find((s) => s.ip === "10.1.7.180");
+    const caesar = views.find((s) => s.ip === "10.1.8.82");
 
-    expect(scraper).toBeDefined();
-    expect(scraper!.connected).toBe(true);
-    expect(scraper!.label).toBe("SCRAPER");
-    expect(scraper!.mac).toBe("11:22:33:44:55:66");
+    expect(caesar).toBeDefined();
+    expect(caesar!.connected).toBe(true);
+    expect(caesar!.label).toBe("Caesar");
+    expect(caesar!.mac).toBe("11:22:33:44:55:66");
   });
 
   it("marks known stations as disconnected when not in clients", () => {
     const views = buildStationViews([]);
-    const julia = views.find((s) => s.ip === "10.1.7.87");
+    const julie = views.find((s) => s.ip === "10.1.8.143");
 
-    expect(julia).toBeDefined();
-    expect(julia!.connected).toBe(false);
-    expect(julia!.label).toBe("Julie");
-    expect(julia!.mac).toBeUndefined();
+    expect(julie).toBeDefined();
+    expect(julie!.connected).toBe(false);
+    expect(julie!.label).toBe("Julie");
+    expect(julie!.mac).toBeUndefined();
   });
 
   it("returns all known stations", () => {
     const views = buildStationViews([]);
-    // KNOWN_STATIONS has 5 entries
-    expect(views).toHaveLength(5);
+    // KNOWN_STATIONS has 4 entries
+    expect(views).toHaveLength(4);
   });
 
   it("includes client data for connected stations", () => {
@@ -125,7 +125,7 @@ describe("buildStationViews", () => {
       {
         _id: "c1",
         mac: "aa:bb",
-        ip: "10.1.7.158",
+        ip: "10.1.8.158",
         hostname: "iot-hub",
         is_wired: true,
         rx_bytes: 5000,
@@ -136,7 +136,7 @@ describe("buildStationViews", () => {
     ];
 
     const views = buildStationViews(clients);
-    const iotHub = views.find((s) => s.ip === "10.1.7.158");
+    const iotHub = views.find((s) => s.ip === "10.1.8.158");
 
     expect(iotHub!.is_wired).toBe(true);
     expect(iotHub!.rx_bytes).toBe(5000);
@@ -194,10 +194,10 @@ describe("createUnifiPoller", () => {
     await poller.start();
 
     const snap = mockUpdateCache.mock.calls[0][0];
-    expect(snap.stations).toHaveLength(5);
-    // SCRAPER and JULIA connected (in mock clients), others disconnected
-    const scraper = snap.stations.find((s: { ip: string }) => s.ip === "10.1.7.180");
-    expect(scraper.connected).toBe(true);
+    expect(snap.stations).toHaveLength(4);
+    // Caesar and Julie connected (in mock clients), others disconnected
+    const caesar = snap.stations.find((s: { ip: string }) => s.ip === "10.1.8.82");
+    expect(caesar.connected).toBe(true);
 
     poller.stop();
   });

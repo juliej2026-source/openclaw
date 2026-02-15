@@ -32,7 +32,7 @@ export function registerHiveCli(program: Command): void {
         );
       }
       console.log();
-      console.log(`Julie (10.1.7.87): ${julieUp ? "reachable" : "unreachable"}`);
+      console.log(`Julie (10.1.8.143): ${julieUp ? "reachable" : "unreachable"}`);
     });
 
   cmd

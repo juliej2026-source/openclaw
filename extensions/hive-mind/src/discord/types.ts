@@ -16,7 +16,8 @@ export type ChannelName =
   | "hive-scraper"
   | "hive-neural"
   | "hive-models"
-  | "hive-execution";
+  | "hive-execution"
+  | "hive-ai";
 
 export type ChannelConfig = {
   topic: string;
@@ -52,6 +53,10 @@ export const CHANNEL_CONFIGS: Record<ChannelName, ChannelConfig> = {
     topic: "Command execution log: recent commands, success rates",
     position: 6,
   },
+  "hive-ai": {
+    topic: "Free-form AI chat — ask anything, powered by OpenClaw agent runtime",
+    position: 7,
+  },
 };
 
 export const ALL_CHANNEL_NAMES = Object.keys(CHANNEL_CONFIGS) as ChannelName[];
@@ -73,8 +78,35 @@ export const CONTEXT_COLORS = {
   models: 0x39d2c0,
   execution: 0x3fb950,
   dashboard: 0x5865f2,
+  ai: 0x7289da,
 } as const;
 
 // Discord API channel type constants
 export const CHANNEL_TYPE_GUILD_TEXT = 0;
 export const CHANNEL_TYPE_GUILD_CATEGORY = 4;
+
+// ---------------------------------------------------------------------------
+// Gateway (bidirectional control) types and constants
+// ---------------------------------------------------------------------------
+
+export type DiscordGatewayConfig = DiscordConfig & {
+  applicationId?: string;
+  gatewayEnabled?: boolean;
+  gatewayUrl?: string;
+  gatewayToken?: string;
+  aiAgentId?: string;
+};
+
+// Button custom ID prefix — all hive button IDs start with this
+export const BUTTON_PREFIX = "hive";
+
+// Button action constants
+export const BUTTON_ACTIONS = {
+  refresh: "refresh",
+  ack: "ack",
+  scan: "scan",
+  switch: "switch",
+  scrape: "scrape",
+  evolve: "evolve",
+  topology: "topology",
+} as const;

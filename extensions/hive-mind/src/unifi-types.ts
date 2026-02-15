@@ -12,14 +12,13 @@ export type UnifiConfig = {
 export const UNIFI_API_KEY = "openclaw-network-2026-kelvin";
 
 export const KNOWN_STATIONS: Record<string, string> = {
-  "10.1.7.87": "Julie",
-  "10.1.7.180": "SCRAPER", // decommissioned — functionality moved to IOT-HUB
-  "10.1.7.239": "CLERK",
-  "10.1.7.158": "IOT-HUB",
-  "10.1.7.131": "Bravia TV",
+  "10.1.8.143": "Julie",
+  "10.1.8.82": "Caesar",
+  "10.1.8.158": "IOT-HUB",
+  "10.1.8.194": "BRAVIA TV",
 };
 
-export const DECOMMISSIONED_STATIONS = new Set(["10.1.7.180"]);
+export const DECOMMISSIONED_STATIONS = new Set<string>();
 
 // ---------------------------------------------------------------------------
 // UniFi API response types

@@ -8,7 +8,10 @@ export type TaskType =
   | "analysis"
   | "tool-use"
   | "math"
-  | "summarization";
+  | "summarization"
+  | "hotel_intel"
+  | "social_intel"
+  | "peer_inference";
 
 /** Result of classifying an incoming user prompt. */
 export type TaskClassification = {

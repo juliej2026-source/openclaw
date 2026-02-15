@@ -34,7 +34,7 @@ function errorResponse(status: number, text: string): Response {
 }
 
 const testConfig = {
-  host: "10.1.7.1",
+  host: "10.1.8.1",
   username: "testuser",
   password: "testpass",
   site: "default",
@@ -50,7 +50,7 @@ describe("UnifiClient", () => {
 
       expect(mockFetch).toHaveBeenCalledOnce();
       const [url, opts] = mockFetch.mock.calls[0];
-      expect(url).toBe("https://10.1.7.1/api/auth/login");
+      expect(url).toBe("https://10.1.8.1/api/auth/login");
       expect(opts.method).toBe("POST");
       const body = JSON.parse(opts.body as string);
       expect(body.username).toBe("testuser");
@@ -157,7 +157,7 @@ describe("UnifiClient", () => {
       await client.getDevices();
 
       const [url] = mockFetch.mock.calls[1];
-      expect(url).toBe("https://10.1.7.1/proxy/network/api/s/default/stat/device");
+      expect(url).toBe("https://10.1.8.1/proxy/network/api/s/default/stat/device");
     });
   });
 
@@ -165,14 +165,14 @@ describe("UnifiClient", () => {
     it("returns clients array", async () => {
       mockFetch.mockResolvedValueOnce(loginResponse());
       mockFetch.mockResolvedValueOnce(
-        unifiJson([{ hostname: "kelvins-mbp", ip: "10.1.7.180", mac: "aa:bb" }]),
+        unifiJson([{ hostname: "kelvins-mbp", ip: "10.1.8.180", mac: "aa:bb" }]),
       );
       const client = new UnifiClient({ config: testConfig });
 
       const clients = await client.getClients();
 
       expect(clients).toHaveLength(1);
-      expect(clients[0].ip).toBe("10.1.7.180");
+      expect(clients[0].ip).toBe("10.1.8.180");
     });
 
     it("uses correct site URL path", async () => {
@@ -183,7 +183,7 @@ describe("UnifiClient", () => {
       await client.getClients();
 
       const [url] = mockFetch.mock.calls[1];
-      expect(url).toBe("https://10.1.7.1/proxy/network/api/s/default/stat/sta");
+      expect(url).toBe("https://10.1.8.1/proxy/network/api/s/default/stat/sta");
     });
   });
 
@@ -214,7 +214,7 @@ describe("UnifiClient", () => {
       await client.getHealth();
 
       const [url] = mockFetch.mock.calls[1];
-      expect(url).toBe("https://10.1.7.1/proxy/network/api/s/default/stat/health");
+      expect(url).toBe("https://10.1.8.1/proxy/network/api/s/default/stat/health");
     });
   });
 
@@ -238,7 +238,7 @@ describe("UnifiClient", () => {
       await client.getAlerts();
 
       const [url] = mockFetch.mock.calls[1];
-      expect(url).toBe("https://10.1.7.1/proxy/network/api/s/default/stat/alarm");
+      expect(url).toBe("https://10.1.8.1/proxy/network/api/s/default/stat/alarm");
     });
   });
 
@@ -307,7 +307,7 @@ describe("loadUnifiConfig", () => {
 
     const config = loadUnifiConfig();
 
-    expect(config.host).toBe("10.1.7.1");
+    expect(config.host).toBe("10.1.8.1");
     expect(config.site).toBe("default");
   });
 

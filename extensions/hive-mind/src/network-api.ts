@@ -2,7 +2,12 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import type { DualNetworkState } from "./dual-network.js";
 import type { NetworkScanResult } from "./network-scanner.js";
-import type { NetworkCommand } from "./types.js";
+import type {
+  NetworkCommand,
+  TandemTaskRequest,
+  TandemTaskCallback,
+  DelegationRequest,
+} from "./types.js";
 import { dispatchCommand } from "./command-dispatch.js";
 import { generateMetrics } from "./metrics-exporter.js";
 import { generateMonitorHtml } from "./monitor-page.js";
@@ -197,6 +202,85 @@ export async function handleNetworkPath(req: IncomingMessage, res: ServerRespons
 }
 
 // ---------------------------------------------------------------------------
+// BRAVIA TV status handler
+// ---------------------------------------------------------------------------
+
+let braviaGetter: (() => import("./bravia-client.js").BraviaStatus | null) | null = null;
+
+export function setBraviaGetter(
+  getter: () => import("./bravia-client.js").BraviaStatus | null,
+): void {
+  braviaGetter = getter;
+}
+
+export async function handleBraviaStatus(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (req.method !== "GET") {
+    methodNotAllowed(res, "GET");
+    return;
+  }
+
+  const status = braviaGetter ? braviaGetter() : null;
+  if (!status) {
+    jsonResponse(res, 503, { error: "BRAVIA status not available yet" });
+    return;
+  }
+  jsonResponse(res, 200, status);
+}
+
+// ---------------------------------------------------------------------------
+// Cloud Apache status handler
+// ---------------------------------------------------------------------------
+
+let cloudApacheGetter: (() => import("./alibaba-apache.js").CloudApacheState | null) | null = null;
+
+export function setCloudApacheGetter(
+  getter: () => import("./alibaba-apache.js").CloudApacheState | null,
+): void {
+  cloudApacheGetter = getter;
+}
+
+export async function handleCloudApacheStatus(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  if (req.method !== "GET") {
+    methodNotAllowed(res, "GET");
+    return;
+  }
+
+  const state = cloudApacheGetter ? cloudApacheGetter() : null;
+  if (!state) {
+    jsonResponse(res, 503, { error: "Cloud Apache manager not available" });
+    return;
+  }
+  jsonResponse(res, 200, state);
+}
+
+// ---------------------------------------------------------------------------
+// Cloudflare Tunnel status handler
+// ---------------------------------------------------------------------------
+
+export async function handleTunnelStatus(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (req.method !== "GET") {
+    methodNotAllowed(res, "GET");
+    return;
+  }
+
+  try {
+    const fs = await import("node:fs");
+    const urlFile = "/tmp/openclaw-tunnel-url.txt";
+    const url = fs.existsSync(urlFile) ? fs.readFileSync(urlFile, "utf-8").trim() : null;
+    jsonResponse(res, 200, {
+      active: !!url,
+      url,
+      type: "cloudflare-quick-tunnel",
+    });
+  } catch {
+    jsonResponse(res, 200, { active: false, url: null, type: "cloudflare-quick-tunnel" });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Prometheus metrics endpoint
 // ---------------------------------------------------------------------------
 
@@ -231,4 +315,302 @@ export async function handleMonitor(req: IncomingMessage, res: ServerResponse): 
     "Cache-Control": "no-cache",
   });
   res.end(html);
+}
+
+// ---------------------------------------------------------------------------
+// Tandem task endpoints (peer-to-peer bilateral task execution)
+// ---------------------------------------------------------------------------
+
+/** Pending tandem tasks awaiting callback. */
+const pendingTandemTasks = new Map<
+  string,
+  { resolve: (cb: TandemTaskCallback) => void; timer: ReturnType<typeof setTimeout> }
+>();
+
+/**
+ * POST /api/network/tandem — receive an inbound tandem task from a peer.
+ * Executes the task via dispatchCommand and POSTs result to the callback URL.
+ */
+export async function handleTandemInbound(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  if (req.method !== "POST") {
+    methodNotAllowed(res, "POST");
+    return;
+  }
+  if (!requireApiKey(req, res)) return;
+
+  let body: string;
+  try {
+    body = await readBody(req);
+  } catch {
+    jsonResponse(res, 400, { error: "Failed to read request body" });
+    return;
+  }
+
+  let task: TandemTaskRequest;
+  try {
+    task = JSON.parse(body) as TandemTaskRequest;
+  } catch {
+    jsonResponse(res, 400, { error: "Invalid JSON" });
+    return;
+  }
+
+  if (!task.task_id || !task.task_type) {
+    jsonResponse(res, 400, { error: "Missing task_id or task_type" });
+    return;
+  }
+
+  // Accept immediately
+  jsonResponse(res, 202, {
+    accepted: true,
+    task_id: task.task_id,
+    station_id: STATION_ID,
+  });
+
+  // Execute asynchronously and callback
+  const start = Date.now();
+  try {
+    const result = await dispatchCommand({
+      command: task.task_type,
+      params: task.payload,
+      request_id: task.task_id,
+    });
+
+    const callback: TandemTaskCallback = {
+      task_id: task.task_id,
+      station_id: STATION_ID,
+      success: result.success,
+      result: result.data,
+      error: result.error,
+      latency_ms: Date.now() - start,
+    };
+
+    if (task.callback_url) {
+      await fetch(task.callback_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": UNIFI_API_KEY,
+        },
+        body: JSON.stringify(callback),
+        signal: AbortSignal.timeout(10_000),
+      }).catch(() => {});
+    }
+  } catch {
+    // Best-effort callback on error
+    if (task.callback_url) {
+      const callback: TandemTaskCallback = {
+        task_id: task.task_id,
+        station_id: STATION_ID,
+        success: false,
+        error: "Internal execution error",
+        latency_ms: Date.now() - start,
+      };
+      fetch(task.callback_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": UNIFI_API_KEY,
+        },
+        body: JSON.stringify(callback),
+        signal: AbortSignal.timeout(10_000),
+      }).catch(() => {});
+    }
+  }
+}
+
+/**
+ * POST /api/network/tandem/callback — receive a tandem task result from a peer.
+ */
+export async function handleTandemCallback(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  if (req.method !== "POST") {
+    methodNotAllowed(res, "POST");
+    return;
+  }
+  if (!requireApiKey(req, res)) return;
+
+  let body: string;
+  try {
+    body = await readBody(req);
+  } catch {
+    jsonResponse(res, 400, { error: "Failed to read request body" });
+    return;
+  }
+
+  let callback: TandemTaskCallback;
+  try {
+    callback = JSON.parse(body) as TandemTaskCallback;
+  } catch {
+    jsonResponse(res, 400, { error: "Invalid JSON" });
+    return;
+  }
+
+  const pending = pendingTandemTasks.get(callback.task_id);
+  if (pending) {
+    clearTimeout(pending.timer);
+    pending.resolve(callback);
+    pendingTandemTasks.delete(callback.task_id);
+  }
+
+  jsonResponse(res, 200, { received: true, task_id: callback.task_id });
+}
+
+/** Register a pending tandem task that awaits a callback. */
+export function registerPendingTandem(
+  taskId: string,
+  timeoutMs: number,
+): Promise<TandemTaskCallback> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      pendingTandemTasks.delete(taskId);
+      resolve({
+        task_id: taskId,
+        station_id: "unknown",
+        success: false,
+        error: "Tandem task timed out",
+        latency_ms: timeoutMs,
+      });
+    }, timeoutMs);
+
+    pendingTandemTasks.set(taskId, { resolve, timer });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Delegation endpoints (Julie-mediated task routing)
+// ---------------------------------------------------------------------------
+
+/**
+ * POST /api/network/delegation/inbound — receive a delegated task.
+ * Similar to tandem but typically originated by Julie or another orchestrator.
+ */
+export async function handleDelegationInbound(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  if (req.method !== "POST") {
+    methodNotAllowed(res, "POST");
+    return;
+  }
+  if (!requireApiKey(req, res)) return;
+
+  let body: string;
+  try {
+    body = await readBody(req);
+  } catch {
+    jsonResponse(res, 400, { error: "Failed to read request body" });
+    return;
+  }
+
+  let delegation: DelegationRequest;
+  try {
+    delegation = JSON.parse(body) as DelegationRequest;
+  } catch {
+    jsonResponse(res, 400, { error: "Invalid JSON" });
+    return;
+  }
+
+  if (!delegation.task_id || !delegation.command) {
+    jsonResponse(res, 400, { error: "Missing task_id or command" });
+    return;
+  }
+
+  // Accept immediately
+  jsonResponse(res, 202, {
+    accepted: true,
+    task_id: delegation.task_id,
+    station_id: STATION_ID,
+  });
+
+  // Execute asynchronously and callback
+  const start = Date.now();
+  try {
+    const result = await dispatchCommand({
+      command: delegation.command,
+      params: delegation.params,
+      request_id: delegation.task_id,
+    });
+
+    if (delegation.callback_url) {
+      await fetch(delegation.callback_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": UNIFI_API_KEY,
+        },
+        body: JSON.stringify({
+          task_id: delegation.task_id,
+          station_id: STATION_ID,
+          success: result.success,
+          result: result.data,
+          error: result.error,
+          latency_ms: Date.now() - start,
+        }),
+        signal: AbortSignal.timeout(10_000),
+      }).catch(() => {});
+    }
+  } catch {
+    if (delegation.callback_url) {
+      fetch(delegation.callback_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": UNIFI_API_KEY,
+        },
+        body: JSON.stringify({
+          task_id: delegation.task_id,
+          station_id: STATION_ID,
+          success: false,
+          error: "Internal execution error",
+          latency_ms: Date.now() - start,
+        }),
+        signal: AbortSignal.timeout(10_000),
+      }).catch(() => {});
+    }
+  }
+}
+
+/**
+ * POST /api/network/delegation/callback — receive a delegation result.
+ */
+export async function handleDelegationCallback(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  if (req.method !== "POST") {
+    methodNotAllowed(res, "POST");
+    return;
+  }
+  if (!requireApiKey(req, res)) return;
+
+  let body: string;
+  try {
+    body = await readBody(req);
+  } catch {
+    jsonResponse(res, 400, { error: "Failed to read request body" });
+    return;
+  }
+
+  let callback: TandemTaskCallback;
+  try {
+    callback = JSON.parse(body) as TandemTaskCallback;
+  } catch {
+    jsonResponse(res, 400, { error: "Invalid JSON" });
+    return;
+  }
+
+  // Resolve pending delegation (reuses tandem pending map)
+  const pending = pendingTandemTasks.get(callback.task_id);
+  if (pending) {
+    clearTimeout(pending.timer);
+    pending.resolve(callback);
+    pendingTandemTasks.delete(callback.task_id);
+  }
+
+  jsonResponse(res, 200, { received: true, task_id: callback.task_id });
 }

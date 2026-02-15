@@ -55,8 +55,8 @@ export const NETWORK_PATHS: Record<NetworkPathId, NetworkPath> = {
   primary: {
     id: "primary",
     ssid: "The 1898 Moiwa",
-    gateway: "10.1.7.1",
-    subnet: "10.1.7.0/24",
+    gateway: "10.1.8.1",
+    subnet: "10.1.8.0/24",
     description: "Hotel WiFi (UDM Pro)",
   },
   hr02_5g: {

@@ -32,6 +32,9 @@ export class JulieClient {
         version: identity.version,
         platform: identity.platform,
         layers: identity.layers,
+        commands: identity.commands,
+        endpoints: identity.endpoints,
+        runtime: identity.runtime,
       },
     };
 

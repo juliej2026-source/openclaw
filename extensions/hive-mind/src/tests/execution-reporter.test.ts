@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { ExecutionLog } from "../execution-log.js";
 import type { JulieClient } from "../julie-client.js";
-import { createExecutionReporter } from "../execution-reporter.js";
+import { createExecutionReporter, inferCapabilitiesUsed } from "../execution-reporter.js";
 
 // Injected mock classifier — avoids dynamic import mocking issues
 const mockClassifyTask = vi.fn().mockReturnValue({
@@ -174,5 +174,55 @@ describe("createExecutionReporter", () => {
     await reporter(event as never, {} as never);
 
     expect(mockClassifyTask).toHaveBeenCalledWith("Analyze this data");
+  });
+});
+
+describe("inferCapabilitiesUsed", () => {
+  it("maps meta:classify to task_classification", () => {
+    expect(inferCapabilitiesUsed("meta:classify")).toContain("task_classification");
+  });
+
+  it("maps meta:recommend to task_classification", () => {
+    expect(inferCapabilitiesUsed("meta:recommend")).toContain("task_classification");
+  });
+
+  it("maps meta:hardware to model_management + hardware_detection", () => {
+    const caps = inferCapabilitiesUsed("meta:hardware");
+    expect(caps).toContain("model_management");
+    expect(caps).toContain("hardware_detection");
+  });
+
+  it("maps meta:train to model_training", () => {
+    expect(inferCapabilitiesUsed("meta:train")).toContain("model_training");
+  });
+
+  it("maps network:scan to network_monitoring", () => {
+    expect(inferCapabilitiesUsed("network:scan")).toContain("network_monitoring");
+  });
+
+  it("maps network:switch to network_control + dual_wan", () => {
+    const caps = inferCapabilitiesUsed("network:switch");
+    expect(caps).toContain("network_control");
+    expect(caps).toContain("dual_wan");
+  });
+
+  it("maps network:alerts to alert_management", () => {
+    expect(inferCapabilitiesUsed("network:alert")).toContain("alert_management");
+  });
+
+  it("maps unifi: to network_monitoring", () => {
+    expect(inferCapabilitiesUsed("unifi:devices")).toContain("network_monitoring");
+  });
+
+  it("maps neural: to neural_graph", () => {
+    expect(inferCapabilitiesUsed("neural:status")).toContain("neural_graph");
+  });
+
+  it("maps hf: to huggingface_management", () => {
+    expect(inferCapabilitiesUsed("hf:spaces")).toContain("huggingface_management");
+  });
+
+  it("falls back to command name for unknown commands", () => {
+    expect(inferCapabilitiesUsed("ping")).toEqual(["ping"]);
   });
 });

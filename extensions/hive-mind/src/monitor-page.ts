@@ -55,6 +55,7 @@ export function generateMonitorHtml(): string {
     --node-ai: #a855f7;
     --node-hub: #06b6d4;
     --node-worker: #22c55e;
+    --node-intel: #eab308;
     --node-device: #94a3b8;
     --node-decom: #9ca3af;
   }
@@ -91,6 +92,7 @@ export function generateMonitorHtml(): string {
     --node-ai: #c084fc;
     --node-hub: #22d3ee;
     --node-worker: #4ade80;
+    --node-intel: #facc15;
     --node-device: #94a3b8;
     --node-decom: #6b7280;
   }
@@ -720,29 +722,29 @@ const REFRESH_MS = 30000;
 // Topology definitions
 // ---------------------------------------------------------------------------
 const TOPO_NODES = [
-  { id: "UDM-Pro", label: "UDM Pro", ip: "10.1.7.1", role: "gateway", x: 400, y: 50, icon: "\\u25C6" },
+  { id: "UDM-Pro", label: "UDM Pro", ip: "10.1.8.1", role: "gateway", x: 400, y: 50, icon: "\\u25C6" },
   { id: "HR02-5G", label: "HR02 5G", ip: "192.168.128.1", role: "modem", x: 150, y: 50, icon: "\\u25B2" },
-  { id: "Julie", label: "Julie", ip: "10.1.7.87", role: "ai", x: 150, y: 180, icon: "\\u2605" },
-  { id: "IOT-HUB", label: "IOT-HUB", ip: "10.1.7.158", role: "hub", x: 350, y: 180, icon: "\\u2B22" },
-  { id: "SCRAPER", label: "SCRAPER", ip: "10.1.7.180", role: "decommissioned", x: 500, y: 180, icon: "\\u25CF" },
-  { id: "CLERK", label: "CLERK", ip: "10.1.7.239", role: "worker", x: 650, y: 180, icon: "\\u25CF" },
-  { id: "Bravia", label: "Bravia", ip: "10.1.7.131", role: "device", x: 550, y: 300, icon: "\\u25A0" },
+  { id: "Julie", label: "Julie", ip: "10.1.8.143", role: "ai", x: 150, y: 180, icon: "\\u2605" },
+  { id: "Caesar", label: "Caesar", ip: "10.1.8.82", role: "intel", x: 500, y: 180, icon: "\\u25CF" },
+  { id: "IOT-HUB", label: "IOT-HUB", ip: "10.1.8.158", role: "hub", x: 350, y: 180, icon: "\\u2B22" },
+  { id: "BRAVIA", label: "BRAVIA TV", ip: "10.1.8.194", role: "device", x: 550, y: 300, icon: "\\u25A0" },
 ];
 
 const TOPO_LINKS = [
   { from: "UDM-Pro", to: "IOT-HUB", type: "wired" },
-  { from: "UDM-Pro", to: "SCRAPER", type: "wired" },
-  { from: "UDM-Pro", to: "CLERK", type: "wired" },
   { from: "UDM-Pro", to: "Julie", type: "wired" },
-  { from: "UDM-Pro", to: "Bravia", type: "wired" },
-  { from: "HR02-5G", to: "Julie", type: "wireless" },
+  { from: "UDM-Pro", to: "Caesar", type: "wired" },
+  { from: "UDM-Pro", to: "BRAVIA", type: "wired" },
+  { from: "HR02-5G", to: "IOT-HUB", type: "wireless" },
   { from: "Julie", to: "IOT-HUB", type: "api" },
+  { from: "IOT-HUB", to: "Caesar", type: "api" },
+  { from: "IOT-HUB", to: "BRAVIA", type: "api" },
 ];
 
 const ROLE_COLORS = {
   gateway: "var(--node-gateway)", modem: "var(--node-modem)", ai: "var(--node-ai)",
-  hub: "var(--node-hub)", worker: "var(--node-worker)", device: "var(--node-device)",
-  decommissioned: "var(--node-decom)",
+  hub: "var(--node-hub)", worker: "var(--node-worker)", intel: "var(--node-intel)",
+  device: "var(--node-device)", decommissioned: "var(--node-decom)",
 };
 
 // ---------------------------------------------------------------------------
