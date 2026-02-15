@@ -417,6 +417,42 @@ export function generateMonitorHtml(): string {
     grid-template-columns: 1fr;
   }
 
+  /* Neural graph fullscreen overlay */
+  .neural-fs-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: var(--bg); display: flex; flex-direction: column;
+    animation: fadeInOverlay 0.2s ease;
+  }
+  @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+  .neural-fs-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 20px; background: var(--bg-card);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .neural-fs-title { font-size: 16px; font-weight: 600; color: var(--fg); }
+  .neural-fs-stats {
+    display: flex; gap: 16px; margin-left: auto;
+    font-family: var(--mono); font-size: 11px; color: var(--dim);
+  }
+  .neural-fs-stats .val { color: var(--cyan); font-weight: 700; }
+  .neural-fs-close {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 14px; margin-left: 16px; font-size: 11px; font-weight: 600;
+    border: 1px solid var(--border-strong); border-radius: 20px;
+    background: var(--surface); color: var(--text-dim);
+    cursor: pointer; transition: all 0.2s ease; font-family: var(--font);
+  }
+  .neural-fs-close:hover { border-color: var(--red); color: var(--red); }
+  .neural-fs-body { flex: 1; overflow: hidden; }
+  .neural-fs-body canvas { width: 100%; height: 100%; }
+  .neural-fs-legend {
+    padding: 8px 20px; border-top: 1px solid var(--border);
+    background: var(--bg-card); font-size: 10px; color: var(--dim);
+    display: flex; gap: 16px; align-items: center; flex-shrink: 0;
+  }
+  .neural-fs-legend .leg-item { display: inline-flex; align-items: center; gap: 4px; }
+  .neural-fs-legend .leg-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
   .topo-wrap {
     background: var(--surface);
     backdrop-filter: var(--glass-blur);
@@ -638,7 +674,10 @@ export function generateMonitorHtml(): string {
 <div class="section-title">Neural Graph</div>
 <div class="grid g2w" id="neural-section">
   <div class="card" style="min-height:340px">
-    <div class="label">Graph Topology</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="label" style="margin:0">Graph Topology</div>
+      <button class="flow-btn" id="neural-fs-toggle">\u26F6 Full Screen</button>
+    </div>
     <div id="neural-graph-container" style="width:100%;height:280px;position:relative;overflow:hidden;border-radius:var(--radius-sm);background:var(--bg-subtle)">
       <canvas id="neural-canvas" style="width:100%;height:100%"></canvas>
     </div>
@@ -1418,8 +1457,8 @@ function renderNeuralTopology(data) {
   layoutNeuralGraph();
 }
 
-function layoutNeuralGraph() {
-  const canvas = document.getElementById('neural-canvas');
+function layoutNeuralGraph(canvasId) {
+  const canvas = document.getElementById(canvasId || 'neural-canvas');
   if (!canvas || neuralNodes.length === 0) return;
 
   const rect = canvas.parentElement.getBoundingClientRect();
@@ -1609,6 +1648,102 @@ function animateNeuralGraph(canvas, nodePositions, dpr, W, H) {
     animateNeuralGraph(canvas, nodePositions, dpr, W, H);
   });
 }
+
+// ---------------------------------------------------------------------------
+// Neural graph fullscreen
+// ---------------------------------------------------------------------------
+let neuralFsOverlay = null;
+let neuralFsEscHandler = null;
+
+function openNeuralFullscreen() {
+  closeNeuralFullscreen();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'neural-fs-overlay';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'neural-fs-header';
+  const title = document.createElement('span');
+  title.className = 'neural-fs-title';
+  title.textContent = 'Neural Graph \\u2014 Full Screen';
+  header.appendChild(title);
+
+  const stats = document.createElement('span');
+  stats.className = 'neural-fs-stats';
+  const myelinated = neuralEdges.filter(function(e) { return e.myelinated; }).length;
+  stats.innerHTML = '<span><span class="val">' + neuralNodes.length + '</span> nodes</span>'
+    + '<span><span class="val">' + neuralEdges.length + '</span> edges</span>'
+    + '<span><span class="val">' + myelinated + '</span> myelinated</span>';
+  header.appendChild(stats);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'neural-fs-close';
+  closeBtn.textContent = '\\u2715 Close';
+  closeBtn.addEventListener('click', closeNeuralFullscreen);
+  header.appendChild(closeBtn);
+  overlay.appendChild(header);
+
+  // Canvas body
+  const body = document.createElement('div');
+  body.className = 'neural-fs-body';
+  const canvas = document.createElement('canvas');
+  canvas.id = 'neural-fs-canvas';
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  body.appendChild(canvas);
+  overlay.appendChild(body);
+
+  // Legend
+  const legend = document.createElement('div');
+  legend.className = 'neural-fs-legend';
+  const items = [
+    ['Station', '#22d3ee'],
+    ['Capability', '#c084fc'],
+    ['Model', '#4ade80'],
+    ['data flow', '#60a5fa'],
+    ['activation', '#4ade80'],
+    ['myelinated', '#c084fc'],
+  ];
+  items.forEach(function(item) {
+    const span = document.createElement('span');
+    span.className = 'leg-item';
+    span.innerHTML = '<span class="leg-dot" style="background:' + item[1] + '"></span> ' + item[0];
+    legend.appendChild(span);
+  });
+  overlay.appendChild(legend);
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  neuralFsOverlay = overlay;
+
+  // Render at full size after DOM insertion
+  requestAnimationFrame(function() {
+    layoutNeuralGraph('neural-fs-canvas');
+  });
+
+  // Escape key
+  neuralFsEscHandler = function(e) { if (e.key === 'Escape') closeNeuralFullscreen(); };
+  document.addEventListener('keydown', neuralFsEscHandler);
+}
+
+function closeNeuralFullscreen() {
+  if (neuralFsOverlay) {
+    neuralFsOverlay.remove();
+    neuralFsOverlay = null;
+    document.body.style.overflow = '';
+  }
+  if (neuralFsEscHandler) {
+    document.removeEventListener('keydown', neuralFsEscHandler);
+    neuralFsEscHandler = null;
+  }
+  // Restart animation on original canvas
+  if (neuralNodes.length > 0) {
+    layoutNeuralGraph('neural-canvas');
+  }
+}
+
+document.getElementById('neural-fs-toggle').addEventListener('click', openNeuralFullscreen);
 
 // ---------------------------------------------------------------------------
 // JSON API fetch helper
