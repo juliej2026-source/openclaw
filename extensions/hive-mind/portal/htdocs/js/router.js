@@ -1,5 +1,5 @@
 // Hash-based SPA router with auto-refresh
-// Routes: #/ #/topology #/stations #/alerts #/models #/training #/wan #/network #/apache #/neural-graph
+// Routes: #/ #/topology #/stations #/alerts #/models #/training #/wan #/network #/apache #/neural-graph #/data-mine
 
 const ROUTES = {
   "/": () => import("./pages/overview.js"),
@@ -14,6 +14,7 @@ const ROUTES = {
   "/neural-graph": () => import("./pages/neural-graph.js"),
   "/hotel-scraper": () => import("./pages/hotel-scraper.js"),
   "/wellness": () => import("./pages/wellness.js"),
+  "/data-mine": () => import("./pages/data-mine.js"),
 };
 
 const REFRESH_INTERVAL = 30_000; // 30s — matches Prometheus scrape interval

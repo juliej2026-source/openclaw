@@ -1,0 +1,8 @@
+{
+  "id": "data-mine",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

@@ -13,6 +13,22 @@ import {
   setCloudApacheInstance,
   getAvailableCommands,
 } from "./command-dispatch.js";
+import {
+  handleDataMineStatus,
+  handleDataMineAnalyze,
+  handleDataMineResults,
+  handleDataMineDatasets,
+  handleDataMineImport,
+  handleDataMineStats,
+  handleDataMineCorrelations,
+  handleDataMineTimeseries,
+  handleDataMineClusters,
+  handleDataMineAnomalies,
+  handleDataMineGraph,
+  handleDataMineCreateExperiment,
+  handleDataMineExperiments,
+  handleDataMineMetrics,
+} from "./data-mine-api.js";
 import { initDiscord, initDiscordGateway, shutdownDiscord } from "./discord/index.js";
 import { ALL_CHANNEL_NAMES } from "./discord/types.js";
 import { createDualNetworkManager } from "./dual-network.js";
@@ -108,6 +124,20 @@ const ROUTES: Record<
   "/api/wellness/capa": handleWellnessCapa,
   "/api/wellness/escalate": handleWellnessEscalate,
   "/api/wellness/metrics": handleWellnessMetrics,
+  "/api/data-mine/status": handleDataMineStatus,
+  "/api/data-mine/analyze": handleDataMineAnalyze,
+  "/api/data-mine/results": handleDataMineResults,
+  "/api/data-mine/datasets": handleDataMineDatasets,
+  "/api/data-mine/datasets/import": handleDataMineImport,
+  "/api/data-mine/stats": handleDataMineStats,
+  "/api/data-mine/correlations": handleDataMineCorrelations,
+  "/api/data-mine/timeseries": handleDataMineTimeseries,
+  "/api/data-mine/clusters": handleDataMineClusters,
+  "/api/data-mine/anomalies": handleDataMineAnomalies,
+  "/api/data-mine/graph": handleDataMineGraph,
+  "/api/data-mine/experiments": handleDataMineExperiments,
+  "/api/data-mine/experiments/create": handleDataMineCreateExperiment,
+  "/api/data-mine/metrics": handleDataMineMetrics,
   "/api/network/tandem": handleTandemInbound,
   "/api/network/tandem/callback": handleTandemCallback,
   "/api/network/delegation/inbound": handleDelegationInbound,
@@ -125,6 +155,9 @@ const POST_ENDPOINTS = new Set([
   "/api/wellness/query",
   "/api/wellness/consent",
   "/api/wellness/escalate",
+  "/api/data-mine/analyze",
+  "/api/data-mine/datasets/import",
+  "/api/data-mine/experiments/create",
 ]);
 
 function getEndpointMap(): Array<{ path: string; method: string }> {

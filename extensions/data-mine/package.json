@@ -1,0 +1,31 @@
+{
+  "name": "@openclaw/data-mine",
+  "version": "2026.2.16",
+  "description": "Deep data mining infrastructure — scientific, statistical, algorithmic, and experimental support for AI/ML functionality",
+  "type": "module",
+  "dependencies": {
+    "convex": "^1.17.4",
+    "csv-parse": "^5.6.0",
+    "graphology": "^0.25.4",
+    "graphology-communities-louvain": "^2.0.1",
+    "graphology-metrics": "^2.3.0",
+    "graphology-shortest-path": "^2.1.0",
+    "ml-kmeans": "^6.0.0",
+    "ml-pca": "^4.1.1",
+    "ml-regression-multivariate-linear": "^2.0.4",
+    "ml-regression-polynomial": "^3.0.0",
+    "ml-regression-simple-linear": "^3.0.0",
+    "simple-statistics": "^7.8.7"
+  },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}
