@@ -320,3 +320,106 @@
   gap: 8px;
   margin-bottom: 12px;
 }
+
+/* ---- Page header with flow toggle ---- */
+.topo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.topo-header .page-title {
+  margin: 0;
+}
+
+/* ---- Flow toggle button ---- */
+.flow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+}
+
+.flow-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(63, 185, 80, 0.06);
+}
+
+.flow-btn.active {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(63, 185, 80, 0.1);
+  box-shadow: 0 0 12px rgba(63, 185, 80, 0.15);
+}
+
+.flow-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.flow-btn.active .flow-icon {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* ---- Flow expanded topology container ---- */
+.topology-container.flow-expanded {
+  min-height: 540px;
+  background: var(--bg);
+  border-color: var(--green);
+  box-shadow: 0 0 20px rgba(63, 185, 80, 0.06);
+  transition: all 0.3s ease;
+}
+
+/* ---- Flow stats bar ---- */
+.flow-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 10px 16px;
+  margin-top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.flow-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.flow-stat-val {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.flow-stat-dim {
+  color: var(--text-dim);
+}
+
+/* ---- Pulse dot animation (for flow icon) ---- */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}

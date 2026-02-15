@@ -1,12 +1,16 @@
 // Full-page topology view (route: #/topology)
 // Shows WAN status banner, full SVG topology with legend,
-// and click-to-navigate to station detail.
+// Flow toggle with animated data-flow particles, and click-to-navigate.
 
 import { fetchMetrics, sendCommand } from "../api.js";
 import { sectionTitle, badge, errorBanner } from "../components.js";
 import { parsePrometheus, getScalar } from "../prometheus.js";
-import { renderTopology, renderLegend } from "../topology.js";
+import { renderTopology, renderLegend, stopFlow } from "../topology.js";
 import { statusClass } from "../utils.js";
+
+// ---- Module state ----
+let _flowActive = false;
+let _data = null;
 
 // ---- Data fetching ----
 
@@ -46,33 +50,70 @@ function buildWanBanner(metrics) {
   return banner;
 }
 
+// ---- Flow stats bar ----
+
+function buildFlowStats(stats) {
+  const bar = document.createElement("div");
+  bar.className = "flow-stats";
+  bar.innerHTML =
+    `<span class="flow-stat"><span class="flow-stat-val">${stats.onlineCount}</span>/<span class="flow-stat-dim">${stats.totalNodes}</span> nodes online</span>` +
+    `<span class="flow-stat"><span class="flow-stat-val">${stats.activeLinks}</span>/<span class="flow-stat-dim">${stats.totalLinks}</span> active links</span>` +
+    `<span class="flow-stat"><span id="particle-count" class="flow-stat-val">${stats.particleCount}</span> particles</span>`;
+  return bar;
+}
+
 // ---- Build full page ----
 
-function buildPage(data) {
+function buildPage(data, flow) {
   const { metrics, scanData, dualNet } = data;
   const frag = document.createDocumentFragment();
 
-  // Page title
+  // Page header with title and flow toggle
+  const header = document.createElement("div");
+  header.className = "topo-header";
+
   const title = document.createElement("h1");
   title.className = "page-title";
   title.textContent = "Neural Network Topology";
-  frag.appendChild(title);
+  header.appendChild(title);
+
+  const flowBtn = document.createElement("button");
+  flowBtn.className = "flow-btn" + (flow ? " active" : "");
+  flowBtn.innerHTML = `<span class="flow-icon">${flow ? "\u26A1" : "\u25B6"}</span> ${flow ? "Flow Active" : "Data Flow"}`;
+  flowBtn.addEventListener("click", () => {
+    _flowActive = !_flowActive;
+    // Re-render into the router's app container
+    const container = document.getElementById("app");
+    if (container && _data) {
+      stopFlow();
+      container.innerHTML = "";
+      container.appendChild(buildPage(_data, _flowActive));
+    }
+  });
+  header.appendChild(flowBtn);
+  frag.appendChild(header);
 
   // WAN status banner
   frag.appendChild(buildWanBanner(metrics));
 
   // Full topology SVG
   const topoContainer = document.createElement("div");
-  topoContainer.className = "topology-container";
-  renderTopology(topoContainer, {
+  topoContainer.className = "topology-container" + (flow ? " flow-expanded" : "");
+  const stats = renderTopology(topoContainer, {
     scanData,
     dualNet,
     mini: false,
+    flow,
     onNodeClick: (nodeId) => {
       location.hash = `#/stations?id=${nodeId}`;
     },
   });
   frag.appendChild(topoContainer);
+
+  // Flow stats bar (only when flow is active)
+  if (flow && stats) {
+    frag.appendChild(buildFlowStats(stats));
+  }
 
   // Legend
   const legendContainer = document.createElement("div");
@@ -87,9 +128,10 @@ function buildPage(data) {
 
 export async function render(container, query) {
   try {
-    const data = await fetchData();
+    _data = await fetchData();
+    stopFlow();
     container.innerHTML = "";
-    container.appendChild(buildPage(data));
+    container.appendChild(buildPage(_data, _flowActive));
   } catch (err) {
     console.error("[topology-full] render error:", err);
     container.innerHTML = "";
@@ -100,4 +142,10 @@ export async function render(container, query) {
 export async function refresh(container, query) {
   // Full re-render: topology SVG is rebuilt from fresh scan + metrics data
   await render(container, query);
+}
+
+export function destroy() {
+  stopFlow();
+  _flowActive = false;
+  _data = null;
 }
