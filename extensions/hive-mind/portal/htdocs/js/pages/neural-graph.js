@@ -386,7 +386,76 @@ function renderLegendEl() {
   return el;
 }
 
+// ---- Fullscreen overlay ----
+
+let _overlay = null;
+let _escHandler = null;
+
+function openFullscreen(topology) {
+  closeFullscreen();
+
+  _overlay = document.createElement("div");
+  _overlay.className = "graph-fullscreen-overlay";
+
+  // Header bar
+  const header = document.createElement("div");
+  header.className = "graph-fs-header";
+  const title = document.createElement("span");
+  title.className = "graph-fs-title";
+  title.textContent = "Neural Graph — Full Screen";
+  header.appendChild(title);
+
+  const statsSpan = document.createElement("span");
+  statsSpan.className = "graph-fs-stats";
+  statsSpan.innerHTML =
+    `<span class="flow-stat"><span class="flow-stat-val">${topology.nodes.length}</span> nodes</span>` +
+    `<span class="flow-stat"><span class="flow-stat-val">${topology.edges.length}</span> edges</span>` +
+    `<span class="flow-stat"><span class="flow-stat-val">${topology.edges.filter((e) => e.myelinated).length}</span> myelinated</span>`;
+  header.appendChild(statsSpan);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "graph-fs-close";
+  closeBtn.textContent = "\u2715 Close";
+  closeBtn.addEventListener("click", closeFullscreen);
+  header.appendChild(closeBtn);
+  _overlay.appendChild(header);
+
+  // Large graph
+  const graphContainer = document.createElement("div");
+  graphContainer.className = "graph-fs-body";
+  graphContainer.innerHTML = renderGraphSVG(topology.nodes, topology.edges, 1400, 700);
+  _overlay.appendChild(graphContainer);
+
+  // Legend
+  const legend = renderLegendEl();
+  legend.classList.add("graph-fs-legend");
+  _overlay.appendChild(legend);
+
+  document.body.appendChild(_overlay);
+  document.body.style.overflow = "hidden";
+
+  // Escape key handler
+  _escHandler = (e) => {
+    if (e.key === "Escape") closeFullscreen();
+  };
+  document.addEventListener("keydown", _escHandler);
+}
+
+function closeFullscreen() {
+  if (_overlay) {
+    _overlay.remove();
+    _overlay = null;
+    document.body.style.overflow = "";
+  }
+  if (_escHandler) {
+    document.removeEventListener("keydown", _escHandler);
+    _escHandler = null;
+  }
+}
+
 // ---- Main render ----
+
+let _topology = null;
 
 export async function render(container) {
   const [status, topology, events, pending] = await Promise.all([
@@ -395,6 +464,8 @@ export async function render(container) {
     fetchEvents(),
     fetchPending(),
   ]);
+
+  _topology = topology;
 
   const frag = document.createDocumentFragment();
 
@@ -408,15 +479,32 @@ export async function render(container) {
     frag.appendChild(renderPhaseIndicator(status.phase ?? "genesis"));
   }
 
-  // Interactive graph
-  frag.appendChild(sectionTitle("Graph Topology"));
+  // Interactive graph with fullscreen toggle
+  const graphHeader = document.createElement("div");
+  graphHeader.className = "graph-section-header";
+  const graphTitle = document.createElement("div");
+  graphTitle.className = "section-title";
+  graphTitle.textContent = "Graph Topology";
+  graphHeader.appendChild(graphTitle);
+
   if (topology && topology.nodes && topology.nodes.length > 0) {
+    const fsBtn = document.createElement("button");
+    fsBtn.className = "flow-btn";
+    fsBtn.innerHTML = '<span class="flow-icon">\u26F6</span> Full Screen';
+    fsBtn.addEventListener("click", () => {
+      if (_topology) openFullscreen(_topology);
+    });
+    graphHeader.appendChild(fsBtn);
+
+    frag.appendChild(graphHeader);
+
     const graphContainer = document.createElement("div");
     graphContainer.className = "graph-container";
     graphContainer.innerHTML = renderGraphSVG(topology.nodes, topology.edges, 780, 400);
     frag.appendChild(graphContainer);
     frag.appendChild(renderLegendEl());
   } else {
+    frag.appendChild(graphHeader);
     frag.appendChild(emptyState("No graph data available. Convex may not be running."));
   }
 
@@ -459,4 +547,9 @@ export async function render(container) {
 
 export async function refresh(container) {
   await render(container);
+}
+
+export function destroy() {
+  closeFullscreen();
+  _topology = null;
 }
