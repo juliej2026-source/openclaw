@@ -81,3 +81,9 @@ USER.md
 .agent/*.json
 !.agent/workflows/
 local/
+
+# Playwright MCP logs
+.playwright-mcp/
+
+# Development screenshots
+*.png
