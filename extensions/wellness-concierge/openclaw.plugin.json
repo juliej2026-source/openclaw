@@ -1,0 +1,10 @@
+{
+  "id": "wellness-concierge",
+  "name": "Executive Mental Wellbeing Concierge",
+  "description": "Multi-agent wellness orchestration platform with PDPA-aligned privacy, crisis escalation, and executive-grade coaching",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

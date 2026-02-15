@@ -61,6 +61,18 @@ import { UnifiClient, loadUnifiConfig } from "./unifi-client.js";
 import { UnifiCloudClient, loadCloudApiKey } from "./unifi-cloud-client.js";
 import { createUnifiCloudPoller } from "./unifi-cloud-poller.js";
 import { createUnifiPoller } from "./unifi-poller.js";
+import {
+  handleWellnessStatus,
+  handleWellnessQuery,
+  handleWellnessSessions,
+  handleWellnessConsent,
+  handleWellnessAgents,
+  handleWellnessTools,
+  handleWellnessAudit,
+  handleWellnessCapa,
+  handleWellnessEscalate,
+  handleWellnessMetrics,
+} from "./wellness-api.js";
 
 const ROUTES: Record<
   string,
@@ -86,6 +98,16 @@ const ROUTES: Record<
   "/api/neural/topology": handleNeuralTopology,
   "/api/neural/events": handleNeuralEvents,
   "/api/neural/pending": handleNeuralPending,
+  "/api/wellness/status": handleWellnessStatus,
+  "/api/wellness/query": handleWellnessQuery,
+  "/api/wellness/sessions": handleWellnessSessions,
+  "/api/wellness/consent": handleWellnessConsent,
+  "/api/wellness/agents": handleWellnessAgents,
+  "/api/wellness/tools": handleWellnessTools,
+  "/api/wellness/audit": handleWellnessAudit,
+  "/api/wellness/capa": handleWellnessCapa,
+  "/api/wellness/escalate": handleWellnessEscalate,
+  "/api/wellness/metrics": handleWellnessMetrics,
   "/api/network/tandem": handleTandemInbound,
   "/api/network/tandem/callback": handleTandemCallback,
   "/api/network/delegation/inbound": handleDelegationInbound,
@@ -100,6 +122,9 @@ const POST_ENDPOINTS = new Set([
   "/api/network/tandem/callback",
   "/api/network/delegation/inbound",
   "/api/network/delegation/callback",
+  "/api/wellness/query",
+  "/api/wellness/consent",
+  "/api/wellness/escalate",
 ]);
 
 function getEndpointMap(): Array<{ path: string; method: string }> {

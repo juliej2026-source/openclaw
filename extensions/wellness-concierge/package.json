@@ -1,0 +1,24 @@
+{
+  "name": "@openclaw/wellness-concierge",
+  "version": "2026.2.16",
+  "description": "Executive Mental Wellbeing Concierge Platform — multi-agent wellness orchestration with PDPA-aligned privacy",
+  "type": "module",
+  "dependencies": {
+    "@langchain/core": "^0.3.26",
+    "@langchain/langgraph": "^0.2.36",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "convex": "^1.17.4"
+  },
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.26"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}
