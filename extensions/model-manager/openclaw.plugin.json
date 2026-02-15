@@ -1,0 +1,9 @@
+{
+  "id": "model-manager",
+  "providers": ["local-models"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "meta-engine",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "hotel-scraper",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

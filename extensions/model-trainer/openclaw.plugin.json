@@ -1,0 +1,8 @@
+{
+  "id": "model-trainer",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "hive-mind",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

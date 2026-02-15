@@ -1,0 +1,8 @@
+{
+  "id": "neural-graph",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
