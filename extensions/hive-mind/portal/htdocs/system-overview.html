@@ -1,0 +1,2030 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OpenClaw — System Overview</title>
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #0d1117;
+        color: #e6edf3;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+      a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      code,
+      .mono {
+        font-family: "JetBrains Mono", "SF Mono", "Cascadia Code", "Consolas", monospace;
+      }
+      .wrap {
+        max-width: 1020px;
+        margin: 0 auto;
+        padding: 24px 20px 48px;
+      }
+
+      /* ── Header ── */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0 20px;
+        border-bottom: 1px solid #30363d;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .header-logo {
+        width: 28px;
+        height: 28px;
+      }
+      .header h1 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #f0f6fc;
+      }
+      .header h1 span {
+        font-weight: 400;
+        color: #8b949e;
+        font-size: 13px;
+        display: block;
+        margin-top: 2px;
+      }
+      .header-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #8b949e;
+      }
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #3fb950;
+        box-shadow: 0 0 6px #3fb95066;
+        display: inline-block;
+      }
+
+      /* ── Tabs ── */
+      .tab-bar {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid #30363d;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .tab-btn {
+        background: none;
+        border: none;
+        color: #8b949e;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .tab-btn:hover {
+        color: #c9d1d9;
+      }
+      .tab-btn.active {
+        color: #58a6ff;
+        border-bottom-color: #58a6ff;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* ── Cards ── */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 16px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+      .card-label {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .card-value {
+        font-size: 24px;
+        font-weight: 600;
+        font-family: "JetBrains Mono", monospace;
+        color: #f0f6fc;
+      }
+      .card-sub {
+        font-size: 11px;
+        color: #8b949e;
+        margin-top: 4px;
+      }
+      .card.ok {
+        border-left: 3px solid #3fb950;
+      }
+      .card.warn {
+        border-left: 3px solid #d29922;
+      }
+      .card.crit {
+        border-left: 3px solid #f85149;
+      }
+      .card.info {
+        border-left: 3px solid #58a6ff;
+      }
+      .card.purple {
+        border-left: 3px solid #bc8cff;
+      }
+
+      /* ── Sections ── */
+      .section {
+        margin-bottom: 32px;
+      }
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #21262d;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-title .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      p.desc {
+        color: #8b949e;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 16px;
+      }
+
+      /* ── Glass panel ── */
+      .glass {
+        background: rgba(22, 27, 34, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        padding: 24px;
+      }
+
+      /* ── SVG container ── */
+      .svg-wrap {
+        width: 100%;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #0d1117;
+        border: 1px solid #21262d;
+        margin-bottom: 16px;
+      }
+      .svg-wrap svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* ── Badge ── */
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #21262d;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 11px;
+        color: #c9d1d9;
+        font-family: "JetBrains Mono", monospace;
+        letter-spacing: 0.3px;
+      }
+      .badge .bdot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      /* ── Channel grid ── */
+      .ch-group {
+        margin-bottom: 24px;
+      }
+      .ch-group-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 10px;
+      }
+      .ch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 8px;
+      }
+      .ch-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 10px 12px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        cursor: default;
+      }
+      .ch-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
+      .ch-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        width: 28px;
+        text-align: center;
+      }
+      .ch-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #e6edf3;
+      }
+
+      /* ── Flow pipeline ── */
+      .pipeline {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        overflow-x: auto;
+        padding: 16px 0;
+        margin-bottom: 16px;
+      }
+      .pipe-box {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: #c9d1d9;
+        white-space: nowrap;
+        flex-shrink: 0;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .pipe-arrow {
+        color: #30363d;
+        font-size: 14px;
+        padding: 0 4px;
+        flex-shrink: 0;
+      }
+
+      /* ── Detail panel ── */
+      .detail-panel {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 16px;
+        display: none;
+      }
+      .detail-panel.visible {
+        display: block;
+      }
+      .detail-panel h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .detail-panel p {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.6;
+      }
+      .detail-panel ul {
+        margin-top: 8px;
+        padding-left: 20px;
+      }
+      .detail-panel li {
+        font-size: 12px;
+        color: #c9d1d9;
+        margin-bottom: 4px;
+      }
+
+      /* ── Engine cards ── */
+      .engine-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .engine-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 16px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .engine-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
+      .engine-card h4 {
+        font-size: 13px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 6px;
+      }
+      .engine-card ul {
+        padding-left: 16px;
+      }
+      .engine-card li {
+        font-size: 11px;
+        color: #8b949e;
+        margin-bottom: 2px;
+      }
+
+      /* ── Status grid ── */
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+      }
+      .status-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .status-card .sc-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .status-card .sc-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f0f6fc;
+      }
+      .status-card .sc-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .status-card .sc-detail {
+        font-size: 12px;
+        color: #8b949e;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* ── Animations ── */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .tab-panel.active .section {
+        animation: fadeInUp 0.4s ease both;
+      }
+      .tab-panel.active .section:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .tab-panel.active .section:nth-child(2) {
+        animation-delay: 0.12s;
+      }
+      .tab-panel.active .section:nth-child(3) {
+        animation-delay: 0.19s;
+      }
+      .tab-panel.active .section:nth-child(4) {
+        animation-delay: 0.26s;
+      }
+      .tab-panel.active .section:nth-child(5) {
+        animation-delay: 0.33s;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        .cards {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .ch-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .engine-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .pipeline {
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+      }
+      @media (max-width: 500px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+        .ch-grid {
+          grid-template-columns: 1fr;
+        }
+        .engine-grid {
+          grid-template-columns: 1fr;
+        }
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+        .tab-btn {
+          font-size: 12px;
+          padding: 8px 10px;
+        }
+      }
+
+      /* ── Footer ── */
+      .footer {
+        text-align: center;
+        padding: 32px 0 0;
+        border-top: 1px solid #21262d;
+        margin-top: 32px;
+        font-size: 11px;
+        color: #484f58;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <div style="color: #8b949e; padding: 60px 0; text-align: center">
+        Loading system data&hellip;
+      </div>
+    </div>
+    <script>
+      // =====================================================================
+      // SUBSYSTEM DATA
+      // =====================================================================
+      const SUBSYSTEMS = {
+        "hive-mind": {
+          label: "Hive Mind",
+          color: "#39d2c0",
+          icon: "\u2B22",
+          desc: "Infrastructure monitoring hub \u2014 station API, network scanning, dual-WAN management, UniFi WiFi monitoring, Apache status, Discord integration",
+          caps: [
+            "Network scanning",
+            "Dual-WAN failover",
+            "UniFi polling",
+            "BRAVIA control",
+            "Discord bot",
+            "Portal server",
+            "Prometheus metrics",
+          ],
+        },
+        "neural-graph": {
+          label: "Neural Graph",
+          color: "#bc8cff",
+          icon: "\u2726",
+          desc: "LangGraph + Convex AI orchestration backbone \u2014 capability nodes, maturation lifecycle, force-directed graph topology, myelinated pathways",
+          caps: [
+            "Capability nodes",
+            "Maturation lifecycle",
+            "Force-directed layout",
+            "Myelin glow scoring",
+            "Replication",
+            "Pruning",
+          ],
+        },
+        "meta-engine": {
+          label: "Meta Engine",
+          color: "#58a6ff",
+          icon: "\u25C8",
+          desc: "Autonomous model selection \u2014 task classification, performance scoring, dynamic routing to cheapest/fastest/most capable model",
+          caps: [
+            "Task classification",
+            "Model registry",
+            "Performance scoring",
+            "Dynamic routing",
+            "Cost optimization",
+          ],
+        },
+        "data-mine": {
+          label: "Data Mine",
+          color: "#3fb950",
+          icon: "\u25C6",
+          desc: "Scientific data mining \u2014 5 engines (statistics, timeseries, clustering, graph analytics, experiments), 216 tests, correlations, anomaly detection",
+          caps: [
+            "Statistics engine",
+            "Time-series analysis",
+            "K-means clustering",
+            "Graph analytics",
+            "A/B experiments",
+            "Anomaly detection",
+          ],
+        },
+        wellness: {
+          label: "Wellness",
+          color: "#f0883e",
+          icon: "\u2665",
+          desc: "Executive Mental Wellbeing Concierge \u2014 8 AI agents, 10 tools, PDPA privacy-by-design, crisis escalation, measurement scorecard",
+          caps: [
+            "8 AI agents",
+            "10 tools",
+            "PDPA compliance",
+            "Crisis escalation",
+            "4 risk tiers",
+            "Wellness scorecard",
+          ],
+        },
+        "hotel-scraper": {
+          label: "Hotel Scraper",
+          color: "#d29922",
+          icon: "\u2302",
+          desc: "Niseko hotel price comparison \u2014 5 data sources, entity resolution, Playwright browser automation, Convex-backed storage",
+          caps: [
+            "5 data sources",
+            "Entity resolution",
+            "Playwright automation",
+            "Price comparison",
+            "Convex storage",
+          ],
+        },
+      };
+      const SUB_KEYS = Object.keys(SUBSYSTEMS);
+
+      // =====================================================================
+      // CHANNEL DATA
+      // =====================================================================
+      const CHANNELS = {
+        Core: [
+          { icon: "\uD83D\uDCF1", name: "WhatsApp" },
+          { icon: "\u2708", name: "Telegram" },
+          { icon: "\uD83C\uDFAE", name: "Discord" },
+          { icon: "#", name: "Slack" },
+          { icon: "\uD83D\uDD12", name: "Signal" },
+          { icon: "\uD83D\uDCAC", name: "iMessage" },
+          { icon: "\uD83D\uDD17", name: "Matrix" },
+        ],
+        Enterprise: [
+          { icon: "\uD83C\uDFE2", name: "Microsoft Teams" },
+          { icon: "\uD83D\uDCBC", name: "Google Chat" },
+          { icon: "\u2699", name: "Mattermost" },
+          { icon: "\u2601", name: "Nextcloud Talk" },
+          { icon: "\uD83E\uDD85", name: "Feishu" },
+        ],
+        "Asia-Pacific": [
+          { icon: "\uD83D\uDFE2", name: "LINE" },
+          { icon: "\uD83D\uDCF2", name: "Zalo" },
+          { icon: "\uD83D\uDC64", name: "Zalo User" },
+        ],
+        "Social / Web3": [
+          { icon: "\uD83C\uDF10", name: "Nostr" },
+          { icon: "\uD83E\uDE90", name: "Tlon / Urbit" },
+          { icon: "\uD83C\uDFAC", name: "Twitch" },
+        ],
+        Voice: [
+          { icon: "\uD83D\uDCDE", name: "Voice Call" },
+          { icon: "\uD83C\uDF99", name: "Talk Voice" },
+        ],
+        "Dev / Infra": [
+          { icon: "&gt;_", name: "IRC" },
+          { icon: "\uD83E\uDD16", name: "LLM Task" },
+          { icon: "\uD83E\uDDE0", name: "Memory Core" },
+          { icon: "\uD83D\uDCCA", name: "Memory LanceDB" },
+          { icon: "\uD83D\uDCF1", name: "Device Pair" },
+        ],
+      };
+
+      // =====================================================================
+      // NETWORK TOPOLOGY DATA (from topology.js)
+      // =====================================================================
+      const NET_NODES = [
+        {
+          id: "UDM-Pro",
+          label: "UDM Pro",
+          ip: "10.1.8.1",
+          role: "gateway",
+          x: 400,
+          y: 60,
+          icon: "\u25C6",
+        },
+        {
+          id: "HR02-5G",
+          label: "HR02 5G",
+          ip: "192.168.128.1",
+          role: "modem",
+          x: 150,
+          y: 60,
+          icon: "\u25B2",
+        },
+        {
+          id: "Julie",
+          label: "Julie",
+          ip: "10.1.8.143",
+          role: "ai",
+          x: 150,
+          y: 190,
+          icon: "\u2605",
+        },
+        {
+          id: "IOT-HUB",
+          label: "IOT-HUB",
+          ip: "10.1.8.158",
+          role: "hub",
+          x: 350,
+          y: 190,
+          icon: "\u2B22",
+        },
+        {
+          id: "Caesar",
+          label: "Caesar",
+          ip: "10.1.8.82",
+          role: "intel",
+          x: 520,
+          y: 190,
+          icon: "\u25CF",
+        },
+        {
+          id: "BRAVIA",
+          label: "BRAVIA TV",
+          ip: "10.1.8.194",
+          role: "device",
+          x: 520,
+          y: 310,
+          icon: "\u25A0",
+        },
+      ];
+      const NET_LINKS = [
+        { from: "UDM-Pro", to: "IOT-HUB", type: "wired" },
+        { from: "UDM-Pro", to: "Julie", type: "wired" },
+        { from: "UDM-Pro", to: "Caesar", type: "wired" },
+        { from: "UDM-Pro", to: "BRAVIA", type: "wired" },
+        { from: "HR02-5G", to: "IOT-HUB", type: "wireless" },
+        { from: "Julie", to: "IOT-HUB", type: "api" },
+        { from: "IOT-HUB", to: "Caesar", type: "api" },
+        { from: "IOT-HUB", to: "BRAVIA", type: "api" },
+      ];
+      const ROLE_COLORS = {
+        gateway: "#58a6ff",
+        modem: "#f0883e",
+        ai: "#bc8cff",
+        hub: "#39d2c0",
+        worker: "#3fb950",
+        intel: "#e3b341",
+        device: "#8b949e",
+      };
+
+      // =====================================================================
+      // WELLNESS AGENTS
+      // =====================================================================
+      const WELLNESS_AGENTS = [
+        { name: "orchestrator", color: "#58a6ff" },
+        { name: "clinical_safety", color: "#f85149" },
+        { name: "data_steward", color: "#bc8cff" },
+        { name: "daily_coach", color: "#3fb950" },
+        { name: "concierge", color: "#f0883e" },
+        { name: "rag_knowledge", color: "#39d2c0" },
+        { name: "device_integration", color: "#d29922" },
+        { name: "evaluation_capa", color: "#8b949e" },
+      ];
+
+      // =====================================================================
+      // FETCH
+      // =====================================================================
+      async function fetchJSON(u) {
+        try {
+          const r = await fetch(u);
+          if (!r.ok) return null;
+          return r.json();
+        } catch {
+          return null;
+        }
+      }
+      async function fetchAll() {
+        const k = [
+          "identity",
+          "dashboard",
+          "scan",
+          "neuralStatus",
+          "neuralTopo",
+          "dataMineStatus",
+          "dataMineStats",
+          "wellnessStatus",
+          "wellnessAgents",
+          "wellnessTools",
+        ];
+        const u = [
+          "/api/network/identity",
+          "/api/network/dashboard",
+          "/api/network/scan",
+          "/api/neural/status",
+          "/api/neural/topology",
+          "/api/data-mine/status",
+          "/api/data-mine/stats",
+          "/api/wellness/status",
+          "/api/wellness/agents",
+          "/api/wellness/tools",
+        ];
+        const r = await Promise.allSettled(u.map(fetchJSON));
+        const d = {};
+        k.forEach((k, i) => {
+          d[k] = r[i].status === "fulfilled" ? r[i].value : null;
+        });
+        return d;
+      }
+
+      // =====================================================================
+      // HELPERS
+      // =====================================================================
+      function esc(s) {
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function formatUptime(s) {
+        if (!s && s !== 0) return "---";
+        const h = Math.floor(s / 3600),
+          m = Math.floor((s % 3600) / 60);
+        if (h > 24) {
+          const d = Math.floor(h / 24);
+          return d + "d " + (h % 24) + "h";
+        }
+        return h > 0 ? h + "h " + m + "m" : m + "m";
+      }
+      function hexPoints(cx, cy, r) {
+        return [0, 1, 2, 3, 4, 5]
+          .map((i) => {
+            const a = (Math.PI / 3) * i - Math.PI / 2;
+            return (cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1);
+          })
+          .join(" ");
+      }
+      function agentLabel(s) {
+        return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      // =====================================================================
+      // FORCE-DIRECTED LAYOUT (ported from neural-graph.js)
+      // =====================================================================
+      function layoutNodes(nodes, edges, width, height) {
+        const cx = width / 2,
+          cy = height / 2;
+        const radius = Math.min(width, height) * 0.35;
+        const positions = {};
+        nodes.forEach((n, i) => {
+          const angle = (2 * Math.PI * i) / nodes.length;
+          positions[n.nodeId] = {
+            x: cx + radius * Math.cos(angle),
+            y: cy + radius * Math.sin(angle),
+            vx: 0,
+            vy: 0,
+          };
+        });
+        const k = Math.sqrt((width * height) / Math.max(nodes.length, 1));
+        for (let iter = 0; iter < 50; iter++) {
+          const temp = 1 - iter / 50;
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const a = positions[nodes[i].nodeId],
+                b = positions[nodes[j].nodeId];
+              const dx = a.x - b.x,
+                dy = a.y - b.y;
+              const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+              const force = ((k * k) / dist) * temp * 0.5;
+              const fx = (dx / dist) * force,
+                fy = (dy / dist) * force;
+              a.vx += fx;
+              a.vy += fy;
+              b.vx -= fx;
+              b.vy -= fy;
+            }
+          }
+          for (const edge of edges) {
+            const a = positions[edge.sourceNodeId],
+              b = positions[edge.targetNodeId];
+            if (!a || !b) continue;
+            const dx = a.x - b.x,
+              dy = a.y - b.y;
+            const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+            const force = ((dist - k) / k) * (edge.weight || 1) * temp;
+            const fx = (dx / dist) * force,
+              fy = (dy / dist) * force;
+            a.vx -= fx;
+            a.vy -= fy;
+            b.vx += fx;
+            b.vy += fy;
+          }
+          for (const node of nodes) {
+            const p = positions[node.nodeId];
+            p.x += p.vx * 0.3;
+            p.y += p.vy * 0.3;
+            p.vx *= 0.8;
+            p.vy *= 0.8;
+            p.x = Math.max(50, Math.min(width - 50, p.x));
+            p.y = Math.max(50, Math.min(height - 50, p.y));
+          }
+        }
+        return positions;
+      }
+
+      // =====================================================================
+      // NEURAL GRAPH FITNESS COLORS
+      // =====================================================================
+      function fitnessColor(f) {
+        return f > 70 ? "#3fb950" : f > 40 ? "#d29922" : "#f85149";
+      }
+      const EDGE_TYPE_COLORS = {
+        data_flow: "#58a6ff",
+        dependency: "#bc8cff",
+        activation: "#39d2c0",
+        fallback: "#f0883e",
+      };
+
+      // =====================================================================
+      // STATE
+      // =====================================================================
+      let currentTab = "overview";
+      let selectedArchNode = null;
+      let _lastData = {};
+
+      function switchTab(id) {
+        currentTab = id;
+        selectedArchNode = null;
+        rerender();
+      }
+      function selectArchNode(key) {
+        selectedArchNode = selectedArchNode === key ? null : key;
+        rerender();
+      }
+      function rerender() {
+        render(_lastData);
+      }
+
+      // =====================================================================
+      // MAIN RENDER
+      // =====================================================================
+      function render(d) {
+        const app = document.getElementById("app");
+        const identity = d.identity || {};
+        const dashboard = d.dashboard || {};
+        const scan = d.scan || {};
+        const neural = d.neuralStatus || {};
+        const topo = d.neuralTopo || {};
+        const dataMine = d.dataMineStatus || {};
+        const dmStats = d.dataMineStats || {};
+        const wellness = d.wellnessStatus || {};
+        const agents = d.wellnessAgents?.agents || d.wellnessAgents || [];
+        const tools = d.wellnessTools?.tools || d.wellnessTools || [];
+        const now = new Date().toLocaleTimeString();
+
+        const allOk = d.identity && d.neuralStatus;
+
+        let h = "";
+
+        // ── Header ──
+        h += '<div class="header">';
+        h += '<div class="header-left"><img src="/img/favicon.svg" alt="" class="header-logo"/>';
+        h +=
+          "<h1>OpenClaw<span>System Overview \u2022 " +
+          esc(identity.station_id || "loading") +
+          "</span></h1></div>";
+        h +=
+          '<div class="header-status"><span class="live-dot"></span> Live \u2022 ' +
+          esc(now) +
+          "</div>";
+        h += "</div>";
+
+        // ── Tabs ──
+        const tabs = [
+          { id: "overview", label: "What is OpenClaw" },
+          { id: "architecture", label: "Architecture" },
+          { id: "channels", label: "Messaging Channels" },
+          { id: "intelligence", label: "AI Intelligence" },
+          { id: "applications", label: "Domain Applications" },
+          { id: "infrastructure", label: "Infrastructure" },
+          { id: "dashboard", label: "Live Dashboard" },
+        ];
+        h += '<div class="tab-bar">';
+        for (const t of tabs)
+          h +=
+            '<button class="tab-btn' +
+            (currentTab === t.id ? " active" : "") +
+            '" onclick="switchTab(\'' +
+            t.id +
+            "')\">" +
+            t.label +
+            "</button>";
+        h += "</div>";
+
+        // ==================================================================
+        // TAB 1: What is OpenClaw
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "overview" ? " active" : "") + '">';
+
+        // Hero SVG
+        h += '<div class="section"><div class="svg-wrap">';
+        h += '<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">';
+        h += "<defs>";
+        h +=
+          '<filter id="heroGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+        h += "</defs>";
+        // Center hexagon
+        const hcx = 350,
+          hcy = 140,
+          hr = 36;
+        h +=
+          '<polygon points="' +
+          hexPoints(hcx, hcy, hr) +
+          '" fill="none" stroke="#58a6ff" stroke-width="2" filter="url(#heroGlow)">';
+        h +=
+          '<animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>';
+        h += "</polygon>";
+        h += '<polygon points="' + hexPoints(hcx, hcy, hr - 6) + '" fill="#58a6ff" opacity="0.1"/>';
+        h +=
+          '<text x="' +
+          hcx +
+          '" y="' +
+          (hcy + 4) +
+          '" text-anchor="middle" fill="#f0f6fc" font-family="\'JetBrains Mono\',monospace" font-size="11" font-weight="600">OpenClaw</text>';
+
+        // 6 subsystem nodes radiating from center
+        const heroR = 115;
+        SUB_KEYS.forEach((key, i) => {
+          const sub = SUBSYSTEMS[key];
+          const angle = (Math.PI * 2 * i) / SUB_KEYS.length - Math.PI / 2;
+          const nx = hcx + heroR * Math.cos(angle);
+          const ny = hcy + heroR * Math.sin(angle);
+          // Connection line with flowing dash
+          h +=
+            '<line x1="' +
+            hcx +
+            '" y1="' +
+            hcy +
+            '" x2="' +
+            nx.toFixed(1) +
+            '" y2="' +
+            ny.toFixed(1) +
+            '" stroke="' +
+            sub.color +
+            '" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5">';
+          h +=
+            '<animate attributeName="stroke-dashoffset" values="0;-20" dur="2s" repeatCount="indefinite"/>';
+          h += "</line>";
+          // Node circle
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="22" fill="#0d1117" stroke="' +
+            sub.color +
+            '" stroke-width="1.5"/>';
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="22" fill="' +
+            sub.color +
+            '" opacity="0.08"/>';
+          // Pulse ring
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="22" fill="none" stroke="' +
+            sub.color +
+            '" stroke-width="0.5" opacity="0">';
+          h +=
+            '<animate attributeName="r" values="22;32" dur="2.5s" repeatCount="indefinite" begin="' +
+            i * 0.4 +
+            's"/>';
+          h +=
+            '<animate attributeName="opacity" values="0.4;0" dur="2.5s" repeatCount="indefinite" begin="' +
+            i * 0.4 +
+            's"/>';
+          h += "</circle>";
+          // Icon
+          h +=
+            '<text x="' +
+            nx.toFixed(1) +
+            '" y="' +
+            (ny - 4).toFixed(1) +
+            '" text-anchor="middle" fill="' +
+            sub.color +
+            '" font-size="14">' +
+            sub.icon +
+            "</text>";
+          // Label
+          h +=
+            '<text x="' +
+            nx.toFixed(1) +
+            '" y="' +
+            (ny + 9).toFixed(1) +
+            '" text-anchor="middle" fill="#c9d1d9" font-size="8" font-family="\'JetBrains Mono\',monospace">' +
+            sub.label +
+            "</text>";
+        });
+
+        h += "</svg></div></div>";
+
+        // Summary
+        h += '<div class="section">';
+        h +=
+          '<p class="desc">OpenClaw is a self-hosted personal AI assistant gateway that routes 40+ messaging channels through a unified intelligence layer. Built with TypeScript on Node.js, it combines LangGraph orchestration, autonomous model selection, scientific data mining, and domain-specific applications \u2014 all running on a private home network with zero cloud dependency for core operations.</p>';
+        h += "</div>";
+
+        // Stat cards
+        h += '<div class="section"><div class="cards">';
+        h +=
+          '<div class="card info"><div class="card-label">Extensions</div><div class="card-value">45</div><div class="card-sub">modular capabilities</div></div>';
+        h +=
+          '<div class="card ok"><div class="card-label">Channels</div><div class="card-value">40+</div><div class="card-sub">messaging integrations</div></div>';
+        h +=
+          '<div class="card purple"><div class="card-label">API Endpoints</div><div class="card-value">60+</div><div class="card-sub">operational surface</div></div>';
+        h +=
+          '<div class="card warn"><div class="card-label">Subsystems</div><div class="card-value">6</div><div class="card-sub">specialized domains</div></div>';
+        h += "</div></div>";
+
+        // Tech stack
+        h += '<div class="section"><div class="section-title">Tech Stack</div><div class="badges">';
+        const stack = [
+          { name: "TypeScript", c: "#3178c6" },
+          { name: "Node.js", c: "#3fb950" },
+          { name: "Convex", c: "#f0883e" },
+          { name: "LangGraph", c: "#bc8cff" },
+          { name: "Prometheus", c: "#e6522c" },
+          { name: "Grafana", c: "#d29922" },
+          { name: "Apache", c: "#f85149" },
+          { name: "Cloudflare", c: "#58a6ff" },
+        ];
+        for (const s of stack)
+          h +=
+            '<div class="badge"><span class="bdot" style="background:' +
+            s.c +
+            '"></span>' +
+            s.name +
+            "</div>";
+        h += "</div></div>";
+
+        h += "</div>"; // end tab 1
+
+        // ==================================================================
+        // TAB 2: Architecture
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "architecture" ? " active" : "") + '">';
+
+        // Concentric ring SVG
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#58a6ff"></span>System Architecture</div>';
+        h += '<div class="svg-wrap"><svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg">';
+        h +=
+          '<defs><filter id="archGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
+        const acx = 260,
+          acy = 260;
+
+        // Outer ring (channels)
+        h +=
+          '<circle cx="' +
+          acx +
+          '" cy="' +
+          acy +
+          '" r="240" fill="none" stroke="#21262d" stroke-width="1" stroke-dasharray="4 4"/>';
+        // Inner ring (subsystems)
+        h +=
+          '<circle cx="' +
+          acx +
+          '" cy="' +
+          acy +
+          '" r="130" fill="none" stroke="#21262d" stroke-width="1"/>';
+
+        // Center gateway hexagon
+        h +=
+          '<polygon points="' +
+          hexPoints(acx, acy, 32) +
+          '" fill="none" stroke="#58a6ff" stroke-width="2" filter="url(#archGlow)" style="cursor:pointer" onclick="selectArchNode(\'gateway\')"/>';
+        h += '<polygon points="' + hexPoints(acx, acy, 26) + '" fill="#58a6ff" opacity="0.1"/>';
+        h +=
+          '<text x="' +
+          acx +
+          '" y="' +
+          (acy - 2) +
+          '" text-anchor="middle" fill="#f0f6fc" font-size="8" font-family="\'JetBrains Mono\',monospace" font-weight="600">OpenClaw</text>';
+        h +=
+          '<text x="' +
+          acx +
+          '" y="' +
+          (acy + 9) +
+          '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">Gateway</text>';
+
+        // Inner ring: 6 subsystems
+        SUB_KEYS.forEach((key, i) => {
+          const sub = SUBSYSTEMS[key];
+          const angle = (Math.PI * 2 * i) / SUB_KEYS.length - Math.PI / 2;
+          const nx = acx + 130 * Math.cos(angle);
+          const ny = acy + 130 * Math.sin(angle);
+          // Connection to center
+          h +=
+            '<line x1="' +
+            acx +
+            '" y1="' +
+            acy +
+            '" x2="' +
+            nx.toFixed(1) +
+            '" y2="' +
+            ny.toFixed(1) +
+            '" stroke="' +
+            sub.color +
+            '" stroke-width="1" opacity="0.3" pointer-events="none"/>';
+          // Status dot (green if API data available)
+          const apiOk =
+            (key === "neural-graph" && d.neuralStatus) ||
+            (key === "data-mine" && d.dataMineStatus) ||
+            (key === "wellness" && d.wellnessStatus) ||
+            (key === "hive-mind" && d.identity) ||
+            (key === "meta-engine" && d.neuralStatus) ||
+            key === "hotel-scraper";
+          const dotColor = apiOk ? "#3fb950" : "#d29922";
+          // Node
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="20" fill="#0d1117" stroke="' +
+            sub.color +
+            '" stroke-width="1.5" style="cursor:pointer" onclick="selectArchNode(\'' +
+            key +
+            "')\"/>";
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="20" fill="' +
+            sub.color +
+            '" opacity="0.06"/>';
+          h +=
+            '<text x="' +
+            nx.toFixed(1) +
+            '" y="' +
+            (ny + 3).toFixed(1) +
+            '" text-anchor="middle" fill="' +
+            sub.color +
+            '" font-size="12">' +
+            sub.icon +
+            "</text>";
+          h +=
+            '<text x="' +
+            nx.toFixed(1) +
+            '" y="' +
+            (ny + 33).toFixed(1) +
+            '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+            sub.label +
+            "</text>";
+          // Status dot
+          h +=
+            '<circle cx="' +
+            (nx + 14).toFixed(1) +
+            '" cy="' +
+            (ny - 14).toFixed(1) +
+            '" r="3" fill="' +
+            dotColor +
+            '"/>';
+        });
+
+        // Outer ring: representative channels
+        const outerChannels = [
+          "WhatsApp",
+          "Telegram",
+          "Discord",
+          "Slack",
+          "Signal",
+          "Teams",
+          "LINE",
+          "Nostr",
+          "Voice",
+          "IRC",
+          "iMessage",
+          "Matrix",
+          "Google Chat",
+          "Feishu",
+          "Twitch",
+        ];
+        outerChannels.forEach((ch, i) => {
+          const angle = (Math.PI * 2 * i) / outerChannels.length - Math.PI / 2;
+          const nx = acx + 240 * Math.cos(angle);
+          const ny = acy + 240 * Math.sin(angle);
+          // Faint connection to nearest subsystem
+          h +=
+            '<line x1="' +
+            (acx + 130 * Math.cos(angle)).toFixed(1) +
+            '" y1="' +
+            (acy + 130 * Math.sin(angle)).toFixed(1) +
+            '" x2="' +
+            nx.toFixed(1) +
+            '" y2="' +
+            ny.toFixed(1) +
+            '" stroke="#30363d" stroke-width="0.5" stroke-dasharray="2 3" pointer-events="none"/>';
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="12" fill="#161b22" stroke="#30363d" stroke-width="1" style="cursor:pointer" onclick="selectArchNode(\'ch-' +
+            ch.toLowerCase().replace(/\s/g, "") +
+            "')\"/>";
+          h +=
+            '<text x="' +
+            nx.toFixed(1) +
+            '" y="' +
+            (ny + 3).toFixed(1) +
+            '" text-anchor="middle" fill="#8b949e" font-size="6.5" font-family="\'JetBrains Mono\',monospace">' +
+            ch.slice(0, 5) +
+            "</text>";
+        });
+
+        h += "</svg></div>";
+
+        // Detail panel
+        h += '<div class="detail-panel' + (selectedArchNode ? " visible" : "") + '">';
+        if (selectedArchNode === "gateway") {
+          h += '<h3><span class="dot" style="background:#58a6ff"></span>OpenClaw Gateway</h3>';
+          h +=
+            "<p>Central message routing and AI orchestration hub. Processes incoming messages from 40+ channels, routes through intelligent agent selection, and returns responses via the originating channel.</p>";
+          h +=
+            "<ul><li>Channel multiplexing</li><li>Context management</li><li>Agent dispatch</li><li>Response formatting</li><li>Memory persistence</li></ul>";
+        } else if (selectedArchNode && SUBSYSTEMS[selectedArchNode]) {
+          const sub = SUBSYSTEMS[selectedArchNode];
+          h +=
+            '<h3><span class="dot" style="background:' +
+            sub.color +
+            '"></span>' +
+            sub.label +
+            "</h3>";
+          h += "<p>" + sub.desc + "</p>";
+          h += "<ul>" + sub.caps.map((c) => "<li>" + c + "</li>").join("") + "</ul>";
+        } else if (selectedArchNode) {
+          h +=
+            "<h3>Channel Node</h3><p>Messaging channel integration endpoint. Each channel connects to the gateway via a dedicated adapter that handles protocol translation, authentication, and message formatting.</p>";
+        }
+        h += "</div>";
+        h += "</div>"; // end section
+
+        // Data flow pipeline
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#bc8cff"></span>Data Flow Pipeline</div>';
+        h += '<div class="pipeline">';
+        const pipeSteps = [
+          "User Message",
+          "Channel",
+          "Gateway",
+          "Agent",
+          "AI Processing",
+          "Response",
+          "Channel",
+          "User",
+        ];
+        pipeSteps.forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
+          h += '<div class="pipe-box">' + s + "</div>";
+        });
+        h += "</div></div>";
+
+        h += "</div>"; // end tab 2
+
+        // ==================================================================
+        // TAB 3: Messaging Channels
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "channels" ? " active" : "") + '">';
+
+        const groupColors = {
+          Core: "#58a6ff",
+          Enterprise: "#bc8cff",
+          "Asia-Pacific": "#3fb950",
+          "Social / Web3": "#f0883e",
+          Voice: "#d29922",
+          "Dev / Infra": "#39d2c0",
+        };
+        for (const [group, chs] of Object.entries(CHANNELS)) {
+          const gc = groupColors[group] || "#8b949e";
+          h +=
+            '<div class="section ch-group"><div class="ch-group-title" style="color:' +
+            gc +
+            '">' +
+            group +
+            "</div>";
+          h += '<div class="ch-grid">';
+          for (const ch of chs) {
+            h += '<div class="ch-card" style="border-left:3px solid ' + gc + '">';
+            h += '<div class="ch-icon">' + ch.icon + "</div>";
+            h += '<div class="ch-name">' + ch.name + "</div>";
+            h += "</div>";
+          }
+          h += "</div></div>";
+        }
+
+        const totalChannels = Object.values(CHANNELS).reduce((s, a) => s + a.length, 0);
+        h +=
+          '<div class="section"><p class="desc">' +
+          totalChannels +
+          " channel integrations across 6 categories. Each channel connects to the OpenClaw gateway via a dedicated adapter handling protocol translation, authentication, message formatting, and bidirectional communication.</p></div>";
+
+        h += "</div>"; // end tab 3
+
+        // ==================================================================
+        // TAB 4: AI Intelligence
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "intelligence" ? " active" : "") + '">';
+
+        // Neural Graph section
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#bc8cff"></span>Neural Graph</div>';
+
+        // Status cards
+        const ngPhase = neural.phase || neural.lifecycle?.phase || "---";
+        const ngNodes = topo.nodes?.length || neural.nodes || 0;
+        const ngEdges = topo.edges?.length || neural.edges || 0;
+        const ngFitness = neural.fitness?.average ?? neural.averageFitness ?? "---";
+        h += '<div class="cards">';
+        h +=
+          '<div class="card purple"><div class="card-label">Phase</div><div class="card-value" style="font-size:16px">' +
+          esc(String(ngPhase)) +
+          "</div></div>";
+        h +=
+          '<div class="card info"><div class="card-label">Nodes</div><div class="card-value">' +
+          ngNodes +
+          "</div></div>";
+        h +=
+          '<div class="card info"><div class="card-label">Edges</div><div class="card-value">' +
+          ngEdges +
+          "</div></div>";
+        h +=
+          '<div class="card ok"><div class="card-label">Avg Fitness</div><div class="card-value">' +
+          (typeof ngFitness === "number" ? ngFitness.toFixed(1) : ngFitness) +
+          "</div></div>";
+        h += "</div>";
+
+        // Neural graph SVG (force-directed)
+        if (topo.nodes && topo.nodes.length > 0) {
+          const gw = 700,
+            gh = 400;
+          const positions = layoutNodes(topo.nodes, topo.edges || [], gw, gh);
+          h +=
+            '<div class="svg-wrap"><svg viewBox="0 0 ' +
+            gw +
+            " " +
+            gh +
+            '" xmlns="http://www.w3.org/2000/svg">';
+          // Myelin glow filter
+          h +=
+            '<defs><filter id="myelinGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+          // Edges
+          for (const edge of topo.edges || []) {
+            const a = positions[edge.sourceNodeId],
+              b = positions[edge.targetNodeId];
+            if (!a || !b) continue;
+            const ec = EDGE_TYPE_COLORS[edge.type] || "#30363d";
+            h +=
+              '<line x1="' +
+              a.x.toFixed(1) +
+              '" y1="' +
+              a.y.toFixed(1) +
+              '" x2="' +
+              b.x.toFixed(1) +
+              '" y2="' +
+              b.y.toFixed(1) +
+              '" stroke="' +
+              ec +
+              '" stroke-width="1" opacity="0.4"/>';
+          }
+          // Nodes
+          for (const node of topo.nodes) {
+            const p = positions[node.nodeId];
+            if (!p) continue;
+            const f = node.fitness ?? 50;
+            const nc = fitnessColor(f);
+            // Glow ring for high fitness
+            if (f > 70) {
+              h +=
+                '<circle cx="' +
+                p.x.toFixed(1) +
+                '" cy="' +
+                p.y.toFixed(1) +
+                '" r="14" fill="none" stroke="' +
+                nc +
+                '" stroke-width="0.5" opacity="0.3" filter="url(#myelinGlow)"/>';
+            }
+            h +=
+              '<circle cx="' +
+              p.x.toFixed(1) +
+              '" cy="' +
+              p.y.toFixed(1) +
+              '" r="8" fill="#0d1117" stroke="' +
+              nc +
+              '" stroke-width="1.5"/>';
+            h +=
+              '<circle cx="' +
+              p.x.toFixed(1) +
+              '" cy="' +
+              p.y.toFixed(1) +
+              '" r="8" fill="' +
+              nc +
+              '" opacity="0.15"/>';
+            h +=
+              '<text x="' +
+              p.x.toFixed(1) +
+              '" y="' +
+              (p.y + 20).toFixed(1) +
+              '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+              esc((node.name || node.nodeId || "").slice(0, 12)) +
+              "</text>";
+          }
+          h += "</svg></div>";
+        } else {
+          h +=
+            '<div class="glass" style="text-align:center;color:#8b949e;padding:40px">Neural topology data not available \u2014 graph renders when API returns node data</div>';
+        }
+        h += "</div>"; // end neural graph section
+
+        // Meta Engine section
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#58a6ff"></span>Meta Engine</div>';
+        h +=
+          '<p class="desc">Autonomous model selection pipeline \u2014 classifies incoming tasks, scores available models against requirements, and dynamically routes to the optimal provider.</p>';
+        h += '<div class="pipeline">';
+        const metaSteps = [
+          "Task Input",
+          "Task Classifier",
+          "Model Registry",
+          "Performance Scorer",
+          "Best Model",
+          "Execution",
+        ];
+        metaSteps.forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
+          h += '<div class="pipe-box">' + s + "</div>";
+        });
+        h += "</div></div>";
+
+        // Data Mine section
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#3fb950"></span>Data Mine</div>';
+        h +=
+          '<p class="desc">Scientific data mining infrastructure with 5 specialized engines, 216 tests, and comprehensive statistical/ML capabilities.</p>';
+        h += '<div class="engine-grid">';
+        const engines = [
+          {
+            name: "Statistics",
+            color: "#3fb950",
+            items: [
+              "Descriptive stats",
+              "Correlation analysis",
+              "Regression (linear, polynomial)",
+              "Distribution tests",
+            ],
+          },
+          {
+            name: "Time Series",
+            color: "#58a6ff",
+            items: ["Moving averages", "Trend detection", "Seasonality analysis", "Forecasting"],
+          },
+          {
+            name: "Clustering",
+            color: "#bc8cff",
+            items: [
+              "K-means clustering",
+              "PCA dimensionality",
+              "Anomaly detection",
+              "Silhouette scoring",
+            ],
+          },
+          {
+            name: "Graph Analytics",
+            color: "#39d2c0",
+            items: [
+              "Centrality metrics",
+              "Community detection",
+              "Shortest path",
+              "Network analysis",
+            ],
+          },
+          {
+            name: "Experiments",
+            color: "#f0883e",
+            items: [
+              "A/B testing",
+              "t-tests & chi-squared",
+              "Effect size (Cohen's d)",
+              "Confidence intervals",
+            ],
+          },
+        ];
+        for (const e of engines) {
+          h +=
+            '<div class="engine-card" style="border-top:2px solid ' +
+            e.color +
+            '"><h4 style="color:' +
+            e.color +
+            '">' +
+            e.name +
+            "</h4><ul>";
+          for (const item of e.items) h += "<li>" + item + "</li>";
+          h += "</ul></div>";
+        }
+        h += "</div></div>";
+
+        h += "</div>"; // end tab 4
+
+        // ==================================================================
+        // TAB 5: Domain Applications
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "applications" ? " active" : "") + '">';
+
+        // Wellness Concierge
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#f0883e"></span>Wellness Concierge</div>';
+        h +=
+          '<p class="desc">Executive Mental Wellbeing Concierge Platform \u2014 8 specialized AI agents orchestrated for mental health support with PDPA privacy-by-design and 4-tier crisis escalation.</p>';
+
+        // Agent topology SVG
+        h += '<div class="svg-wrap"><svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">';
+        h +=
+          '<defs><filter id="agentGlow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+        const wcx = 250,
+          wcy = 150,
+          wr = 105;
+        // Center hub
+        h +=
+          '<circle cx="' +
+          wcx +
+          '" cy="' +
+          wcy +
+          '" r="24" fill="#0d1117" stroke="#f0883e" stroke-width="1.5" filter="url(#agentGlow)"/>';
+        h +=
+          '<text x="' +
+          wcx +
+          '" y="' +
+          (wcy - 3) +
+          '" text-anchor="middle" fill="#f0883e" font-size="9" font-family="\'JetBrains Mono\',monospace" font-weight="600">EMWCP</text>';
+        h +=
+          '<text x="' +
+          wcx +
+          '" y="' +
+          (wcy + 8) +
+          '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">8 agents</text>';
+
+        WELLNESS_AGENTS.forEach((agent, i) => {
+          const angle = (Math.PI * 2 * i) / WELLNESS_AGENTS.length - Math.PI / 2;
+          const nx = wcx + wr * Math.cos(angle);
+          const ny = wcy + wr * Math.sin(angle);
+          h +=
+            '<line x1="' +
+            wcx +
+            '" y1="' +
+            wcy +
+            '" x2="' +
+            nx.toFixed(1) +
+            '" y2="' +
+            ny.toFixed(1) +
+            '" stroke="' +
+            agent.color +
+            '" stroke-width="0.8" opacity="0.3"/>';
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="16" fill="#0d1117" stroke="' +
+            agent.color +
+            '" stroke-width="1.5"/>';
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="16" fill="' +
+            agent.color +
+            '" opacity="0.08"/>';
+          // Pulse
+          h +=
+            '<circle cx="' +
+            nx.toFixed(1) +
+            '" cy="' +
+            ny.toFixed(1) +
+            '" r="16" fill="none" stroke="' +
+            agent.color +
+            '" stroke-width="0.5" opacity="0">';
+          h +=
+            '<animate attributeName="r" values="16;24" dur="3s" repeatCount="indefinite" begin="' +
+            i * 0.35 +
+            's"/>';
+          h +=
+            '<animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="' +
+            i * 0.35 +
+            's"/>';
+          h += "</circle>";
+          h +=
+            '<text x="' +
+            nx.toFixed(1) +
+            '" y="' +
+            (ny + 3).toFixed(1) +
+            '" text-anchor="middle" fill="' +
+            agent.color +
+            '" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+            agentLabel(agent.name).split(" ")[0].slice(0, 8) +
+            "</text>";
+        });
+        h += "</svg></div>";
+
+        h += '<div class="badges">';
+        h +=
+          '<div class="badge"><span class="bdot" style="background:#f0883e"></span>8 AI Agents</div>';
+        h +=
+          '<div class="badge"><span class="bdot" style="background:#3fb950"></span>10 Tools</div>';
+        h +=
+          '<div class="badge"><span class="bdot" style="background:#58a6ff"></span>PDPA Aligned</div>';
+        h +=
+          '<div class="badge"><span class="bdot" style="background:#f85149"></span>4 Risk Tiers</div>';
+        h += "</div></div>";
+
+        // Hotel Scraper
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#d29922"></span>Hotel Scraper</div>';
+        h +=
+          '<p class="desc">Niseko hotel price comparison engine \u2014 automated scraping from 5 data sources with entity resolution and Convex-backed storage for analytics.</p>';
+        h += '<div class="pipeline">';
+        const scraperSteps = [
+          "Schedule Timer",
+          "Source Selection",
+          "Playwright Browser",
+          "Price Extraction",
+          "Entity Resolution",
+          "Convex Storage",
+          "Analytics",
+        ];
+        scraperSteps.forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
+          h += '<div class="pipe-box">' + s + "</div>";
+        });
+        h += "</div>";
+        h += '<div class="badges">';
+        const sources = ["ratehawk", "google_hotels", "nisade", "roomboss", "rakuten_travel"];
+        for (const s of sources)
+          h +=
+            '<div class="badge"><span class="bdot" style="background:#d29922"></span>' +
+            s +
+            "</div>";
+        h += "</div></div>";
+
+        h += "</div>"; // end tab 5
+
+        // ==================================================================
+        // TAB 6: Infrastructure
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "infrastructure" ? " active" : "") + '">';
+
+        // Network topology SVG
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#39d2c0"></span>Network Topology</div>';
+        h += '<div class="svg-wrap"><svg viewBox="0 0 660 370" xmlns="http://www.w3.org/2000/svg">';
+        h +=
+          '<defs><filter id="netGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
+        // Draw links
+        for (const link of NET_LINKS) {
+          const from = NET_NODES.find((n) => n.id === link.from);
+          const to = NET_NODES.find((n) => n.id === link.to);
+          if (!from || !to) continue;
+          let dashArray = "none",
+            opacity = "0.4";
+          if (link.type === "wireless") dashArray = "6 4";
+          else if (link.type === "api") dashArray = "2 3";
+          h +=
+            '<line x1="' +
+            from.x +
+            '" y1="' +
+            from.y +
+            '" x2="' +
+            to.x +
+            '" y2="' +
+            to.y +
+            '" stroke="#30363d" stroke-width="1.5" stroke-dasharray="' +
+            dashArray +
+            '" opacity="' +
+            opacity +
+            '"/>';
+          // Animated flow for wired connections
+          if (link.type === "wired") {
+            h +=
+              '<line x1="' +
+              from.x +
+              '" y1="' +
+              from.y +
+              '" x2="' +
+              to.x +
+              '" y2="' +
+              to.y +
+              '" stroke="' +
+              ROLE_COLORS[from.role] +
+              '" stroke-width="1" stroke-dasharray="4 8" opacity="0.3">';
+            h +=
+              '<animate attributeName="stroke-dashoffset" values="0;-24" dur="2s" repeatCount="indefinite"/>';
+            h += "</line>";
+          }
+        }
+
+        // Draw nodes
+        for (const node of NET_NODES) {
+          const nc = ROLE_COLORS[node.role] || "#8b949e";
+          // Outer pulse ring
+          h +=
+            '<circle cx="' +
+            node.x +
+            '" cy="' +
+            node.y +
+            '" r="26" fill="none" stroke="' +
+            nc +
+            '" stroke-width="0.5" opacity="0">';
+          h += '<animate attributeName="r" values="26;36" dur="3s" repeatCount="indefinite"/>';
+          h +=
+            '<animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite"/>';
+          h += "</circle>";
+          // Node circle
+          h +=
+            '<circle cx="' +
+            node.x +
+            '" cy="' +
+            node.y +
+            '" r="26" fill="#0d1117" stroke="' +
+            nc +
+            '" stroke-width="2" filter="url(#netGlow)"/>';
+          h +=
+            '<circle cx="' +
+            node.x +
+            '" cy="' +
+            node.y +
+            '" r="26" fill="' +
+            nc +
+            '" opacity="0.06"/>';
+          // Icon
+          h +=
+            '<text x="' +
+            node.x +
+            '" y="' +
+            (node.y - 3) +
+            '" text-anchor="middle" fill="' +
+            nc +
+            '" font-size="16">' +
+            node.icon +
+            "</text>";
+          // Label
+          h +=
+            '<text x="' +
+            node.x +
+            '" y="' +
+            (node.y + 12) +
+            '" text-anchor="middle" fill="#c9d1d9" font-size="8" font-family="\'JetBrains Mono\',monospace" font-weight="500">' +
+            node.label +
+            "</text>";
+          // IP
+          h +=
+            '<text x="' +
+            node.x +
+            '" y="' +
+            (node.y + 42) +
+            '" text-anchor="middle" fill="#484f58" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+            node.ip +
+            "</text>";
+        }
+
+        // Legend
+        h +=
+          '<text x="20" y="350" fill="#484f58" font-size="8" font-family="\'JetBrains Mono\',monospace">';
+        h +=
+          "\u2500\u2500\u2500 wired &nbsp;&nbsp; - - - wireless &nbsp;&nbsp; \u00B7\u00B7\u00B7 api</text>";
+
+        h += "</svg></div></div>";
+
+        // Monitoring stack
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#d29922"></span>Monitoring Stack</div>';
+        h +=
+          '<p class="desc">Full observability pipeline with Prometheus metrics collection, Grafana visualization, alert management, and Discord notifications for real-time infrastructure awareness.</p>';
+        h += '<div class="pipeline">';
+        const monSteps = ["Prometheus", "Grafana", "Alert Manager", "Discord"];
+        monSteps.forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
+          h += '<div class="pipe-box">' + s + "</div>";
+        });
+        h += "</div>";
+
+        // Station health from scan data
+        if (scan.stations && scan.stations.length > 0) {
+          h += '<div class="cards">';
+          for (const st of scan.stations.slice(0, 6)) {
+            const ok = st.reachable || st.online;
+            h +=
+              '<div class="card ' +
+              (ok ? "ok" : "crit") +
+              '"><div class="card-label">' +
+              esc(st.label || st.name || st.id || "Station") +
+              "</div>";
+            h +=
+              '<div class="card-value" style="font-size:14px">' +
+              (ok ? "Online" : "Offline") +
+              "</div>";
+            if (st.ip) h += '<div class="card-sub mono">' + esc(st.ip) + "</div>";
+            h += "</div>";
+          }
+          h += "</div>";
+        }
+        h += "</div>";
+
+        h += "</div>"; // end tab 6
+
+        // ==================================================================
+        // TAB 7: Live Dashboard
+        // ==================================================================
+        h += '<div class="tab-panel' + (currentTab === "dashboard" ? " active" : "") + '">';
+
+        h +=
+          '<div class="section"><div class="section-title"><span class="dot" style="background:#3fb950"></span>System Health</div>';
+        h += '<div class="status-grid">';
+
+        // Hive Mind
+        const hmUp = identity.uptime_seconds || identity.uptime || wellness.uptime;
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#39d2c0">\u2B22 Hive Mind</span><span class="sc-dot" style="background:' +
+          (d.identity ? "#3fb950" : "#f85149") +
+          '"></span></div>';
+        h += '<div class="sc-detail">Uptime: ' + formatUptime(hmUp) + "</div>";
+        h +=
+          '<div class="sc-detail">Station: ' + esc(identity.station_id || "---") + "</div></div>";
+
+        // Neural Graph
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#bc8cff">\u2726 Neural Graph</span><span class="sc-dot" style="background:' +
+          (d.neuralStatus ? "#3fb950" : "#f85149") +
+          '"></span></div>';
+        h += '<div class="sc-detail">Phase: ' + esc(String(ngPhase)) + "</div>";
+        h +=
+          '<div class="sc-detail">Fitness: ' +
+          (typeof ngFitness === "number" ? ngFitness.toFixed(1) + "%" : "---") +
+          "</div></div>";
+
+        // Meta Engine
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#58a6ff">\u25C8 Meta Engine</span><span class="sc-dot" style="background:' +
+          (d.neuralStatus ? "#3fb950" : "#d29922") +
+          '"></span></div>';
+        h += '<div class="sc-detail">Model selection: active</div>';
+        h += '<div class="sc-detail">Task routing: dynamic</div></div>';
+
+        // Data Mine
+        const dmEngines = dataMine.engines || 5;
+        const dmAnalyses = dataMine.totalAnalyses || dmStats.totalAnalyses || 0;
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#3fb950">\u25C6 Data Mine</span><span class="sc-dot" style="background:' +
+          (d.dataMineStatus ? "#3fb950" : "#f85149") +
+          '"></span></div>';
+        h += '<div class="sc-detail">' + dmEngines + " engines active</div>";
+        h += '<div class="sc-detail">' + dmAnalyses + " analyses run</div></div>";
+
+        // Wellness
+        const wSessions = wellness.sessions || wellness.totalSessions || 0;
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#f0883e">\u2665 Wellness</span><span class="sc-dot" style="background:' +
+          (d.wellnessStatus ? "#3fb950" : "#f85149") +
+          '"></span></div>';
+        h +=
+          '<div class="sc-detail">' +
+          (Array.isArray(agents) ? agents.length : 8) +
+          " agents deployed</div>";
+        h += '<div class="sc-detail">' + wSessions + " sessions</div></div>";
+
+        // Network
+        const devices = scan.stations?.length || scan.devices?.length || 0;
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#d29922">\u25B2 Network</span><span class="sc-dot" style="background:' +
+          (d.scan ? "#3fb950" : "#d29922") +
+          '"></span></div>';
+        h += '<div class="sc-detail">' + devices + " devices tracked</div>";
+        h += '<div class="sc-detail">Dual-WAN: active</div></div>';
+
+        // System Overall
+        const apiCount = [d.identity, d.neuralStatus, d.dataMineStatus, d.wellnessStatus].filter(
+          Boolean,
+        ).length;
+        const sysOk = apiCount >= 3;
+        h +=
+          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:' +
+          (sysOk ? "#3fb950" : "#d29922") +
+          '">\u25CE System</span><span class="sc-dot" style="background:' +
+          (sysOk ? "#3fb950" : "#d29922") +
+          '"></span></div>';
+        h +=
+          '<div class="sc-detail">' +
+          (sysOk ? "Operational" : "Degraded") +
+          " (" +
+          apiCount +
+          "/4 APIs)</div>";
+        h += '<div class="sc-detail">60s auto-refresh</div></div>';
+
+        h += "</div></div>"; // end status grid + section
+
+        // Refresh indicator
+        h +=
+          '<div class="section" style="text-align:center"><p class="desc" style="font-size:12px">Auto-refreshing every 60 seconds \u2022 Last update: ' +
+          esc(now) +
+          "</p></div>";
+
+        h += "</div>"; // end tab 7
+
+        // ── Footer ──
+        h +=
+          '<div class="footer">OpenClaw \u2022 Self-hosted AI Gateway \u2022 ' +
+          esc(identity.version || "2026.x") +
+          "</div>";
+
+        app.innerHTML = h;
+      }
+
+      // =====================================================================
+      // INIT
+      // =====================================================================
+      async function init() {
+        const d = await fetchAll();
+        _lastData = d;
+        render(d);
+      }
+      async function refresh() {
+        try {
+          const d = await fetchAll();
+          _lastData = d;
+          render(d);
+        } catch {}
+      }
+      init().then(() => setInterval(refresh, 60000));
+    </script>
+  </body>
+</html>
