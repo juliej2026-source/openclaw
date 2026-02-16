@@ -1,7 +1,25 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { ExecutionLog } from "../execution-log.js";
 import type { JulieClient } from "../julie-client.js";
-import { createExecutionReporter, inferCapabilitiesUsed } from "../execution-reporter.js";
+
+// Mock neural graph Convex dependencies for recordCommandExecution
+const mockNeuralMutation = vi.fn().mockResolvedValue("ok");
+vi.mock("../../../neural-graph/src/persistence/convex-client.js", () => ({
+  getConvexClient: () => ({ mutation: (...args: unknown[]) => mockNeuralMutation(...args) }),
+}));
+
+// Mock meta-engine performance DB
+vi.mock("../../../meta-engine/src/performance-db.js", () => ({
+  PerformanceDb: vi.fn().mockImplementation(() => ({
+    record: vi.fn(),
+  })),
+}));
+
+import {
+  createExecutionReporter,
+  recordCommandExecution,
+  inferCapabilitiesUsed,
+} from "../execution-reporter.js";
 
 // Injected mock classifier — avoids dynamic import mocking issues
 const mockClassifyTask = vi.fn().mockReturnValue({
@@ -224,5 +242,71 @@ describe("inferCapabilitiesUsed", () => {
 
   it("falls back to command name for unknown commands", () => {
     expect(inferCapabilitiesUsed("ping")).toEqual(["ping"]);
+  });
+});
+
+describe("recordCommandExecution — neural graph feed", () => {
+  beforeEach(() => {
+    mockNeuralMutation.mockClear();
+  });
+
+  it("records command execution to neural graph execution_records", async () => {
+    const client = mockJulieClient();
+    const log = mockExecutionLog();
+
+    await recordCommandExecution({
+      command: "meta:classify",
+      success: true,
+      latencyMs: 100,
+      executionLog: log,
+      julieClient: client,
+    });
+
+    const neuralCall = mockNeuralMutation.mock.calls.find(
+      (call) => call[0] === "execution_records:record",
+    );
+    expect(neuralCall).toBeDefined();
+    expect(neuralCall![1]).toMatchObject({
+      taskType: "analysis",
+      success: true,
+      nodesVisited: ["meta-engine"],
+      stationId: "iot-hub",
+    });
+  });
+
+  it("maps network commands to iot-hub node", async () => {
+    const client = mockJulieClient();
+    const log = mockExecutionLog();
+
+    await recordCommandExecution({
+      command: "network:scan",
+      success: true,
+      latencyMs: 50,
+      executionLog: log,
+      julieClient: client,
+    });
+
+    const neuralCall = mockNeuralMutation.mock.calls.find(
+      (call) => call[0] === "execution_records:record",
+    );
+    expect(neuralCall![1].nodesVisited).toEqual(["iot-hub"]);
+  });
+
+  it("survives neural graph recording failure", async () => {
+    mockNeuralMutation.mockRejectedValueOnce(new Error("Convex down"));
+    const client = mockJulieClient();
+    const log = mockExecutionLog();
+
+    // Should not throw
+    await recordCommandExecution({
+      command: "meta:classify",
+      success: true,
+      latencyMs: 100,
+      executionLog: log,
+      julieClient: client,
+    });
+
+    // Local log should still work
+    expect(log.record).toHaveBeenCalledOnce();
   });
 });

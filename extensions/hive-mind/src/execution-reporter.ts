@@ -155,6 +155,42 @@ export async function recordCommandExecution(opts: {
   }
 
   opts.executionLog.record(logEntry);
+
+  // Feed neural graph execution records (best-effort)
+  try {
+    const { getConvexClient } = await loadNeuralConvex();
+    const client = getConvexClient();
+    // Use string function reference directly to avoid importing the Convex
+    // _generated/api.js (which only exists after `npx convex dev`).
+    await client.mutation("execution_records:record" as never, {
+      threadId: `cmd-${logEntry.id}`,
+      taskType: taskType,
+      taskDescription: opts.command,
+      nodesVisited: inferNodesVisited(opts.command),
+      edgesTraversed: [],
+      success: opts.success,
+      totalLatencyMs: opts.latencyMs,
+      nodeLatencies: {},
+      stationId: STATION_ID,
+      createdAt: timestamp,
+    });
+  } catch {
+    // Non-critical — neural graph recording is best-effort
+  }
+}
+
+async function loadNeuralConvex() {
+  return import("../../neural-graph/src/persistence/convex-client.js");
+}
+
+/** Map command prefixes to neural graph node IDs for nodesVisited. */
+function inferNodesVisited(command: string): string[] {
+  if (command.startsWith("meta:")) return ["meta-engine"];
+  if (command.startsWith("network:") || command.startsWith("unifi:")) return ["iot-hub"];
+  if (command.startsWith("neural:")) return ["meta-engine"];
+  if (command.startsWith("scraper:")) return ["scraper_intel"];
+  if (command.startsWith("hf:")) return ["clerk_learning"];
+  return ["iot-hub"];
 }
 
 /** Map command prefixes to meta-engine task types. */

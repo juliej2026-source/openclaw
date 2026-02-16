@@ -1,7 +1,7 @@
 import type { MaturationPhase, GraphNode, GraphEdge } from "../types.js";
 import { api } from "../../convex/_generated/api.js";
 import { getConvexClient } from "../persistence/convex-client.js";
-import { PHASE_THRESHOLDS, CORE_NODE_IDS } from "../types.js";
+import { PHASE_THRESHOLDS, CORE_NODE_IDS, MYELINATION_THRESHOLD } from "../types.js";
 import { calculateNodeFitness, calculateGlobalStats } from "./fitness.js";
 
 // ---------------------------------------------------------------------------
@@ -287,6 +287,19 @@ export async function runEvolutionCycle(stationId: string): Promise<{
     }
   }
 
+  // Myelinate edges that meet the threshold
+  let edgesUpdated = 0;
+  for (const edge of edges) {
+    if (
+      !edge.myelinated &&
+      edge.activationCount >= MYELINATION_THRESHOLD.activationCount &&
+      edge.weight >= MYELINATION_THRESHOLD.minWeight
+    ) {
+      await client.mutation(api.graph_edges.myelinate, { edgeId: edge.edgeId });
+      edgesUpdated++;
+    }
+  }
+
   // Record phase transition event
   if (phaseTransition) {
     await client.mutation(api.evolution.record, {
@@ -307,7 +320,7 @@ export async function runEvolutionCycle(stationId: string): Promise<{
     phase: newPhase,
     totalExecutions: executionCount,
     nodesUpdated,
-    edgesUpdated: 0,
+    edgesUpdated,
     phaseTransition,
   };
 }

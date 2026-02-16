@@ -1,5 +1,7 @@
 import { StateGraph, END, START } from "@langchain/langgraph";
+import { api } from "../../convex/_generated/api.js";
 import { ConvexCheckpointer } from "../persistence/convex-checkpointer.js";
+import { getConvexClient } from "../persistence/convex-client.js";
 import {
   capabilityMetaEngine,
   capabilityModelManager,
@@ -115,6 +117,21 @@ export async function executeNeuralQuery(opts: {
     },
   );
 
+  // Record execution metrics (best-effort — failures must not break the query)
+  try {
+    await recordExecutionMetrics({
+      threadId,
+      task: opts.task,
+      taskType: result.taskType ?? opts.taskType ?? "unknown",
+      nodesVisited: result.nodesVisited ?? [],
+      nodeLatencies: result.nodeLatencies ?? {},
+      success: result.success ?? false,
+      stationId: opts.stationId ?? "iot-hub",
+    });
+  } catch {
+    // Non-critical — query result is already available
+  }
+
   return {
     threadId,
     result: result.result,
@@ -124,4 +141,66 @@ export async function executeNeuralQuery(opts: {
     evolutionProposals: result.evolutionProposals,
     pendingApproval: result.pendingApproval,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Record execution metrics to Convex after a graph query completes.
+// Updates execution_records, node activation counts, and edge activation counts.
+// ---------------------------------------------------------------------------
+
+async function recordExecutionMetrics(opts: {
+  threadId: string;
+  task: string;
+  taskType: string;
+  nodesVisited: string[];
+  nodeLatencies: Record<string, number>;
+  success: boolean;
+  stationId: string;
+}) {
+  const client = getConvexClient();
+  const totalLatencyMs = Object.values(opts.nodeLatencies).reduce((sum, ms) => sum + ms, 0);
+
+  // 1. Record the execution
+  await client.mutation(api.execution_records.record, {
+    threadId: opts.threadId,
+    taskType: opts.taskType,
+    taskDescription: opts.task,
+    nodesVisited: opts.nodesVisited,
+    edgesTraversed: computeEdgesTraversed(opts.nodesVisited),
+    success: opts.success,
+    totalLatencyMs,
+    nodeLatencies: opts.nodeLatencies,
+    stationId: opts.stationId,
+    createdAt: new Date().toISOString(),
+  });
+
+  // 2. Record activation for each visited node
+  for (const nodeId of opts.nodesVisited) {
+    const latencyMs = opts.nodeLatencies[nodeId] ?? 0;
+    await client.mutation(api.graph_nodes.recordActivation, {
+      nodeId,
+      latencyMs,
+      success: opts.success,
+    });
+  }
+
+  // 3. Record activation for traversed edges
+  const edgeIds = computeEdgesTraversed(opts.nodesVisited);
+  for (const edgeId of edgeIds) {
+    const [source] = edgeId.split("->");
+    const latencyMs = opts.nodeLatencies[source] ?? 0;
+    await client.mutation(api.graph_edges.recordActivation, {
+      edgeId,
+      latencyMs,
+    });
+  }
+}
+
+/** Compute edge IDs from consecutive nodes in the visit order. */
+function computeEdgesTraversed(nodesVisited: string[]): string[] {
+  const edges: string[] = [];
+  for (let i = 0; i < nodesVisited.length - 1; i++) {
+    edges.push(`${nodesVisited[i]}->${nodesVisited[i + 1]}`);
+  }
+  return edges;
 }
