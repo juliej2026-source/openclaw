@@ -6,6 +6,33 @@
     <title>OpenClaw — System Overview</title>
     <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
     <style>
+      :root {
+        --bg: #faf9f7;
+        --surface: #ffffff;
+        --surface-warm: #f5f3ef;
+        --border: #e8e4df;
+        --border-light: #f0ece7;
+        --text: #2c2a27;
+        --text-dim: #7a756d;
+        --text-light: #a39e95;
+        --accent: #8b6d4a;
+        --accent-light: #c4a97d;
+        --accent-warm: #d4a574;
+        --teal: #5a8f8b;
+        --indigo: #6b7394;
+        --sage: #7a8f6d;
+        --rose: #a07070;
+        --slate: #6b7280;
+        --gold: #b8963e;
+        --shadow-sm: 0 1px 3px rgba(44, 42, 39, 0.06);
+        --shadow-md: 0 4px 16px rgba(44, 42, 39, 0.08);
+        --shadow-lg: 0 8px 32px rgba(44, 42, 39, 0.1);
+        --radius: 4px;
+        --mono: "SF Mono", "Cascadia Code", "Consolas", monospace;
+        --serif: "Georgia", "Palatino", "Times New Roman", serif;
+        --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+      }
+
       *,
       *::before,
       *::after {
@@ -13,463 +40,490 @@
         margin: 0;
         padding: 0;
       }
+
       body {
-        background: #0d1117;
-        color: #e6edf3;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        line-height: 1.6;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-weight: 400;
+        line-height: 1.7;
         min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
       }
-      a {
-        color: #58a6ff;
-        text-decoration: none;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-      code,
-      .mono {
-        font-family: "JetBrains Mono", "SF Mono", "Cascadia Code", "Consolas", monospace;
-      }
+
+      /* ── Layout ── */
       .wrap {
-        max-width: 1020px;
+        max-width: 920px;
         margin: 0 auto;
-        padding: 24px 20px 48px;
+        padding: 48px 32px 80px;
       }
 
       /* ── Header ── */
       .header {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
-        padding: 16px 0 20px;
-        border-bottom: 1px solid #30363d;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-        gap: 12px;
+        padding: 0 0 32px;
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--border);
       }
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      .header-brand h1 {
+        font-family: var(--serif);
+        font-size: 32px;
+        font-weight: 500;
+        color: var(--text);
+        letter-spacing: -0.02em;
+        line-height: 1.2;
       }
-      .header-logo {
-        width: 28px;
-        height: 28px;
-      }
-      .header h1 {
-        font-size: 18px;
-        font-weight: 600;
-        color: #f0f6fc;
-      }
-      .header h1 span {
-        font-weight: 400;
-        color: #8b949e;
+      .header-brand .subtitle {
+        font-family: var(--sans);
         font-size: 13px;
-        display: block;
-        margin-top: 2px;
+        font-weight: 400;
+        color: var(--text-dim);
+        margin-top: 4px;
+        letter-spacing: 0.03em;
       }
-      .header-status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+      .header-meta {
+        text-align: right;
         font-size: 12px;
-        color: #8b949e;
+        color: var(--text-light);
+        font-family: var(--mono);
+      }
+      .header-meta .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
       .live-dot {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: #3fb950;
-        box-shadow: 0 0 6px #3fb95066;
-        display: inline-block;
+        background: var(--sage);
+        box-shadow: 0 0 4px rgba(122, 143, 109, 0.4);
       }
 
-      /* ── Tabs ── */
-      .tab-bar {
+      /* ── Navigation ── */
+      .nav {
         display: flex;
-        gap: 4px;
-        border-bottom: 1px solid #30363d;
-        margin-bottom: 24px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        gap: 0;
+        margin-bottom: 48px;
+        border-bottom: 1px solid var(--border);
       }
-      .tab-btn {
+      .nav-btn {
         background: none;
         border: none;
-        color: #8b949e;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-family: var(--sans);
         font-size: 13px;
-        padding: 10px 16px;
+        font-weight: 400;
+        color: var(--text-light);
+        padding: 12px 20px;
         cursor: pointer;
         border-bottom: 2px solid transparent;
-        white-space: nowrap;
+        letter-spacing: 0.02em;
         transition:
-          color 0.15s,
-          border-color 0.15s;
+          color 0.2s,
+          border-color 0.2s;
+        white-space: nowrap;
       }
-      .tab-btn:hover {
-        color: #c9d1d9;
+      .nav-btn:hover {
+        color: var(--text-dim);
       }
-      .tab-btn.active {
-        color: #58a6ff;
-        border-bottom-color: #58a6ff;
-      }
-      .tab-panel {
-        display: none;
-      }
-      .tab-panel.active {
-        display: block;
+      .nav-btn.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        font-weight: 500;
       }
 
-      /* ── Cards ── */
-      .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
-        margin-bottom: 24px;
+      /* ── Tab panels ── */
+      .panel {
+        display: none;
       }
-      .card {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 16px;
-        transition:
-          transform 0.2s,
-          box-shadow 0.2s;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      }
-      .card-label {
-        font-size: 12px;
-        color: #8b949e;
-        margin-bottom: 4px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .card-value {
-        font-size: 24px;
-        font-weight: 600;
-        font-family: "JetBrains Mono", monospace;
-        color: #f0f6fc;
-      }
-      .card-sub {
-        font-size: 11px;
-        color: #8b949e;
-        margin-top: 4px;
-      }
-      .card.ok {
-        border-left: 3px solid #3fb950;
-      }
-      .card.warn {
-        border-left: 3px solid #d29922;
-      }
-      .card.crit {
-        border-left: 3px solid #f85149;
-      }
-      .card.info {
-        border-left: 3px solid #58a6ff;
-      }
-      .card.purple {
-        border-left: 3px solid #bc8cff;
+      .panel.active {
+        display: block;
       }
 
       /* ── Sections ── */
       .section {
-        margin-bottom: 32px;
+        margin-bottom: 56px;
       }
-      .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #f0f6fc;
-        margin-bottom: 16px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid #21262d;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .section-title .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        display: inline-block;
-      }
-      p.desc {
-        color: #8b949e;
-        font-size: 14px;
-        line-height: 1.7;
-        margin-bottom: 16px;
-      }
-
-      /* ── Glass panel ── */
-      .glass {
-        background: rgba(22, 27, 34, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid #30363d;
-        border-radius: 12px;
-        padding: 24px;
-      }
-
-      /* ── SVG container ── */
-      .svg-wrap {
-        width: 100%;
-        overflow: hidden;
-        border-radius: 8px;
-        background: #0d1117;
-        border: 1px solid #21262d;
-        margin-bottom: 16px;
-      }
-      .svg-wrap svg {
-        width: 100%;
-        height: auto;
-        display: block;
-      }
-
-      /* ── Badge ── */
-      .badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 16px;
-      }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: #21262d;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-        padding: 4px 10px;
+      .section-label {
+        font-family: var(--mono);
         font-size: 11px;
-        color: #c9d1d9;
-        font-family: "JetBrains Mono", monospace;
-        letter-spacing: 0.3px;
+        font-weight: 500;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 16px;
       }
-      .badge .bdot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        display: inline-block;
+      .section-heading {
+        font-family: var(--serif);
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 12px;
+        letter-spacing: -0.01em;
+      }
+      .section-body {
+        font-size: 15px;
+        color: var(--text-dim);
+        line-height: 1.8;
+        max-width: 680px;
       }
 
-      /* ── Channel grid ── */
-      .ch-group {
-        margin-bottom: 24px;
-      }
-      .ch-group-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #8b949e;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        margin-bottom: 10px;
-      }
-      .ch-grid {
+      /* ── Stat row ── */
+      .stats {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin: 32px 0;
       }
-      .ch-card {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-        padding: 10px 12px;
-        transition:
-          transform 0.2s,
-          box-shadow 0.2s;
-        cursor: default;
-      }
-      .ch-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-      }
-      .ch-icon {
-        font-size: 18px;
-        flex-shrink: 0;
-        width: 28px;
+      .stat {
+        background: var(--surface);
+        padding: 24px 20px;
         text-align: center;
       }
-      .ch-name {
-        font-size: 13px;
-        font-weight: 500;
-        color: #e6edf3;
-      }
-
-      /* ── Flow pipeline ── */
-      .pipeline {
-        display: flex;
-        align-items: center;
-        gap: 0;
-        overflow-x: auto;
-        padding: 16px 0;
-        margin-bottom: 16px;
-      }
-      .pipe-box {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-        padding: 8px 14px;
-        font-size: 12px;
-        color: #c9d1d9;
-        white-space: nowrap;
-        flex-shrink: 0;
-        font-family: "JetBrains Mono", monospace;
-      }
-      .pipe-arrow {
-        color: #30363d;
-        font-size: 14px;
-        padding: 0 4px;
-        flex-shrink: 0;
-      }
-
-      /* ── Detail panel ── */
-      .detail-panel {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 20px;
-        margin-top: 16px;
-        display: none;
-      }
-      .detail-panel.visible {
-        display: block;
-      }
-      .detail-panel h3 {
-        font-size: 15px;
+      .stat-value {
+        font-family: var(--serif);
+        font-size: 36px;
         font-weight: 600;
-        color: #f0f6fc;
+        color: var(--text);
+        line-height: 1;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-top: 6px;
+        letter-spacing: 0.04em;
+      }
+
+      /* ── Cards grid ── */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        transition:
+          box-shadow 0.25s,
+          transform 0.25s;
+      }
+      .card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+      }
+      .card-title {
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
         margin-bottom: 8px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .detail-panel p {
+      .card-title .marker {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+      .card-desc {
         font-size: 13px;
-        color: #8b949e;
+        color: var(--text-dim);
         line-height: 1.6;
       }
-      .detail-panel ul {
-        margin-top: 8px;
+      .card-caps {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .cap-tag {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--text-light);
+        background: var(--surface-warm);
+        border: 1px solid var(--border-light);
+        border-radius: 3px;
+        padding: 2px 8px;
+      }
+
+      /* ── SVG container ── */
+      .diagram {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin: 24px 0;
+      }
+      .diagram svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* ── Tech badges ── */
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 16px 0;
+      }
+      .badge {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 4px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .badge .bdot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+
+      /* ── Channel grid ── */
+      .ch-group {
+        margin-bottom: 32px;
+      }
+      .ch-group-label {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border-light);
+      }
+      .ch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 8px;
+      }
+      .ch-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius);
+        font-size: 13px;
+        color: var(--text);
+        transition: box-shadow 0.2s;
+      }
+      .ch-item:hover {
+        box-shadow: var(--shadow-sm);
+      }
+      .ch-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+        width: 24px;
+        text-align: center;
+      }
+
+      /* ── Pipeline flow ── */
+      .pipeline {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        overflow-x: auto;
+        padding: 20px 0;
+      }
+      .pipe-step {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 8px 14px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .pipe-sep {
+        color: var(--border);
+        font-size: 12px;
+        padding: 0 6px;
+        flex-shrink: 0;
+      }
+
+      /* ── Detail panel ── */
+      .detail {
+        background: var(--surface-warm);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-top: 20px;
+        display: none;
+      }
+      .detail.visible {
+        display: block;
+      }
+      .detail h3 {
+        font-family: var(--serif);
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .detail p {
+        font-size: 14px;
+        color: var(--text-dim);
+        line-height: 1.7;
+        margin-bottom: 12px;
+      }
+      .detail ul {
         padding-left: 20px;
       }
-      .detail-panel li {
-        font-size: 12px;
-        color: #c9d1d9;
+      .detail li {
+        font-size: 13px;
+        color: var(--text-dim);
         margin-bottom: 4px;
       }
 
       /* ── Engine cards ── */
       .engine-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 12px;
-        margin-bottom: 16px;
       }
       .engine-card {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 16px;
-        transition:
-          transform 0.2s,
-          box-shadow 0.2s;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        transition: box-shadow 0.2s;
       }
       .engine-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--shadow-sm);
       }
       .engine-card h4 {
+        font-family: var(--sans);
         font-size: 13px;
         font-weight: 600;
-        color: #f0f6fc;
-        margin-bottom: 6px;
-      }
-      .engine-card ul {
-        padding-left: 16px;
+        margin-bottom: 8px;
       }
       .engine-card li {
         font-size: 11px;
-        color: #8b949e;
-        margin-bottom: 2px;
+        color: var(--text-dim);
+        margin-bottom: 3px;
+      }
+      .engine-card ul {
+        padding-left: 16px;
       }
 
       /* ── Status grid ── */
       .status-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
       }
       .status-card {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
       }
       .status-card .sc-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        margin-bottom: 12px;
       }
       .status-card .sc-name {
+        font-family: var(--sans);
         font-size: 14px;
         font-weight: 600;
-        color: #f0f6fc;
+        color: var(--text);
       }
       .status-card .sc-dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
       }
-      .status-card .sc-detail {
+      .status-card .sc-line {
+        font-family: var(--mono);
         font-size: 12px;
-        color: #8b949e;
-        font-family: "JetBrains Mono", monospace;
+        color: var(--text-dim);
+        margin-bottom: 4px;
       }
 
       /* ── Animations ── */
-      @keyframes fadeInUp {
+      @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(12px);
+          transform: translateY(8px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
-      .tab-panel.active .section {
-        animation: fadeInUp 0.4s ease both;
+      .panel.active .section {
+        animation: fadeIn 0.5s ease both;
       }
-      .tab-panel.active .section:nth-child(1) {
+      .panel.active .section:nth-child(1) {
         animation-delay: 0.05s;
       }
-      .tab-panel.active .section:nth-child(2) {
-        animation-delay: 0.12s;
+      .panel.active .section:nth-child(2) {
+        animation-delay: 0.15s;
       }
-      .tab-panel.active .section:nth-child(3) {
-        animation-delay: 0.19s;
+      .panel.active .section:nth-child(3) {
+        animation-delay: 0.25s;
       }
-      .tab-panel.active .section:nth-child(4) {
-        animation-delay: 0.26s;
+      .panel.active .section:nth-child(4) {
+        animation-delay: 0.35s;
       }
-      .tab-panel.active .section:nth-child(5) {
-        animation-delay: 0.33s;
+      .panel.active .section:nth-child(5) {
+        animation-delay: 0.45s;
+      }
+
+      /* ── Divider ── */
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 48px 0;
+      }
+
+      /* ── Footer ── */
+      .footer {
+        text-align: center;
+        padding: 40px 0 0;
+        border-top: 1px solid var(--border);
+        margin-top: 56px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-light);
       }
 
       /* ── Responsive ── */
       @media (max-width: 768px) {
-        .cards {
+        .wrap {
+          padding: 32px 20px 60px;
+        }
+        .stats {
           grid-template-columns: repeat(2, 1fr);
+        }
+        .card-grid {
+          grid-template-columns: 1fr;
         }
         .ch-grid {
           grid-template-columns: repeat(2, 1fr);
@@ -481,10 +535,21 @@
           flex-wrap: wrap;
           gap: 4px;
         }
+        .nav {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .nav-btn {
+          padding: 10px 14px;
+          font-size: 12px;
+        }
+        .header-brand h1 {
+          font-size: 26px;
+        }
       }
       @media (max-width: 500px) {
-        .cards {
-          grid-template-columns: 1fr;
+        .stats {
+          grid-template-columns: 1fr 1fr;
         }
         .ch-grid {
           grid-template-columns: 1fr;
@@ -495,27 +560,24 @@
         .status-grid {
           grid-template-columns: 1fr;
         }
-        .tab-btn {
-          font-size: 12px;
-          padding: 8px 10px;
+        .stat-value {
+          font-size: 28px;
         }
-      }
-
-      /* ── Footer ── */
-      .footer {
-        text-align: center;
-        padding: 32px 0 0;
-        border-top: 1px solid #21262d;
-        margin-top: 32px;
-        font-size: 11px;
-        color: #484f58;
       }
     </style>
   </head>
   <body>
     <div class="wrap" id="app">
-      <div style="color: #8b949e; padding: 60px 0; text-align: center">
-        Loading system data&hellip;
+      <div
+        style="
+          color: var(--text-light);
+          padding: 80px 0;
+          text-align: center;
+          font-family: var(--serif);
+          font-size: 18px;
+        "
+      >
+        Loading&hellip;
       </div>
     </div>
     <script>
@@ -525,8 +587,8 @@
       const SUBSYSTEMS = {
         "hive-mind": {
           label: "Hive Mind",
-          color: "#39d2c0",
-          icon: "\u2B22",
+          color: "#5a8f8b",
+          abbr: "HM",
           desc: "Infrastructure monitoring hub \u2014 station API, network scanning, dual-WAN management, UniFi WiFi monitoring, Apache status, Discord integration",
           caps: [
             "Network scanning",
@@ -540,22 +602,22 @@
         },
         "neural-graph": {
           label: "Neural Graph",
-          color: "#bc8cff",
-          icon: "\u2726",
+          color: "#6b7394",
+          abbr: "NG",
           desc: "LangGraph + Convex AI orchestration backbone \u2014 capability nodes, maturation lifecycle, force-directed graph topology, myelinated pathways",
           caps: [
             "Capability nodes",
             "Maturation lifecycle",
             "Force-directed layout",
-            "Myelin glow scoring",
+            "Myelin scoring",
             "Replication",
             "Pruning",
           ],
         },
         "meta-engine": {
           label: "Meta Engine",
-          color: "#58a6ff",
-          icon: "\u25C8",
+          color: "#8b6d4a",
+          abbr: "ME",
           desc: "Autonomous model selection \u2014 task classification, performance scoring, dynamic routing to cheapest/fastest/most capable model",
           caps: [
             "Task classification",
@@ -567,8 +629,8 @@
         },
         "data-mine": {
           label: "Data Mine",
-          color: "#3fb950",
-          icon: "\u25C6",
+          color: "#7a8f6d",
+          abbr: "DM",
           desc: "Scientific data mining \u2014 5 engines (statistics, timeseries, clustering, graph analytics, experiments), 216 tests, correlations, anomaly detection",
           caps: [
             "Statistics engine",
@@ -581,8 +643,8 @@
         },
         wellness: {
           label: "Wellness",
-          color: "#f0883e",
-          icon: "\u2665",
+          color: "#a07070",
+          abbr: "WC",
           desc: "Executive Mental Wellbeing Concierge \u2014 8 AI agents, 10 tools, PDPA privacy-by-design, crisis escalation, measurement scorecard",
           caps: [
             "8 AI agents",
@@ -595,8 +657,8 @@
         },
         "hotel-scraper": {
           label: "Hotel Scraper",
-          color: "#d29922",
-          icon: "\u2302",
+          color: "#b8963e",
+          abbr: "HS",
           desc: "Niseko hotel price comparison \u2014 5 data sources, entity resolution, Playwright browser automation, Convex-backed storage",
           caps: [
             "5 data sources",
@@ -634,7 +696,7 @@
           { icon: "\uD83D\uDCF2", name: "Zalo" },
           { icon: "\uD83D\uDC64", name: "Zalo User" },
         ],
-        "Social / Web3": [
+        "Social & Web3": [
           { icon: "\uD83C\uDF10", name: "Nostr" },
           { icon: "\uD83E\uDE90", name: "Tlon / Urbit" },
           { icon: "\uD83C\uDFAC", name: "Twitch" },
@@ -643,7 +705,7 @@
           { icon: "\uD83D\uDCDE", name: "Voice Call" },
           { icon: "\uD83C\uDF99", name: "Talk Voice" },
         ],
-        "Dev / Infra": [
+        "Developer & Infrastructure": [
           { icon: "&gt;_", name: "IRC" },
           { icon: "\uD83E\uDD16", name: "LLM Task" },
           { icon: "\uD83E\uDDE0", name: "Memory Core" },
@@ -653,7 +715,7 @@
       };
 
       // =====================================================================
-      // NETWORK TOPOLOGY DATA (from topology.js)
+      // NETWORK TOPOLOGY (from topology.js)
       // =====================================================================
       const NET_NODES = [
         {
@@ -722,27 +784,27 @@
         { from: "IOT-HUB", to: "BRAVIA", type: "api" },
       ];
       const ROLE_COLORS = {
-        gateway: "#58a6ff",
-        modem: "#f0883e",
-        ai: "#bc8cff",
-        hub: "#39d2c0",
-        worker: "#3fb950",
-        intel: "#e3b341",
-        device: "#8b949e",
+        gateway: "#6b7394",
+        modem: "#b8963e",
+        ai: "#6b7394",
+        hub: "#5a8f8b",
+        worker: "#7a8f6d",
+        intel: "#b8963e",
+        device: "#a39e95",
       };
 
       // =====================================================================
       // WELLNESS AGENTS
       // =====================================================================
       const WELLNESS_AGENTS = [
-        { name: "orchestrator", color: "#58a6ff" },
-        { name: "clinical_safety", color: "#f85149" },
-        { name: "data_steward", color: "#bc8cff" },
-        { name: "daily_coach", color: "#3fb950" },
-        { name: "concierge", color: "#f0883e" },
-        { name: "rag_knowledge", color: "#39d2c0" },
-        { name: "device_integration", color: "#d29922" },
-        { name: "evaluation_capa", color: "#8b949e" },
+        { name: "orchestrator", color: "#6b7394" },
+        { name: "clinical_safety", color: "#a07070" },
+        { name: "data_steward", color: "#8b6d4a" },
+        { name: "daily_coach", color: "#7a8f6d" },
+        { name: "concierge", color: "#b8963e" },
+        { name: "rag_knowledge", color: "#5a8f8b" },
+        { name: "device_integration", color: "#c4a97d" },
+        { name: "evaluation_capa", color: "#a39e95" },
       ];
 
       // =====================================================================
@@ -799,7 +861,7 @@
         return d.innerHTML;
       }
       function formatUptime(s) {
-        if (!s && s !== 0) return "---";
+        if (!s && s !== 0) return "\u2014";
         const h = Math.floor(s / 3600),
           m = Math.floor((s % 3600) / 60);
         if (h > 24) {
@@ -821,7 +883,7 @@
       }
 
       // =====================================================================
-      // FORCE-DIRECTED LAYOUT (ported from neural-graph.js)
+      // FORCE-DIRECTED LAYOUT (from neural-graph.js)
       // =====================================================================
       function layoutNodes(nodes, edges, width, height) {
         const cx = width / 2,
@@ -884,17 +946,14 @@
         return positions;
       }
 
-      // =====================================================================
-      // NEURAL GRAPH FITNESS COLORS
-      // =====================================================================
       function fitnessColor(f) {
-        return f > 70 ? "#3fb950" : f > 40 ? "#d29922" : "#f85149";
+        return f > 70 ? "#7a8f6d" : f > 40 ? "#b8963e" : "#a07070";
       }
-      const EDGE_TYPE_COLORS = {
-        data_flow: "#58a6ff",
-        dependency: "#bc8cff",
-        activation: "#39d2c0",
-        fallback: "#f0883e",
+      const EDGE_COLORS = {
+        data_flow: "#6b7394",
+        dependency: "#8b6d4a",
+        activation: "#5a8f8b",
+        fallback: "#a07070",
       };
 
       // =====================================================================
@@ -918,12 +977,11 @@
       }
 
       // =====================================================================
-      // MAIN RENDER
+      // RENDER
       // =====================================================================
       function render(d) {
         const app = document.getElementById("app");
         const identity = d.identity || {};
-        const dashboard = d.dashboard || {};
         const scan = d.scan || {};
         const neural = d.neuralStatus || {};
         const topo = d.neuralTopo || {};
@@ -934,84 +992,75 @@
         const tools = d.wellnessTools?.tools || d.wellnessTools || [];
         const now = new Date().toLocaleTimeString();
 
-        const allOk = d.identity && d.neuralStatus;
-
         let h = "";
 
         // ── Header ──
         h += '<div class="header">';
-        h += '<div class="header-left"><img src="/img/favicon.svg" alt="" class="header-logo"/>';
+        h += '<div class="header-brand"><h1>OpenClaw</h1>';
+        h += '<div class="subtitle">System Overview</div></div>';
         h +=
-          "<h1>OpenClaw<span>System Overview \u2022 " +
-          esc(identity.station_id || "loading") +
-          "</span></h1></div>";
-        h +=
-          '<div class="header-status"><span class="live-dot"></span> Live \u2022 ' +
+          '<div class="header-meta"><div class="live-indicator"><span class="live-dot"></span> ' +
           esc(now) +
           "</div>";
+        h +=
+          '<div style="margin-top:4px">' +
+          esc(identity.station_id || "") +
+          " \u00B7 v" +
+          esc(identity.version || "\u2014") +
+          "</div></div>";
         h += "</div>";
 
-        // ── Tabs ──
+        // ── Navigation ──
         const tabs = [
-          { id: "overview", label: "What is OpenClaw" },
+          { id: "overview", label: "Overview" },
           { id: "architecture", label: "Architecture" },
-          { id: "channels", label: "Messaging Channels" },
-          { id: "intelligence", label: "AI Intelligence" },
-          { id: "applications", label: "Domain Applications" },
+          { id: "channels", label: "Channels" },
+          { id: "intelligence", label: "Intelligence" },
+          { id: "applications", label: "Applications" },
           { id: "infrastructure", label: "Infrastructure" },
-          { id: "dashboard", label: "Live Dashboard" },
+          { id: "dashboard", label: "Dashboard" },
         ];
-        h += '<div class="tab-bar">';
+        h += '<nav class="nav">';
         for (const t of tabs)
           h +=
-            '<button class="tab-btn' +
+            '<button class="nav-btn' +
             (currentTab === t.id ? " active" : "") +
             '" onclick="switchTab(\'' +
             t.id +
             "')\">" +
             t.label +
             "</button>";
-        h += "</div>";
+        h += "</nav>";
 
         // ==================================================================
-        // TAB 1: What is OpenClaw
+        // TAB 1: Overview
         // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "overview" ? " active" : "") + '">';
+        h += '<div class="panel' + (currentTab === "overview" ? " active" : "") + '">';
 
-        // Hero SVG
-        h += '<div class="section"><div class="svg-wrap">';
-        h += '<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">';
-        h += "<defs>";
+        // Hero diagram
+        h += '<div class="section"><div class="diagram">';
         h +=
-          '<filter id="heroGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
-        h += "</defs>";
-        // Center hexagon
+          '<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" style="background:#faf9f7">';
         const hcx = 350,
-          hcy = 140,
-          hr = 36;
+          hcy = 130;
+        // Center
         h +=
           '<polygon points="' +
-          hexPoints(hcx, hcy, hr) +
-          '" fill="none" stroke="#58a6ff" stroke-width="2" filter="url(#heroGlow)">';
-        h +=
-          '<animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>';
-        h += "</polygon>";
-        h += '<polygon points="' + hexPoints(hcx, hcy, hr - 6) + '" fill="#58a6ff" opacity="0.1"/>';
+          hexPoints(hcx, hcy, 32) +
+          '" fill="none" stroke="var(--accent,#8b6d4a)" stroke-width="1.5" opacity="0.7"/>';
         h +=
           '<text x="' +
           hcx +
           '" y="' +
           (hcy + 4) +
-          '" text-anchor="middle" fill="#f0f6fc" font-family="\'JetBrains Mono\',monospace" font-size="11" font-weight="600">OpenClaw</text>';
-
-        // 6 subsystem nodes radiating from center
-        const heroR = 115;
+          '" text-anchor="middle" fill="#2c2a27" font-family="Georgia,Palatino,serif" font-size="13" font-weight="500">OpenClaw</text>';
+        // Subsystem nodes
+        const heroR = 105;
         SUB_KEYS.forEach((key, i) => {
           const sub = SUBSYSTEMS[key];
           const angle = (Math.PI * 2 * i) / SUB_KEYS.length - Math.PI / 2;
           const nx = hcx + heroR * Math.cos(angle);
           const ny = hcy + heroR * Math.sin(angle);
-          // Connection line with flowing dash
           h +=
             '<line x1="' +
             hcx +
@@ -1023,166 +1072,127 @@
             ny.toFixed(1) +
             '" stroke="' +
             sub.color +
-            '" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5">';
+            '" stroke-width="1" opacity="0.25" stroke-dasharray="4 3">';
           h +=
-            '<animate attributeName="stroke-dashoffset" values="0;-20" dur="2s" repeatCount="indefinite"/>';
+            '<animate attributeName="stroke-dashoffset" values="0;-14" dur="4s" repeatCount="indefinite"/>';
           h += "</line>";
-          // Node circle
           h +=
             '<circle cx="' +
             nx.toFixed(1) +
             '" cy="' +
             ny.toFixed(1) +
-            '" r="22" fill="#0d1117" stroke="' +
+            '" r="20" fill="#faf9f7" stroke="' +
             sub.color +
-            '" stroke-width="1.5"/>';
-          h +=
-            '<circle cx="' +
-            nx.toFixed(1) +
-            '" cy="' +
-            ny.toFixed(1) +
-            '" r="22" fill="' +
-            sub.color +
-            '" opacity="0.08"/>';
-          // Pulse ring
-          h +=
-            '<circle cx="' +
-            nx.toFixed(1) +
-            '" cy="' +
-            ny.toFixed(1) +
-            '" r="22" fill="none" stroke="' +
-            sub.color +
-            '" stroke-width="0.5" opacity="0">';
-          h +=
-            '<animate attributeName="r" values="22;32" dur="2.5s" repeatCount="indefinite" begin="' +
-            i * 0.4 +
-            's"/>';
-          h +=
-            '<animate attributeName="opacity" values="0.4;0" dur="2.5s" repeatCount="indefinite" begin="' +
-            i * 0.4 +
-            's"/>';
-          h += "</circle>";
-          // Icon
+            '" stroke-width="1.2"/>';
           h +=
             '<text x="' +
             nx.toFixed(1) +
             '" y="' +
-            (ny - 4).toFixed(1) +
+            (ny - 2).toFixed(1) +
             '" text-anchor="middle" fill="' +
             sub.color +
-            '" font-size="14">' +
-            sub.icon +
+            '" font-family="monospace" font-size="11" font-weight="500">' +
+            sub.abbr +
             "</text>";
-          // Label
           h +=
             '<text x="' +
             nx.toFixed(1) +
             '" y="' +
             (ny + 9).toFixed(1) +
-            '" text-anchor="middle" fill="#c9d1d9" font-size="8" font-family="\'JetBrains Mono\',monospace">' +
+            '" text-anchor="middle" fill="#a39e95" font-family="sans-serif" font-size="7">' +
             sub.label +
             "</text>";
         });
-
         h += "</svg></div></div>";
 
-        // Summary
+        // Introduction
         h += '<div class="section">';
+        h += '<div class="section-label">About</div>';
+        h += '<div class="section-heading">A Self-Hosted AI Gateway</div>';
         h +=
-          '<p class="desc">OpenClaw is a self-hosted personal AI assistant gateway that routes 40+ messaging channels through a unified intelligence layer. Built with TypeScript on Node.js, it combines LangGraph orchestration, autonomous model selection, scientific data mining, and domain-specific applications \u2014 all running on a private home network with zero cloud dependency for core operations.</p>';
+          '<div class="section-body">OpenClaw is a self-hosted personal AI assistant gateway that routes 40+ messaging channels through a unified intelligence layer. Built with TypeScript on Node.js, it combines LangGraph orchestration, autonomous model selection, scientific data mining, and domain-specific applications \u2014 all running on a private home network with zero cloud dependency for core operations.</div>';
         h += "</div>";
 
-        // Stat cards
-        h += '<div class="section"><div class="cards">';
+        // Stats
+        h += '<div class="section"><div class="stats">';
         h +=
-          '<div class="card info"><div class="card-label">Extensions</div><div class="card-value">45</div><div class="card-sub">modular capabilities</div></div>';
+          '<div class="stat"><div class="stat-value">45</div><div class="stat-label">Extensions</div></div>';
         h +=
-          '<div class="card ok"><div class="card-label">Channels</div><div class="card-value">40+</div><div class="card-sub">messaging integrations</div></div>';
+          '<div class="stat"><div class="stat-value">40+</div><div class="stat-label">Channels</div></div>';
         h +=
-          '<div class="card purple"><div class="card-label">API Endpoints</div><div class="card-value">60+</div><div class="card-sub">operational surface</div></div>';
+          '<div class="stat"><div class="stat-value">60+</div><div class="stat-label">API Endpoints</div></div>';
         h +=
-          '<div class="card warn"><div class="card-label">Subsystems</div><div class="card-value">6</div><div class="card-sub">specialized domains</div></div>';
+          '<div class="stat"><div class="stat-value">6</div><div class="stat-label">Subsystems</div></div>';
         h += "</div></div>";
 
         // Tech stack
-        h += '<div class="section"><div class="section-title">Tech Stack</div><div class="badges">';
+        h += '<div class="section"><div class="section-label">Technology</div>';
+        h += '<div class="badge-row">';
         const stack = [
-          { name: "TypeScript", c: "#3178c6" },
-          { name: "Node.js", c: "#3fb950" },
-          { name: "Convex", c: "#f0883e" },
-          { name: "LangGraph", c: "#bc8cff" },
-          { name: "Prometheus", c: "#e6522c" },
-          { name: "Grafana", c: "#d29922" },
-          { name: "Apache", c: "#f85149" },
-          { name: "Cloudflare", c: "#58a6ff" },
+          "TypeScript",
+          "Node.js",
+          "Convex",
+          "LangGraph",
+          "Prometheus",
+          "Grafana",
+          "Apache",
+          "Cloudflare",
         ];
-        for (const s of stack)
-          h +=
-            '<div class="badge"><span class="bdot" style="background:' +
-            s.c +
-            '"></span>' +
-            s.name +
-            "</div>";
+        for (const s of stack) h += '<div class="badge">' + s + "</div>";
         h += "</div></div>";
 
-        h += "</div>"; // end tab 1
+        h += "</div>";
 
         // ==================================================================
         // TAB 2: Architecture
         // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "architecture" ? " active" : "") + '">';
+        h += '<div class="panel' + (currentTab === "architecture" ? " active" : "") + '">';
 
-        // Concentric ring SVG
+        h += '<div class="section"><div class="section-label">System Architecture</div>';
+        h += '<div class="section-heading">Concentric Design</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#58a6ff"></span>System Architecture</div>';
-        h += '<div class="svg-wrap"><svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg">';
-        h +=
-          '<defs><filter id="archGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+          '<div class="section-body" style="margin-bottom:24px">The gateway sits at the center, surrounded by six specialized subsystems on the inner ring. Channel adapters on the outer ring connect users to the intelligence layer.</div>';
 
+        // Concentric SVG
+        h +=
+          '<div class="diagram"><svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg" style="background:#faf9f7">';
         const acx = 260,
           acy = 260;
-
-        // Outer ring (channels)
         h +=
           '<circle cx="' +
           acx +
           '" cy="' +
           acy +
-          '" r="240" fill="none" stroke="#21262d" stroke-width="1" stroke-dasharray="4 4"/>';
-        // Inner ring (subsystems)
+          '" r="230" fill="none" stroke="#e8e4df" stroke-width="0.5" stroke-dasharray="3 4"/>';
         h +=
           '<circle cx="' +
           acx +
           '" cy="' +
           acy +
-          '" r="130" fill="none" stroke="#21262d" stroke-width="1"/>';
-
-        // Center gateway hexagon
+          '" r="125" fill="none" stroke="#e8e4df" stroke-width="0.5"/>';
+        // Center
         h +=
           '<polygon points="' +
-          hexPoints(acx, acy, 32) +
-          '" fill="none" stroke="#58a6ff" stroke-width="2" filter="url(#archGlow)" style="cursor:pointer" onclick="selectArchNode(\'gateway\')"/>';
-        h += '<polygon points="' + hexPoints(acx, acy, 26) + '" fill="#58a6ff" opacity="0.1"/>';
+          hexPoints(acx, acy, 28) +
+          '" fill="none" stroke="#8b6d4a" stroke-width="1.2" style="cursor:pointer" onclick="selectArchNode(\'gateway\')"/>';
         h +=
           '<text x="' +
           acx +
           '" y="' +
-          (acy - 2) +
-          '" text-anchor="middle" fill="#f0f6fc" font-size="8" font-family="\'JetBrains Mono\',monospace" font-weight="600">OpenClaw</text>';
+          (acy - 1) +
+          '" text-anchor="middle" fill="#2c2a27" font-size="9" font-family="monospace" font-weight="500">OpenClaw</text>';
         h +=
           '<text x="' +
           acx +
           '" y="' +
           (acy + 9) +
-          '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">Gateway</text>';
-
-        // Inner ring: 6 subsystems
+          '" text-anchor="middle" fill="#a39e95" font-size="7" font-family="sans-serif">Gateway</text>';
+        // Inner ring
         SUB_KEYS.forEach((key, i) => {
           const sub = SUBSYSTEMS[key];
           const angle = (Math.PI * 2 * i) / SUB_KEYS.length - Math.PI / 2;
-          const nx = acx + 130 * Math.cos(angle);
-          const ny = acy + 130 * Math.sin(angle);
-          // Connection to center
+          const nx = acx + 125 * Math.cos(angle),
+            ny = acy + 125 * Math.sin(angle);
           h +=
             '<line x1="' +
             acx +
@@ -1194,8 +1204,7 @@
             ny.toFixed(1) +
             '" stroke="' +
             sub.color +
-            '" stroke-width="1" opacity="0.3" pointer-events="none"/>';
-          // Status dot (green if API data available)
+            '" stroke-width="0.5" opacity="0.3" pointer-events="none"/>';
           const apiOk =
             (key === "neural-graph" && d.neuralStatus) ||
             (key === "data-mine" && d.dataMineStatus) ||
@@ -1203,26 +1212,16 @@
             (key === "hive-mind" && d.identity) ||
             (key === "meta-engine" && d.neuralStatus) ||
             key === "hotel-scraper";
-          const dotColor = apiOk ? "#3fb950" : "#d29922";
-          // Node
           h +=
             '<circle cx="' +
             nx.toFixed(1) +
             '" cy="' +
             ny.toFixed(1) +
-            '" r="20" fill="#0d1117" stroke="' +
+            '" r="18" fill="#faf9f7" stroke="' +
             sub.color +
-            '" stroke-width="1.5" style="cursor:pointer" onclick="selectArchNode(\'' +
+            '" stroke-width="1.2" style="cursor:pointer" onclick="selectArchNode(\'' +
             key +
             "')\"/>";
-          h +=
-            '<circle cx="' +
-            nx.toFixed(1) +
-            '" cy="' +
-            ny.toFixed(1) +
-            '" r="20" fill="' +
-            sub.color +
-            '" opacity="0.06"/>';
           h +=
             '<text x="' +
             nx.toFixed(1) +
@@ -1230,30 +1229,28 @@
             (ny + 3).toFixed(1) +
             '" text-anchor="middle" fill="' +
             sub.color +
-            '" font-size="12">' +
-            sub.icon +
+            '" font-size="10" font-family="monospace" font-weight="500">' +
+            sub.abbr +
             "</text>";
           h +=
             '<text x="' +
             nx.toFixed(1) +
             '" y="' +
-            (ny + 33).toFixed(1) +
-            '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+            (ny + 30).toFixed(1) +
+            '" text-anchor="middle" fill="#a39e95" font-size="7" font-family="sans-serif">' +
             sub.label +
             "</text>";
-          // Status dot
           h +=
             '<circle cx="' +
-            (nx + 14).toFixed(1) +
+            (nx + 13).toFixed(1) +
             '" cy="' +
-            (ny - 14).toFixed(1) +
+            (ny - 13).toFixed(1) +
             '" r="3" fill="' +
-            dotColor +
+            (apiOk ? "#7a8f6d" : "#b8963e") +
             '"/>';
         });
-
-        // Outer ring: representative channels
-        const outerChannels = [
+        // Outer ring channels
+        const outerCh = [
           "WhatsApp",
           "Telegram",
           "Discord",
@@ -1270,71 +1267,58 @@
           "Feishu",
           "Twitch",
         ];
-        outerChannels.forEach((ch, i) => {
-          const angle = (Math.PI * 2 * i) / outerChannels.length - Math.PI / 2;
-          const nx = acx + 240 * Math.cos(angle);
-          const ny = acy + 240 * Math.sin(angle);
-          // Faint connection to nearest subsystem
+        outerCh.forEach((ch, i) => {
+          const angle = (Math.PI * 2 * i) / outerCh.length - Math.PI / 2;
+          const nx = acx + 230 * Math.cos(angle),
+            ny = acy + 230 * Math.sin(angle);
           h +=
             '<line x1="' +
-            (acx + 130 * Math.cos(angle)).toFixed(1) +
+            (acx + 125 * Math.cos(angle)).toFixed(1) +
             '" y1="' +
-            (acy + 130 * Math.sin(angle)).toFixed(1) +
+            (acy + 125 * Math.sin(angle)).toFixed(1) +
             '" x2="' +
             nx.toFixed(1) +
             '" y2="' +
             ny.toFixed(1) +
-            '" stroke="#30363d" stroke-width="0.5" stroke-dasharray="2 3" pointer-events="none"/>';
+            '" stroke="#e8e4df" stroke-width="0.5" stroke-dasharray="2 3" pointer-events="none"/>';
           h +=
             '<circle cx="' +
             nx.toFixed(1) +
             '" cy="' +
             ny.toFixed(1) +
-            '" r="12" fill="#161b22" stroke="#30363d" stroke-width="1" style="cursor:pointer" onclick="selectArchNode(\'ch-' +
-            ch.toLowerCase().replace(/\s/g, "") +
-            "')\"/>";
+            '" r="11" fill="#faf9f7" stroke="#e8e4df" stroke-width="0.8"/>';
           h +=
             '<text x="' +
             nx.toFixed(1) +
             '" y="' +
             (ny + 3).toFixed(1) +
-            '" text-anchor="middle" fill="#8b949e" font-size="6.5" font-family="\'JetBrains Mono\',monospace">' +
-            ch.slice(0, 5) +
+            '" text-anchor="middle" fill="#a39e95" font-size="6" font-family="monospace">' +
+            ch.slice(0, 6) +
             "</text>";
         });
-
         h += "</svg></div>";
 
         // Detail panel
-        h += '<div class="detail-panel' + (selectedArchNode ? " visible" : "") + '">';
+        h += '<div class="detail' + (selectedArchNode ? " visible" : "") + '">';
         if (selectedArchNode === "gateway") {
-          h += '<h3><span class="dot" style="background:#58a6ff"></span>OpenClaw Gateway</h3>';
+          h += "<h3>OpenClaw Gateway</h3>";
           h +=
             "<p>Central message routing and AI orchestration hub. Processes incoming messages from 40+ channels, routes through intelligent agent selection, and returns responses via the originating channel.</p>";
           h +=
             "<ul><li>Channel multiplexing</li><li>Context management</li><li>Agent dispatch</li><li>Response formatting</li><li>Memory persistence</li></ul>";
         } else if (selectedArchNode && SUBSYSTEMS[selectedArchNode]) {
           const sub = SUBSYSTEMS[selectedArchNode];
-          h +=
-            '<h3><span class="dot" style="background:' +
-            sub.color +
-            '"></span>' +
-            sub.label +
-            "</h3>";
+          h += "<h3>" + sub.label + "</h3>";
           h += "<p>" + sub.desc + "</p>";
           h += "<ul>" + sub.caps.map((c) => "<li>" + c + "</li>").join("") + "</ul>";
-        } else if (selectedArchNode) {
-          h +=
-            "<h3>Channel Node</h3><p>Messaging channel integration endpoint. Each channel connects to the gateway via a dedicated adapter that handles protocol translation, authentication, and message formatting.</p>";
         }
         h += "</div>";
-        h += "</div>"; // end section
+        h += "</div>";
 
-        // Data flow pipeline
-        h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#bc8cff"></span>Data Flow Pipeline</div>';
+        // Data flow
+        h += '<div class="section"><div class="section-label">Data Flow</div>';
         h += '<div class="pipeline">';
-        const pipeSteps = [
+        [
           "User Message",
           "Channel",
           "Gateway",
@@ -1343,107 +1327,84 @@
           "Response",
           "Channel",
           "User",
-        ];
-        pipeSteps.forEach((s, i) => {
-          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
-          h += '<div class="pipe-box">' + s + "</div>";
+        ].forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-sep">\u2192</div>';
+          h += '<div class="pipe-step">' + s + "</div>";
         });
         h += "</div></div>";
 
-        h += "</div>"; // end tab 2
-
-        // ==================================================================
-        // TAB 3: Messaging Channels
-        // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "channels" ? " active" : "") + '">';
-
-        const groupColors = {
-          Core: "#58a6ff",
-          Enterprise: "#bc8cff",
-          "Asia-Pacific": "#3fb950",
-          "Social / Web3": "#f0883e",
-          Voice: "#d29922",
-          "Dev / Infra": "#39d2c0",
-        };
-        for (const [group, chs] of Object.entries(CHANNELS)) {
-          const gc = groupColors[group] || "#8b949e";
-          h +=
-            '<div class="section ch-group"><div class="ch-group-title" style="color:' +
-            gc +
-            '">' +
-            group +
-            "</div>";
-          h += '<div class="ch-grid">';
-          for (const ch of chs) {
-            h += '<div class="ch-card" style="border-left:3px solid ' + gc + '">';
-            h += '<div class="ch-icon">' + ch.icon + "</div>";
-            h += '<div class="ch-name">' + ch.name + "</div>";
-            h += "</div>";
-          }
-          h += "</div></div>";
-        }
-
-        const totalChannels = Object.values(CHANNELS).reduce((s, a) => s + a.length, 0);
-        h +=
-          '<div class="section"><p class="desc">' +
-          totalChannels +
-          " channel integrations across 6 categories. Each channel connects to the OpenClaw gateway via a dedicated adapter handling protocol translation, authentication, message formatting, and bidirectional communication.</p></div>";
-
-        h += "</div>"; // end tab 3
-
-        // ==================================================================
-        // TAB 4: AI Intelligence
-        // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "intelligence" ? " active" : "") + '">';
-
-        // Neural Graph section
-        h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#bc8cff"></span>Neural Graph</div>';
-
-        // Status cards
-        const ngPhase = neural.phase || neural.lifecycle?.phase || "---";
-        const ngNodes = topo.nodes?.length || neural.nodes || 0;
-        const ngEdges = topo.edges?.length || neural.edges || 0;
-        const ngFitness = neural.fitness?.average ?? neural.averageFitness ?? "---";
-        h += '<div class="cards">';
-        h +=
-          '<div class="card purple"><div class="card-label">Phase</div><div class="card-value" style="font-size:16px">' +
-          esc(String(ngPhase)) +
-          "</div></div>";
-        h +=
-          '<div class="card info"><div class="card-label">Nodes</div><div class="card-value">' +
-          ngNodes +
-          "</div></div>";
-        h +=
-          '<div class="card info"><div class="card-label">Edges</div><div class="card-value">' +
-          ngEdges +
-          "</div></div>";
-        h +=
-          '<div class="card ok"><div class="card-label">Avg Fitness</div><div class="card-value">' +
-          (typeof ngFitness === "number" ? ngFitness.toFixed(1) : ngFitness) +
-          "</div></div>";
         h += "</div>";
 
-        // Neural graph SVG (force-directed)
+        // ==================================================================
+        // TAB 3: Channels
+        // ==================================================================
+        h += '<div class="panel' + (currentTab === "channels" ? " active" : "") + '">';
+        h += '<div class="section"><div class="section-label">Messaging</div>';
+        h += '<div class="section-heading">40+ Channel Integrations</div>';
+        h +=
+          '<div class="section-body">Each channel connects to the OpenClaw gateway via a dedicated adapter handling protocol translation, authentication, and bidirectional communication.</div>';
+        h += "</div>";
+
+        for (const [group, chs] of Object.entries(CHANNELS)) {
+          h += '<div class="section ch-group"><div class="ch-group-label">' + group + "</div>";
+          h += '<div class="ch-grid">';
+          for (const ch of chs)
+            h +=
+              '<div class="ch-item"><div class="ch-icon">' +
+              ch.icon +
+              "</div><div>" +
+              ch.name +
+              "</div></div>";
+          h += "</div></div>";
+        }
+        h += "</div>";
+
+        // ==================================================================
+        // TAB 4: Intelligence
+        // ==================================================================
+        h += '<div class="panel' + (currentTab === "intelligence" ? " active" : "") + '">';
+
+        // Neural Graph
+        h += '<div class="section"><div class="section-label">Neural Graph</div>';
+        h += '<div class="section-heading">AI Orchestration Topology</div>';
+        const ngPhase = neural.phase || neural.lifecycle?.phase || "\u2014";
+        const ngNodes = topo.nodes?.length || neural.nodes || 0;
+        const ngEdges = topo.edges?.length || neural.edges || 0;
+        const ngFitness = neural.fitness?.average ?? neural.averageFitness ?? null;
+
+        h += '<div class="stats" style="grid-template-columns:repeat(4,1fr);margin:16px 0 24px">';
+        h +=
+          '<div class="stat"><div class="stat-value" style="font-size:18px">' +
+          esc(String(ngPhase)) +
+          '</div><div class="stat-label">Phase</div></div>';
+        h +=
+          '<div class="stat"><div class="stat-value" style="font-size:28px">' +
+          ngNodes +
+          '</div><div class="stat-label">Nodes</div></div>';
+        h +=
+          '<div class="stat"><div class="stat-value" style="font-size:28px">' +
+          ngEdges +
+          '</div><div class="stat-label">Edges</div></div>';
+        h +=
+          '<div class="stat"><div class="stat-value" style="font-size:28px">' +
+          (ngFitness != null ? ngFitness.toFixed(1) : "\u2014") +
+          '</div><div class="stat-label">Avg Fitness</div></div>';
+        h += "</div>";
+
         if (topo.nodes && topo.nodes.length > 0) {
           const gw = 700,
-            gh = 400;
+            gh = 380;
           const positions = layoutNodes(topo.nodes, topo.edges || [], gw, gh);
           h +=
-            '<div class="svg-wrap"><svg viewBox="0 0 ' +
+            '<div class="diagram"><svg viewBox="0 0 ' +
             gw +
             " " +
             gh +
-            '" xmlns="http://www.w3.org/2000/svg">';
-          // Myelin glow filter
-          h +=
-            '<defs><filter id="myelinGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-          // Edges
+            '" xmlns="http://www.w3.org/2000/svg" style="background:#faf9f7">';
           for (const edge of topo.edges || []) {
             const a = positions[edge.sourceNodeId],
               b = positions[edge.targetNodeId];
             if (!a || !b) continue;
-            const ec = EDGE_TYPE_COLORS[edge.type] || "#30363d";
             h +=
               '<line x1="' +
               a.x.toFixed(1) +
@@ -1454,189 +1415,127 @@
               '" y2="' +
               b.y.toFixed(1) +
               '" stroke="' +
-              ec +
-              '" stroke-width="1" opacity="0.4"/>';
+              (EDGE_COLORS[edge.type] || "#e8e4df") +
+              '" stroke-width="0.8" opacity="0.35"/>';
           }
-          // Nodes
           for (const node of topo.nodes) {
             const p = positions[node.nodeId];
             if (!p) continue;
             const f = node.fitness ?? 50;
             const nc = fitnessColor(f);
-            // Glow ring for high fitness
-            if (f > 70) {
-              h +=
-                '<circle cx="' +
-                p.x.toFixed(1) +
-                '" cy="' +
-                p.y.toFixed(1) +
-                '" r="14" fill="none" stroke="' +
-                nc +
-                '" stroke-width="0.5" opacity="0.3" filter="url(#myelinGlow)"/>';
-            }
             h +=
               '<circle cx="' +
               p.x.toFixed(1) +
               '" cy="' +
               p.y.toFixed(1) +
-              '" r="8" fill="#0d1117" stroke="' +
+              '" r="7" fill="#faf9f7" stroke="' +
               nc +
-              '" stroke-width="1.5"/>';
-            h +=
-              '<circle cx="' +
-              p.x.toFixed(1) +
-              '" cy="' +
-              p.y.toFixed(1) +
-              '" r="8" fill="' +
-              nc +
-              '" opacity="0.15"/>';
+              '" stroke-width="1.2"/>';
             h +=
               '<text x="' +
               p.x.toFixed(1) +
               '" y="' +
-              (p.y + 20).toFixed(1) +
-              '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
-              esc((node.name || node.nodeId || "").slice(0, 12)) +
+              (p.y + 18).toFixed(1) +
+              '" text-anchor="middle" fill="#a39e95" font-size="7" font-family="monospace">' +
+              esc((node.name || node.nodeId || "").slice(0, 14)) +
               "</text>";
           }
           h += "</svg></div>";
         } else {
           h +=
-            '<div class="glass" style="text-align:center;color:#8b949e;padding:40px">Neural topology data not available \u2014 graph renders when API returns node data</div>';
+            '<div style="text-align:center;color:var(--text-light);padding:40px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)">Topology data renders when the neural API returns node data</div>';
         }
-        h += "</div>"; // end neural graph section
+        h += "</div>";
 
-        // Meta Engine section
+        // Meta Engine
+        h += '<div class="section"><div class="section-label">Meta Engine</div>';
+        h += '<div class="section-heading">Autonomous Model Selection</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#58a6ff"></span>Meta Engine</div>';
-        h +=
-          '<p class="desc">Autonomous model selection pipeline \u2014 classifies incoming tasks, scores available models against requirements, and dynamically routes to the optimal provider.</p>';
+          '<div class="section-body" style="margin-bottom:16px">Classifies incoming tasks, scores available models against requirements, and dynamically routes to the optimal provider.</div>';
         h += '<div class="pipeline">';
-        const metaSteps = [
-          "Task Input",
-          "Task Classifier",
-          "Model Registry",
-          "Performance Scorer",
-          "Best Model",
-          "Execution",
-        ];
-        metaSteps.forEach((s, i) => {
-          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
-          h += '<div class="pipe-box">' + s + "</div>";
-        });
+        ["Task Input", "Classifier", "Model Registry", "Scorer", "Best Model", "Execution"].forEach(
+          (s, i) => {
+            if (i > 0) h += '<div class="pipe-sep">\u2192</div>';
+            h += '<div class="pipe-step">' + s + "</div>";
+          },
+        );
         h += "</div></div>";
 
-        // Data Mine section
+        // Data Mine
+        h += '<div class="section"><div class="section-label">Data Mine</div>';
+        h += '<div class="section-heading">Scientific Analysis Engines</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#3fb950"></span>Data Mine</div>';
-        h +=
-          '<p class="desc">Scientific data mining infrastructure with 5 specialized engines, 216 tests, and comprehensive statistical/ML capabilities.</p>';
+          '<div class="section-body" style="margin-bottom:16px">5 specialized engines with 216 tests for comprehensive statistical and ML capabilities.</div>';
         h += '<div class="engine-grid">';
         const engines = [
           {
             name: "Statistics",
-            color: "#3fb950",
-            items: [
-              "Descriptive stats",
-              "Correlation analysis",
-              "Regression (linear, polynomial)",
-              "Distribution tests",
-            ],
+            items: ["Descriptive stats", "Correlation", "Regression", "Distribution tests"],
           },
           {
             name: "Time Series",
-            color: "#58a6ff",
-            items: ["Moving averages", "Trend detection", "Seasonality analysis", "Forecasting"],
+            items: ["Moving averages", "Trend detection", "Seasonality", "Forecasting"],
           },
           {
             name: "Clustering",
-            color: "#bc8cff",
-            items: [
-              "K-means clustering",
-              "PCA dimensionality",
-              "Anomaly detection",
-              "Silhouette scoring",
-            ],
+            items: ["K-means", "PCA", "Anomaly detection", "Silhouette scoring"],
           },
           {
             name: "Graph Analytics",
-            color: "#39d2c0",
-            items: [
-              "Centrality metrics",
-              "Community detection",
-              "Shortest path",
-              "Network analysis",
-            ],
+            items: ["Centrality", "Community detection", "Shortest path", "Network analysis"],
           },
           {
             name: "Experiments",
-            color: "#f0883e",
-            items: [
-              "A/B testing",
-              "t-tests & chi-squared",
-              "Effect size (Cohen's d)",
-              "Confidence intervals",
-            ],
+            items: ["A/B testing", "t-tests", "Effect size", "Confidence intervals"],
           },
         ];
         for (const e of engines) {
-          h +=
-            '<div class="engine-card" style="border-top:2px solid ' +
-            e.color +
-            '"><h4 style="color:' +
-            e.color +
-            '">' +
-            e.name +
-            "</h4><ul>";
+          h += '<div class="engine-card"><h4>' + e.name + "</h4><ul>";
           for (const item of e.items) h += "<li>" + item + "</li>";
           h += "</ul></div>";
         }
         h += "</div></div>";
 
-        h += "</div>"; // end tab 4
+        h += "</div>";
 
         // ==================================================================
-        // TAB 5: Domain Applications
+        // TAB 5: Applications
         // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "applications" ? " active" : "") + '">';
+        h += '<div class="panel' + (currentTab === "applications" ? " active" : "") + '">';
 
-        // Wellness Concierge
+        // Wellness
+        h += '<div class="section"><div class="section-label">Wellness Concierge</div>';
+        h += '<div class="section-heading">Executive Mental Wellbeing Platform</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#f0883e"></span>Wellness Concierge</div>';
-        h +=
-          '<p class="desc">Executive Mental Wellbeing Concierge Platform \u2014 8 specialized AI agents orchestrated for mental health support with PDPA privacy-by-design and 4-tier crisis escalation.</p>';
+          '<div class="section-body" style="margin-bottom:20px">8 specialized AI agents orchestrated for mental health support with PDPA privacy-by-design and 4-tier crisis escalation.</div>';
 
-        // Agent topology SVG
-        h += '<div class="svg-wrap"><svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">';
         h +=
-          '<defs><filter id="agentGlow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-        const wcx = 250,
-          wcy = 150,
-          wr = 105;
-        // Center hub
+          '<div class="diagram"><svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" style="background:#faf9f7">';
+        const wcx = 240,
+          wcy = 140,
+          wr = 95;
         h +=
           '<circle cx="' +
           wcx +
           '" cy="' +
           wcy +
-          '" r="24" fill="#0d1117" stroke="#f0883e" stroke-width="1.5" filter="url(#agentGlow)"/>';
+          '" r="20" fill="none" stroke="#a07070" stroke-width="1.2"/>';
         h +=
           '<text x="' +
           wcx +
           '" y="' +
-          (wcy - 3) +
-          '" text-anchor="middle" fill="#f0883e" font-size="9" font-family="\'JetBrains Mono\',monospace" font-weight="600">EMWCP</text>';
+          (wcy - 2) +
+          '" text-anchor="middle" fill="#2c2a27" font-size="8" font-family="monospace" font-weight="500">EMWCP</text>';
         h +=
           '<text x="' +
           wcx +
           '" y="' +
           (wcy + 8) +
-          '" text-anchor="middle" fill="#8b949e" font-size="7" font-family="\'JetBrains Mono\',monospace">8 agents</text>';
-
+          '" text-anchor="middle" fill="#a39e95" font-size="6" font-family="sans-serif">8 agents</text>';
         WELLNESS_AGENTS.forEach((agent, i) => {
           const angle = (Math.PI * 2 * i) / WELLNESS_AGENTS.length - Math.PI / 2;
-          const nx = wcx + wr * Math.cos(angle);
-          const ny = wcy + wr * Math.sin(angle);
+          const nx = wcx + wr * Math.cos(angle),
+            ny = wcy + wr * Math.sin(angle);
           h +=
             '<line x1="' +
             wcx +
@@ -1648,41 +1547,15 @@
             ny.toFixed(1) +
             '" stroke="' +
             agent.color +
-            '" stroke-width="0.8" opacity="0.3"/>';
+            '" stroke-width="0.5" opacity="0.25"/>';
           h +=
             '<circle cx="' +
             nx.toFixed(1) +
             '" cy="' +
             ny.toFixed(1) +
-            '" r="16" fill="#0d1117" stroke="' +
+            '" r="14" fill="#faf9f7" stroke="' +
             agent.color +
-            '" stroke-width="1.5"/>';
-          h +=
-            '<circle cx="' +
-            nx.toFixed(1) +
-            '" cy="' +
-            ny.toFixed(1) +
-            '" r="16" fill="' +
-            agent.color +
-            '" opacity="0.08"/>';
-          // Pulse
-          h +=
-            '<circle cx="' +
-            nx.toFixed(1) +
-            '" cy="' +
-            ny.toFixed(1) +
-            '" r="16" fill="none" stroke="' +
-            agent.color +
-            '" stroke-width="0.5" opacity="0">';
-          h +=
-            '<animate attributeName="r" values="16;24" dur="3s" repeatCount="indefinite" begin="' +
-            i * 0.35 +
-            's"/>';
-          h +=
-            '<animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite" begin="' +
-            i * 0.35 +
-            's"/>';
-          h += "</circle>";
+            '" stroke-width="1"/>';
           h +=
             '<text x="' +
             nx.toFixed(1) +
@@ -1690,75 +1563,68 @@
             (ny + 3).toFixed(1) +
             '" text-anchor="middle" fill="' +
             agent.color +
-            '" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+            '" font-size="6.5" font-family="monospace">' +
             agentLabel(agent.name).split(" ")[0].slice(0, 8) +
             "</text>";
         });
         h += "</svg></div>";
 
-        h += '<div class="badges">';
+        h += '<div class="badge-row">';
         h +=
-          '<div class="badge"><span class="bdot" style="background:#f0883e"></span>8 AI Agents</div>';
+          '<div class="badge"><span class="bdot" style="background:#a07070"></span> 8 AI Agents</div>';
         h +=
-          '<div class="badge"><span class="bdot" style="background:#3fb950"></span>10 Tools</div>';
+          '<div class="badge"><span class="bdot" style="background:#7a8f6d"></span> 10 Tools</div>';
         h +=
-          '<div class="badge"><span class="bdot" style="background:#58a6ff"></span>PDPA Aligned</div>';
+          '<div class="badge"><span class="bdot" style="background:#6b7394"></span> PDPA Aligned</div>';
         h +=
-          '<div class="badge"><span class="bdot" style="background:#f85149"></span>4 Risk Tiers</div>';
+          '<div class="badge"><span class="bdot" style="background:#b8963e"></span> 4 Risk Tiers</div>';
         h += "</div></div>";
 
         // Hotel Scraper
+        h += '<div class="section"><div class="section-label">Hotel Scraper</div>';
+        h += '<div class="section-heading">Niseko Price Comparison</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#d29922"></span>Hotel Scraper</div>';
-        h +=
-          '<p class="desc">Niseko hotel price comparison engine \u2014 automated scraping from 5 data sources with entity resolution and Convex-backed storage for analytics.</p>';
+          '<div class="section-body" style="margin-bottom:16px">Automated scraping from 5 data sources with entity resolution and Convex-backed storage for analytics.</div>';
         h += '<div class="pipeline">';
-        const scraperSteps = [
-          "Schedule Timer",
-          "Source Selection",
-          "Playwright Browser",
-          "Price Extraction",
-          "Entity Resolution",
-          "Convex Storage",
+        [
+          "Schedule",
+          "Sources",
+          "Browser",
+          "Extraction",
+          "Resolution",
+          "Storage",
           "Analytics",
-        ];
-        scraperSteps.forEach((s, i) => {
-          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
-          h += '<div class="pipe-box">' + s + "</div>";
+        ].forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-sep">\u2192</div>';
+          h += '<div class="pipe-step">' + s + "</div>";
         });
         h += "</div>";
-        h += '<div class="badges">';
-        const sources = ["ratehawk", "google_hotels", "nisade", "roomboss", "rakuten_travel"];
-        for (const s of sources)
+        h += '<div class="badge-row">';
+        for (const s of ["ratehawk", "google_hotels", "nisade", "roomboss", "rakuten_travel"])
           h +=
-            '<div class="badge"><span class="bdot" style="background:#d29922"></span>' +
+            '<div class="badge"><span class="bdot" style="background:#b8963e"></span> ' +
             s +
             "</div>";
         h += "</div></div>";
 
-        h += "</div>"; // end tab 5
+        h += "</div>";
 
         // ==================================================================
         // TAB 6: Infrastructure
         // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "infrastructure" ? " active" : "") + '">';
+        h += '<div class="panel' + (currentTab === "infrastructure" ? " active" : "") + '">';
 
-        // Network topology SVG
+        h += '<div class="section"><div class="section-label">Network</div>';
+        h += '<div class="section-heading">Physical Topology</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#39d2c0"></span>Network Topology</div>';
-        h += '<div class="svg-wrap"><svg viewBox="0 0 660 370" xmlns="http://www.w3.org/2000/svg">';
-        h +=
-          '<defs><filter id="netGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-
-        // Draw links
+          '<div class="diagram"><svg viewBox="0 0 660 360" xmlns="http://www.w3.org/2000/svg" style="background:#faf9f7">';
         for (const link of NET_LINKS) {
-          const from = NET_NODES.find((n) => n.id === link.from);
-          const to = NET_NODES.find((n) => n.id === link.to);
+          const from = NET_NODES.find((n) => n.id === link.from),
+            to = NET_NODES.find((n) => n.id === link.to);
           if (!from || !to) continue;
-          let dashArray = "none",
-            opacity = "0.4";
-          if (link.type === "wireless") dashArray = "6 4";
-          else if (link.type === "api") dashArray = "2 3";
+          let dash = "none";
+          if (link.type === "wireless") dash = "6 4";
+          else if (link.type === "api") dash = "2 3";
           h +=
             '<line x1="' +
             from.x +
@@ -1768,65 +1634,20 @@
             to.x +
             '" y2="' +
             to.y +
-            '" stroke="#30363d" stroke-width="1.5" stroke-dasharray="' +
-            dashArray +
-            '" opacity="' +
-            opacity +
+            '" stroke="#d4d0ca" stroke-width="1" stroke-dasharray="' +
+            dash +
             '"/>';
-          // Animated flow for wired connections
-          if (link.type === "wired") {
-            h +=
-              '<line x1="' +
-              from.x +
-              '" y1="' +
-              from.y +
-              '" x2="' +
-              to.x +
-              '" y2="' +
-              to.y +
-              '" stroke="' +
-              ROLE_COLORS[from.role] +
-              '" stroke-width="1" stroke-dasharray="4 8" opacity="0.3">';
-            h +=
-              '<animate attributeName="stroke-dashoffset" values="0;-24" dur="2s" repeatCount="indefinite"/>';
-            h += "</line>";
-          }
         }
-
-        // Draw nodes
         for (const node of NET_NODES) {
-          const nc = ROLE_COLORS[node.role] || "#8b949e";
-          // Outer pulse ring
+          const nc = ROLE_COLORS[node.role] || "#a39e95";
           h +=
             '<circle cx="' +
             node.x +
             '" cy="' +
             node.y +
-            '" r="26" fill="none" stroke="' +
+            '" r="24" fill="#faf9f7" stroke="' +
             nc +
-            '" stroke-width="0.5" opacity="0">';
-          h += '<animate attributeName="r" values="26;36" dur="3s" repeatCount="indefinite"/>';
-          h +=
-            '<animate attributeName="opacity" values="0.3;0" dur="3s" repeatCount="indefinite"/>';
-          h += "</circle>";
-          // Node circle
-          h +=
-            '<circle cx="' +
-            node.x +
-            '" cy="' +
-            node.y +
-            '" r="26" fill="#0d1117" stroke="' +
-            nc +
-            '" stroke-width="2" filter="url(#netGlow)"/>';
-          h +=
-            '<circle cx="' +
-            node.x +
-            '" cy="' +
-            node.y +
-            '" r="26" fill="' +
-            nc +
-            '" opacity="0.06"/>';
-          // Icon
+            '" stroke-width="1.5"/>';
           h +=
             '<text x="' +
             node.x +
@@ -1834,176 +1655,154 @@
             (node.y - 3) +
             '" text-anchor="middle" fill="' +
             nc +
-            '" font-size="16">' +
+            '" font-size="14">' +
             node.icon +
             "</text>";
-          // Label
           h +=
             '<text x="' +
             node.x +
             '" y="' +
-            (node.y + 12) +
-            '" text-anchor="middle" fill="#c9d1d9" font-size="8" font-family="\'JetBrains Mono\',monospace" font-weight="500">' +
+            (node.y + 10) +
+            '" text-anchor="middle" fill="#2c2a27" font-size="8" font-family="monospace" font-weight="500">' +
             node.label +
             "</text>";
-          // IP
           h +=
             '<text x="' +
             node.x +
             '" y="' +
-            (node.y + 42) +
-            '" text-anchor="middle" fill="#484f58" font-size="7" font-family="\'JetBrains Mono\',monospace">' +
+            (node.y + 40) +
+            '" text-anchor="middle" fill="#a39e95" font-size="7" font-family="monospace">' +
             node.ip +
             "</text>";
         }
-
-        // Legend
         h +=
-          '<text x="20" y="350" fill="#484f58" font-size="8" font-family="\'JetBrains Mono\',monospace">';
-        h +=
-          "\u2500\u2500\u2500 wired &nbsp;&nbsp; - - - wireless &nbsp;&nbsp; \u00B7\u00B7\u00B7 api</text>";
-
+          '<text x="20" y="345" fill="#a39e95" font-size="8" font-family="monospace">\u2500\u2500 wired \u00A0\u00A0 - - wireless \u00A0\u00A0 \u00B7\u00B7 api</text>';
         h += "</svg></div></div>";
 
-        // Monitoring stack
+        // Monitoring
+        h += '<div class="section"><div class="section-label">Monitoring</div>';
+        h += '<div class="section-heading">Observability Pipeline</div>';
         h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#d29922"></span>Monitoring Stack</div>';
-        h +=
-          '<p class="desc">Full observability pipeline with Prometheus metrics collection, Grafana visualization, alert management, and Discord notifications for real-time infrastructure awareness.</p>';
+          '<div class="section-body" style="margin-bottom:16px">Full observability with Prometheus metrics collection, Grafana visualization, alert management, and Discord notifications.</div>';
         h += '<div class="pipeline">';
-        const monSteps = ["Prometheus", "Grafana", "Alert Manager", "Discord"];
-        monSteps.forEach((s, i) => {
-          if (i > 0) h += '<div class="pipe-arrow">\u2192</div>';
-          h += '<div class="pipe-box">' + s + "</div>";
+        ["Prometheus", "Grafana", "Alert Manager", "Discord"].forEach((s, i) => {
+          if (i > 0) h += '<div class="pipe-sep">\u2192</div>';
+          h += '<div class="pipe-step">' + s + "</div>";
         });
         h += "</div>";
 
-        // Station health from scan data
         if (scan.stations && scan.stations.length > 0) {
-          h += '<div class="cards">';
+          h += '<div class="card-grid">';
           for (const st of scan.stations.slice(0, 6)) {
             const ok = st.reachable || st.online;
             h +=
-              '<div class="card ' +
-              (ok ? "ok" : "crit") +
-              '"><div class="card-label">' +
-              esc(st.label || st.name || st.id || "Station") +
+              '<div class="card"><div class="card-title"><span class="marker" style="background:' +
+              (ok ? "#7a8f6d" : "#a07070") +
+              '"></span>' +
+              esc(st.label || st.name || "Station") +
               "</div>";
             h +=
-              '<div class="card-value" style="font-size:14px">' +
+              '<div class="card-desc" style="font-family:var(--mono);font-size:12px">' +
               (ok ? "Online" : "Offline") +
-              "</div>";
-            if (st.ip) h += '<div class="card-sub mono">' + esc(st.ip) + "</div>";
-            h += "</div>";
+              (st.ip ? " \u00B7 " + esc(st.ip) : "") +
+              "</div></div>";
           }
           h += "</div>";
         }
         h += "</div>";
 
-        h += "</div>"; // end tab 6
+        h += "</div>";
 
         // ==================================================================
-        // TAB 7: Live Dashboard
+        // TAB 7: Dashboard
         // ==================================================================
-        h += '<div class="tab-panel' + (currentTab === "dashboard" ? " active" : "") + '">';
+        h += '<div class="panel' + (currentTab === "dashboard" ? " active" : "") + '">';
 
-        h +=
-          '<div class="section"><div class="section-title"><span class="dot" style="background:#3fb950"></span>System Health</div>';
+        h += '<div class="section"><div class="section-label">Live Status</div>';
+        h += '<div class="section-heading">System Health</div>';
         h += '<div class="status-grid">';
 
-        // Hive Mind
-        const hmUp = identity.uptime_seconds || identity.uptime || wellness.uptime;
+        const hmUp = identity.uptime_seconds || identity.uptime;
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#39d2c0">\u2B22 Hive Mind</span><span class="sc-dot" style="background:' +
-          (d.identity ? "#3fb950" : "#f85149") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">Hive Mind</span><span class="sc-dot" style="background:' +
+          (d.identity ? "#7a8f6d" : "#a07070") +
           '"></span></div>';
-        h += '<div class="sc-detail">Uptime: ' + formatUptime(hmUp) + "</div>";
+        h += '<div class="sc-line">Uptime: ' + formatUptime(hmUp) + "</div>";
         h +=
-          '<div class="sc-detail">Station: ' + esc(identity.station_id || "---") + "</div></div>";
+          '<div class="sc-line">Station: ' + esc(identity.station_id || "\u2014") + "</div></div>";
 
-        // Neural Graph
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#bc8cff">\u2726 Neural Graph</span><span class="sc-dot" style="background:' +
-          (d.neuralStatus ? "#3fb950" : "#f85149") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">Neural Graph</span><span class="sc-dot" style="background:' +
+          (d.neuralStatus ? "#7a8f6d" : "#a07070") +
           '"></span></div>';
-        h += '<div class="sc-detail">Phase: ' + esc(String(ngPhase)) + "</div>";
+        h += '<div class="sc-line">Phase: ' + esc(String(ngPhase)) + "</div>";
         h +=
-          '<div class="sc-detail">Fitness: ' +
-          (typeof ngFitness === "number" ? ngFitness.toFixed(1) + "%" : "---") +
+          '<div class="sc-line">Fitness: ' +
+          (ngFitness != null ? ngFitness.toFixed(1) + "%" : "\u2014") +
           "</div></div>";
 
-        // Meta Engine
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#58a6ff">\u25C8 Meta Engine</span><span class="sc-dot" style="background:' +
-          (d.neuralStatus ? "#3fb950" : "#d29922") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">Meta Engine</span><span class="sc-dot" style="background:' +
+          (d.neuralStatus ? "#7a8f6d" : "#b8963e") +
           '"></span></div>';
-        h += '<div class="sc-detail">Model selection: active</div>';
-        h += '<div class="sc-detail">Task routing: dynamic</div></div>';
+        h += '<div class="sc-line">Model selection: active</div>';
+        h += '<div class="sc-line">Task routing: dynamic</div></div>';
 
-        // Data Mine
         const dmEngines = dataMine.engines || 5;
-        const dmAnalyses = dataMine.totalAnalyses || dmStats.totalAnalyses || 0;
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#3fb950">\u25C6 Data Mine</span><span class="sc-dot" style="background:' +
-          (d.dataMineStatus ? "#3fb950" : "#f85149") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">Data Mine</span><span class="sc-dot" style="background:' +
+          (d.dataMineStatus ? "#7a8f6d" : "#a07070") +
           '"></span></div>';
-        h += '<div class="sc-detail">' + dmEngines + " engines active</div>";
-        h += '<div class="sc-detail">' + dmAnalyses + " analyses run</div></div>";
+        h += '<div class="sc-line">' + dmEngines + " engines active</div>";
+        h +=
+          '<div class="sc-line">' +
+          (dataMine.totalAnalyses || dmStats.totalAnalyses || 0) +
+          " analyses run</div></div>";
 
-        // Wellness
-        const wSessions = wellness.sessions || wellness.totalSessions || 0;
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#f0883e">\u2665 Wellness</span><span class="sc-dot" style="background:' +
-          (d.wellnessStatus ? "#3fb950" : "#f85149") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">Wellness</span><span class="sc-dot" style="background:' +
+          (d.wellnessStatus ? "#7a8f6d" : "#a07070") +
           '"></span></div>';
         h +=
-          '<div class="sc-detail">' +
+          '<div class="sc-line">' +
           (Array.isArray(agents) ? agents.length : 8) +
           " agents deployed</div>";
-        h += '<div class="sc-detail">' + wSessions + " sessions</div></div>";
+        h += '<div class="sc-line">' + (wellness.sessions || 0) + " sessions</div></div>";
 
-        // Network
-        const devices = scan.stations?.length || scan.devices?.length || 0;
+        const devices = scan.stations?.length || 0;
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:#d29922">\u25B2 Network</span><span class="sc-dot" style="background:' +
-          (d.scan ? "#3fb950" : "#d29922") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">Network</span><span class="sc-dot" style="background:' +
+          (d.scan ? "#7a8f6d" : "#b8963e") +
           '"></span></div>';
-        h += '<div class="sc-detail">' + devices + " devices tracked</div>";
-        h += '<div class="sc-detail">Dual-WAN: active</div></div>';
+        h += '<div class="sc-line">' + devices + " devices tracked</div>";
+        h += '<div class="sc-line">Dual-WAN: active</div></div>';
 
-        // System Overall
         const apiCount = [d.identity, d.neuralStatus, d.dataMineStatus, d.wellnessStatus].filter(
           Boolean,
         ).length;
-        const sysOk = apiCount >= 3;
         h +=
-          '<div class="status-card"><div class="sc-header"><span class="sc-name" style="color:' +
-          (sysOk ? "#3fb950" : "#d29922") +
-          '">\u25CE System</span><span class="sc-dot" style="background:' +
-          (sysOk ? "#3fb950" : "#d29922") +
+          '<div class="status-card"><div class="sc-header"><span class="sc-name">System</span><span class="sc-dot" style="background:' +
+          (apiCount >= 3 ? "#7a8f6d" : "#b8963e") +
           '"></span></div>';
         h +=
-          '<div class="sc-detail">' +
-          (sysOk ? "Operational" : "Degraded") +
+          '<div class="sc-line">' +
+          (apiCount >= 3 ? "Operational" : "Degraded") +
           " (" +
           apiCount +
           "/4 APIs)</div>";
-        h += '<div class="sc-detail">60s auto-refresh</div></div>';
+        h += '<div class="sc-line">60s auto-refresh</div></div>';
 
-        h += "</div></div>"; // end status grid + section
-
-        // Refresh indicator
+        h += "</div></div>";
         h +=
-          '<div class="section" style="text-align:center"><p class="desc" style="font-size:12px">Auto-refreshing every 60 seconds \u2022 Last update: ' +
+          '<div class="section" style="text-align:center"><div class="section-body" style="font-size:12px;max-width:none">Auto-refreshing every 60 seconds \u00B7 Last update: ' +
           esc(now) +
-          "</p></div>";
+          "</div></div>";
+        h += "</div>";
 
-        h += "</div>"; // end tab 7
-
-        // ── Footer ──
+        // Footer
         h +=
-          '<div class="footer">OpenClaw \u2022 Self-hosted AI Gateway \u2022 ' +
-          esc(identity.version || "2026.x") +
+          '<div class="footer">OpenClaw \u00B7 Self-hosted AI Gateway \u00B7 v' +
+          esc(identity.version || "\u2014") +
           "</div>";
 
         app.innerHTML = h;
