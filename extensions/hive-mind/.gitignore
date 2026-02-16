@@ -1,3 +1,4 @@
 .env
 .env.*
 portal/htdocs/.vercel
+portal/wellness-site/.vercel

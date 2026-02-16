@@ -1,10 +1,11 @@
-name: Deploy Portal to Vercel
+name: Deploy Wellness Platform to Vercel
 
 on:
   push:
     branches: [main]
     paths:
-      - "extensions/hive-mind/portal/htdocs/**"
+      - "extensions/hive-mind/portal/htdocs/wellness-report.html"
+      - "extensions/hive-mind/portal/wellness-site/**"
   workflow_dispatch:
 
 env:
@@ -19,15 +20,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            extensions/hive-mind/portal/htdocs
+            extensions/hive-mind/portal/htdocs/wellness-report.html
+            extensions/hive-mind/portal/htdocs/img
+            extensions/hive-mind/portal/wellness-site
+
+      - name: Prepare wellness site
+        run: |
+          mkdir -p extensions/hive-mind/portal/wellness-site/img
+          cp extensions/hive-mind/portal/htdocs/wellness-report.html extensions/hive-mind/portal/wellness-site/index.html
+          cp extensions/hive-mind/portal/htdocs/img/favicon.svg extensions/hive-mind/portal/wellness-site/img/favicon.svg
 
       - name: Install Vercel CLI
         run: npm install -g vercel
 
       - name: Pull Vercel Environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: extensions/hive-mind/portal/htdocs
+        working-directory: extensions/hive-mind/portal/wellness-site
 
       - name: Deploy to Vercel
         run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: extensions/hive-mind/portal/htdocs
+        working-directory: extensions/hive-mind/portal/wellness-site

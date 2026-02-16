@@ -1,0 +1,2070 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EMWCP — Executive Mental Wellbeing Concierge Platform</title>
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #0d1117;
+        color: #e6edf3;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+      a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .wrap {
+        max-width: 1020px;
+        margin: 0 auto;
+        padding: 24px 20px 48px;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0 20px;
+        border-bottom: 1px solid #30363d;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .header-logo {
+        width: 28px;
+        height: 28px;
+      }
+      .header h1 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #f0f6fc;
+      }
+      .header h1 span {
+        font-weight: 400;
+        color: #8b949e;
+        font-size: 13px;
+        display: block;
+        margin-top: 2px;
+      }
+      .header-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #8b949e;
+      }
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #3fb950;
+        box-shadow: 0 0 6px #3fb95066;
+        display: inline-block;
+      }
+
+      /* Tabs */
+      .tab-bar {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid #30363d;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .tab-btn {
+        background: none;
+        border: none;
+        color: #8b949e;
+        font-size: 13px;
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .tab-btn:hover {
+        color: #c9d1d9;
+      }
+      .tab-btn.active {
+        color: #58a6ff;
+        border-bottom-color: #58a6ff;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* Cards */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+      .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 18px 20px;
+        border-left: 3px solid #30363d;
+      }
+      .card.ok {
+        border-left-color: #3fb950;
+      }
+      .card.warn {
+        border-left-color: #d29922;
+      }
+      .card.crit {
+        border-left-color: #f85149;
+      }
+      .card.info {
+        border-left-color: #58a6ff;
+      }
+      .card-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #8b949e;
+        margin-bottom: 6px;
+      }
+      .card-value {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", monospace;
+        color: #f0f6fc;
+        line-height: 1.2;
+      }
+      .card-sub {
+        font-size: 12px;
+        color: #8b949e;
+        margin-top: 4px;
+      }
+
+      /* Section */
+      .section {
+        margin-bottom: 32px;
+      }
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f0f6fc;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #21262d;
+        margin-bottom: 16px;
+      }
+      .section-body {
+        font-size: 14px;
+        color: #c9d1d9;
+        line-height: 1.75;
+      }
+      .subsection {
+        margin-bottom: 24px;
+      }
+      .subsection-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #c9d1d9;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Summary */
+      .summary {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 18px 22px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        line-height: 1.8;
+        color: #c9d1d9;
+      }
+      .summary strong {
+        color: #f0f6fc;
+      }
+
+      /* Topology */
+      .topo-wrap {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .topo-wrap svg {
+        display: block;
+        width: 100%;
+      }
+
+      /* Agent grid */
+      .agent-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        gap: 14px;
+        margin-bottom: 8px;
+      }
+      @media (max-width: 500px) {
+        .agent-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .agent-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .agent-card:hover,
+      .agent-card.selected {
+        border-color: #58a6ff;
+      }
+      .agent-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .agent-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .agent-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f0f6fc;
+      }
+      .agent-role {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 8px;
+      }
+      .agent-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .tag {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: #21262d;
+        color: #8b949e;
+        border: 1px solid #30363d;
+      }
+
+      /* Agent detail panel */
+      .agent-detail {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 14px;
+        display: none;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .agent-detail.visible {
+        display: block;
+      }
+      .agent-detail h3 {
+        font-size: 15px;
+        color: #f0f6fc;
+        margin-bottom: 8px;
+      }
+      .agent-detail .prompt-box {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: #8b949e;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 10px 0;
+      }
+      .agent-detail .output-list {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      .agent-detail .output-list li {
+        color: #c9d1d9;
+        margin-bottom: 4px;
+      }
+
+      /* Scenario cards */
+      .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .scenario-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 16px;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          transform 0.15s;
+      }
+      .scenario-card:hover {
+        border-color: #58a6ff;
+        transform: translateY(-2px);
+      }
+      .scenario-card.active {
+        border-color: #58a6ff;
+        box-shadow: 0 0 12px #58a6ff22;
+      }
+      .scenario-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+      .scenario-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 4px;
+      }
+      .scenario-desc {
+        font-size: 12px;
+        color: #8b949e;
+      }
+
+      /* Scenario trace */
+      .trace-panel {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 16px;
+        display: none;
+      }
+      .trace-panel.visible {
+        display: block;
+      }
+      .trace-step {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+        transition: opacity 0.3s;
+      }
+      .trace-step.active {
+        opacity: 1;
+      }
+      .trace-step .step-marker {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+        color: #0d1117;
+      }
+      .trace-step .step-body {
+        flex: 1;
+      }
+      .trace-step .step-agent {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+      }
+      .trace-step .step-text {
+        font-size: 13px;
+        color: #c9d1d9;
+        line-height: 1.6;
+      }
+      .trace-step .step-output {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: #8b949e;
+      }
+      .trace-controls {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .trace-btn {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+        padding: 6px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.15s;
+      }
+      .trace-btn:hover {
+        background: #30363d;
+      }
+      .trace-btn.primary {
+        background: #238636;
+        border-color: #238636;
+        color: #fff;
+      }
+      .trace-btn.primary:hover {
+        background: #2ea043;
+      }
+
+      /* Measurement */
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .metric-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+      .metric-name {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 4px;
+      }
+      .metric-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .metric-bar {
+        height: 4px;
+        background: #21262d;
+        border-radius: 2px;
+        margin-top: 6px;
+        overflow: hidden;
+      }
+      .metric-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.5s;
+      }
+
+      /* Risk interactive */
+      .risk-tiers-interactive {
+        display: flex;
+        gap: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 14px 0 10px;
+      }
+      .risk-tier-btn {
+        flex: 1;
+        padding: 14px 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: filter 0.15s;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0d1117;
+        position: relative;
+      }
+      .risk-tier-btn:hover {
+        filter: brightness(1.15);
+      }
+      .risk-tier-btn.selected::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #fff;
+      }
+      .risk-tier-btn .tier-num {
+        font-size: 20px;
+        font-weight: 700;
+        display: block;
+      }
+      .risk-detail {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        line-height: 1.7;
+        display: none;
+      }
+      .risk-detail.visible {
+        display: block;
+      }
+
+      /* Tools */
+      .tool-group {
+        margin-bottom: 18px;
+      }
+      .tool-group-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #58a6ff;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tool-row {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .tool-row:hover {
+        border-color: #30363d;
+      }
+      .tool-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 3px;
+      }
+      .tool-desc {
+        font-size: 12px;
+        color: #8b949e;
+        margin-bottom: 6px;
+      }
+      .tool-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .consent-badge {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 10px;
+        background: #bc8cff22;
+        color: #bc8cff;
+        border: 1px solid #bc8cff44;
+      }
+      .audit-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        color: #8b949e;
+      }
+      .audit-dot::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .audit-dot.low::before {
+        background: #3fb950;
+      }
+      .audit-dot.med::before {
+        background: #d29922;
+      }
+      .audit-dot.high::before {
+        background: #f85149;
+      }
+      .tool-detail {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 8px;
+        font-size: 12px;
+        display: none;
+      }
+      .tool-detail.visible {
+        display: block;
+      }
+
+      /* Consent */
+      .consent-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .consent-item {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 12px 14px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .consent-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: #bc8cff18;
+        border: 1px solid #bc8cff33;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 14px;
+      }
+      .consent-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #f0f6fc;
+      }
+      .consent-desc {
+        font-size: 12px;
+        color: #8b949e;
+        margin-top: 2px;
+      }
+
+      /* Boundaries */
+      .boundary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+        gap: 14px;
+      }
+      @media (max-width: 500px) {
+        .boundary-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .boundary-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 16px 18px;
+      }
+      .boundary-card.safety {
+        border-left: 3px solid #f85149;
+      }
+      .boundary-card.privacy {
+        border-left: 3px solid #bc8cff;
+      }
+      .boundary-card.truth {
+        border-left: 3px solid #58a6ff;
+      }
+      .boundary-card.science {
+        border-left: 3px solid #d29922;
+      }
+      .boundary-card.crisis {
+        border-left: 3px solid #f0883e;
+      }
+      .boundary-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .boundary-list {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.7;
+        padding-left: 16px;
+      }
+      .boundary-list li {
+        margin-bottom: 3px;
+      }
+
+      /* Output contract */
+      .output-demo {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .output-fields {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-bottom: 1px solid #21262d;
+      }
+      @media (max-width: 600px) {
+        .output-fields {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .output-field {
+        padding: 14px;
+        text-align: center;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .output-field:hover,
+      .output-field.active {
+        background: #21262d;
+      }
+      .output-field-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      .output-field-label {
+        font-size: 11px;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .output-content {
+        padding: 16px;
+        font-size: 13px;
+        min-height: 120px;
+      }
+
+      /* Data flow */
+      .flow-diagram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 20px 0;
+        flex-wrap: wrap;
+      }
+      .flow-node {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 12px;
+        text-align: center;
+        min-width: 100px;
+      }
+      .flow-arrow {
+        color: #484f58;
+        font-size: 18px;
+      }
+      .flow-gate {
+        background: #21262d;
+        border: 1px solid #bc8cff44;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 11px;
+        color: #bc8cff;
+        text-align: center;
+      }
+
+      /* Footer */
+      .footer {
+        border-top: 1px solid #21262d;
+        padding-top: 16px;
+        margin-top: 40px;
+        font-size: 12px;
+        color: #484f58;
+        text-align: center;
+        line-height: 1.8;
+      }
+
+      /* Crisis script */
+      .crisis-flow {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .crisis-step {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 12px;
+        background: #161b22;
+        border-radius: 8px;
+        border: 1px solid #30363d;
+      }
+      .crisis-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f85149;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .crisis-text {
+        font-size: 13px;
+        color: #c9d1d9;
+        line-height: 1.6;
+      }
+      .crisis-text strong {
+        color: #f0f6fc;
+      }
+
+      /* Scorecard */
+      .scorecard {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .scorecard-header {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-bottom: 1px solid #21262d;
+      }
+      @media (max-width: 600px) {
+        .scorecard-header {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .scorecard-phase {
+        padding: 10px;
+        text-align: center;
+        font-size: 11px;
+        color: #8b949e;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.15s;
+      }
+      .scorecard-phase:hover,
+      .scorecard-phase.active {
+        color: #58a6ff;
+        border-bottom-color: #58a6ff;
+        background: #21262d;
+      }
+      .scorecard-body {
+        padding: 16px;
+      }
+
+      /* Timeline */
+      .timeline {
+        position: relative;
+        padding-left: 28px;
+        margin: 16px 0;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #21262d;
+      }
+      .timeline-item {
+        position: relative;
+        margin-bottom: 16px;
+      }
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -22px;
+        top: 4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #30363d;
+        border: 2px solid #21262d;
+      }
+      .timeline-item.active::before {
+        background: #58a6ff;
+        border-color: #58a6ff;
+      }
+      .timeline-label {
+        font-size: 11px;
+        color: #8b949e;
+        margin-bottom: 2px;
+      }
+      .timeline-text {
+        font-size: 13px;
+        color: #c9d1d9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <div style="color: #8b949e; padding: 40px 0; text-align: center">
+        Loading platform data&hellip;
+      </div>
+    </div>
+
+    <script>
+      // =========================================================================
+      // CONFIG & DATA
+      // =========================================================================
+      const AGENT_COLORS = {
+        orchestrator_router: "#58a6ff",
+        clinical_safety_escalation: "#f85149",
+        data_steward_pdpa: "#bc8cff",
+        daily_coach: "#3fb950",
+        concierge_operator: "#f0883e",
+        rag_knowledge: "#39d2c0",
+        device_integration_optional: "#d29922",
+        evaluation_capa: "#8b949e",
+      };
+      const AGENT_LABELS = {
+        orchestrator_router: "Orchestrator",
+        clinical_safety_escalation: "Clinical Safety",
+        data_steward_pdpa: "Data Steward",
+        daily_coach: "Daily Coach",
+        concierge_operator: "Concierge",
+        rag_knowledge: "RAG Knowledge",
+        device_integration_optional: "Device Integration",
+        evaluation_capa: "Evaluation CAPA",
+      };
+      const TOPOLOGY_EDGES = [
+        { source: "orchestrator_router", target: "daily_coach" },
+        { source: "orchestrator_router", target: "clinical_safety_escalation" },
+        { source: "orchestrator_router", target: "data_steward_pdpa" },
+        { source: "orchestrator_router", target: "concierge_operator" },
+        { source: "orchestrator_router", target: "rag_knowledge" },
+        { source: "orchestrator_router", target: "device_integration_optional" },
+        { source: "daily_coach", target: "evaluation_capa" },
+        { source: "clinical_safety_escalation", target: "evaluation_capa" },
+        { source: "data_steward_pdpa", target: "evaluation_capa" },
+        { source: "concierge_operator", target: "evaluation_capa" },
+        { source: "rag_knowledge", target: "evaluation_capa" },
+        { source: "device_integration_optional", target: "evaluation_capa" },
+      ];
+
+      const AGENT_PROMPTS = {
+        orchestrator_router:
+          "Route each user message to the smallest set of specialist agents needed.\nPriorities: Safety \u2192 Privacy \u2192 Correctness \u2192 User value.\n\nSteps:\n1) Run Risk Triage: if red flags or suicidality \u2192 Clinical Safety immediately.\n2) Run Data Sensitivity Classification: if sensitive \u2192 Data Steward checks consent.\n3) Determine intent: Daily guidance \u2192 Daily Coach, Scheduling \u2192 Concierge, Device data \u2192 Device Integration, Evidence \u2192 RAG.\n4) Compile final response with internal actions and scorecard updates.",
+        clinical_safety_escalation:
+          "You are the safety gatekeeper. Detect crisis/high-risk cues, deliver Crisis Script, recommend urgent help, and trigger internal escalation.\n\nRules:\n\u2022 Suicidality/self-harm \u2192 crisis script + emergency routing\n\u2022 Psychosis/mania-like cues \u2192 urgent clinical routing\n\u2022 Severe panic with chest pain/fainting \u2192 emergency routing\n\nOutputs: risk_tier, escalation_required, crisis_script_used",
+        data_steward_pdpa:
+          "Enforce privacy-by-design and data minimization. Block or redact outputs that would expose sensitive data in unsafe channels.\n\nResponsibilities:\n\u2022 Consent management for sensitive data categories\n\u2022 Least-privilege access control\n\u2022 No sensitive content in push notifications\n\u2022 Retention schedules and deletion rules\n\u2022 Audit logging for all data access",
+        daily_coach:
+          "Deliver low-friction routines and decision-tree guidance. No diagnosis.\n\nRules:\n\u2022 One plan at a time with clear timing\n\u2022 Max 2 questions before giving a recommendation\n\u2022 Green/Yellow/Red readiness model\n\u2022 Route medical requests to clinician\n\nOutputs: action_now, optional_question, micro_commitment",
+        concierge_operator:
+          "Coordinate care and logistics. Book therapist/dietitian/psychiatrist appointments per SLA rules.\n\nResponsibilities:\n\u2022 Weekly 15-min check-in cadence\n\u2022 Day 7/Day 30 hold checks\n\u2022 1-page client scorecard + clinician summary\n\u2022 Provider handoffs with minimum fields",
+        rag_knowledge:
+          "Retrieve ONLY from approved internal sources (program docs, SOPs, templates). Do not fabricate citations or policies.\n\nOutputs: retrieved_summary, internal_refs, gaps_and_defaults",
+        device_integration_optional:
+          "Integrate verified device signals as coaching inputs. No diagnostic claims.\n\nRules:\n\u2022 Never infer medical states without verified readings\n\u2022 Report trends relative to baseline\n\u2022 Escalate unusual risk signals to Clinical Safety\n\u2022 Use wellness framing only",
+        evaluation_capa:
+          "Run the quality loop: measure \u2192 analyze \u2192 corrective action \u2192 preventive action \u2192 verify.\n\nOutputs: CAPA ticket with issue, root cause hypothesis, corrective + preventive actions, success metric, rollback plan.",
+      };
+
+      const SCENARIOS = [
+        {
+          id: "routine",
+          icon: "\u2600",
+          title: "Morning Check-In",
+          desc: "Executive starts their day with a wellness check",
+          trace: [
+            {
+              agent: "orchestrator_router",
+              color: "#58a6ff",
+              text: "User says: \u201cI slept 5 hours, feeling low energy, have a board meeting at 10am.\u201d\nOrchestrator classifies: no risk flags, low sensitivity. Routes to Daily Coach.",
+              output: '{"risk":{"tier":0},"privacy":{"label":"LOW"},"route":"daily_coach"}',
+            },
+            {
+              agent: "data_steward_pdpa",
+              color: "#bc8cff",
+              text: "Data Steward confirms: self-report data only, consent.basic_profile sufficient. No biometric data involved. Proceeds with LOW classification.",
+              output: '{"privacy_label":"LOW","consent":{"status":"ok"}}',
+            },
+            {
+              agent: "daily_coach",
+              color: "#3fb950",
+              text: "Daily Coach analyzes: 5h sleep = Yellow readiness. Board meeting in 2h. Delivers a targeted pre-meeting plan.",
+              output:
+                '{"action_now":"Try a 6-minute body scan before your meeting. Set a water reminder for 9:30am.","micro_commitment":"Tonight: lights out by 10:30pm"}',
+            },
+            {
+              agent: "evaluation_capa",
+              color: "#8b949e",
+              text: "Evaluation logs: sleep_hours=5 (below 7h baseline), energy self-report captured. Updates scorecard trend.",
+              output:
+                '{"measurement_updates":{"metrics":[{"metric_id":"sleep_hours","value":5,"unit":"hours"}]}}',
+            },
+          ],
+        },
+        {
+          id: "crisis",
+          icon: "\u26A0",
+          title: "Crisis Detection",
+          desc: "System detects self-harm ideation and escalates",
+          trace: [
+            {
+              agent: "orchestrator_router",
+              color: "#58a6ff",
+              text: "User says: \u201cI can\u2019t do this anymore, nothing matters.\u201d\nOrchestrator detects risk signals: possible self-harm ideation. IMMEDIATE route to Clinical Safety.",
+              output:
+                '{"risk":{"tier":2,"signals":["self_harm_ideation"]},"route":"clinical_safety_escalation"}',
+            },
+            {
+              agent: "clinical_safety_escalation",
+              color: "#f85149",
+              text: "Clinical Safety activates Crisis Script:\n\u201cAre you in immediate danger right now?\u201d\nProvides emergency resources and crisis hotline numbers. Triggers internal escalation to Case Lead.",
+              output:
+                '{"risk_tier":3,"escalation_required":true,"crisis_script_used":true,"target":"case_lead"}',
+            },
+            {
+              agent: "data_steward_pdpa",
+              color: "#bc8cff",
+              text: "Data Steward classifies as HIGH sensitivity. Ensures no crisis details appear in push notifications. Logs access with full audit trail.",
+              output:
+                '{"privacy_label":"HIGH","notification_policy":{"push_notification_allowed":false}}',
+            },
+            {
+              agent: "concierge_operator",
+              color: "#f0883e",
+              text: "Concierge immediately schedules urgent clinical consultation. Prepares minimum-field handoff for licensed clinician with risk tier and recent trends.",
+              output:
+                '{"appointment_options":["Emergency consultation within 2 hours"],"handoff_summary":"Risk Tier 3, self-harm ideation detected"}',
+            },
+          ],
+        },
+        {
+          id: "device",
+          icon: "\u231A",
+          title: "Wearable Data Review",
+          desc: "Device data triggers coaching adjustment",
+          trace: [
+            {
+              agent: "orchestrator_router",
+              color: "#58a6ff",
+              text: "User asks: \u201cMy watch shows my resting heart rate spiked this week.\u201d\nOrchestrator routes to Device Integration for verified data check.",
+              output: '{"route":"device_integration_optional","risk":{"tier":0}}',
+            },
+            {
+              agent: "data_steward_pdpa",
+              color: "#bc8cff",
+              text: "Data Steward checks consent: consent.wearable_data and consent.biometric_data required. Both granted. Allows trend-only data access.",
+              output:
+                '{"consent":{"status":"ok","required_scopes":["consent.wearable_data","consent.biometric_data"]}}',
+            },
+            {
+              agent: "device_integration_optional",
+              color: "#d29922",
+              text: "Device Integration confirms: resting HR trending 8% above personal baseline over 5 days. Confidence: medium. No medical claims made \u2014 frames as a trend worth monitoring.",
+              output:
+                '{"data_availability":"verified","trend_summary":"Resting HR 8% above 14-day baseline","confidence":"medium"}',
+            },
+            {
+              agent: "daily_coach",
+              color: "#3fb950",
+              text: "Daily Coach adjusts routine: suggests stress-reduction breathing exercise and recommends mentioning the trend at next clinician check-in.",
+              output:
+                '{"action_now":"Try 4-7-8 breathing for 3 minutes. Consider mentioning HR trend at your next appointment.","micro_commitment":"Log stress level before bed tonight"}',
+            },
+          ],
+        },
+        {
+          id: "scheduling",
+          icon: "\uD83D\uDCC5",
+          title: "Care Coordination",
+          desc: "Scheduling a provider appointment with privacy safeguards",
+          trace: [
+            {
+              agent: "orchestrator_router",
+              color: "#58a6ff",
+              text: "User says: \u201cCan you book me a session with a therapist this week?\u201d\nOrchestrator routes to Concierge Operator for scheduling.",
+              output: '{"route":"concierge_operator","privacy":{"label":"MED"}}',
+            },
+            {
+              agent: "data_steward_pdpa",
+              color: "#bc8cff",
+              text: "Data Steward requires consent.share_with_provider before any referral data can be shared. Checks current consent status.",
+              output:
+                '{"consent":{"status":"ok","required_scopes":["consent.share_with_provider"]}}',
+            },
+            {
+              agent: "concierge_operator",
+              color: "#f0883e",
+              text: "Concierge searches vetted provider network. Finds 3 available slots matching language preference and modality. Calendar event uses neutral title.",
+              output:
+                '{"appointment_options":["Tue 2pm \u2013 Video","Wed 10am \u2013 In-person","Thu 4pm \u2013 Video"],"next_checkin":"Day 7 hold check"}',
+            },
+            {
+              agent: "rag_knowledge",
+              color: "#39d2c0",
+              text: "RAG retrieves therapist preparation template from approved SOPs. Provides pre-session questionnaire and what to expect guide.",
+              output:
+                '{"retrieved_summary":"Pre-session checklist: goals, recent stressors, medication list","internal_refs":["SOP-INTAKE-v1","SCORECARD-TEMPLATE"]}',
+            },
+          ],
+        },
+      ];
+
+      const RISK_DETAILS = [
+        {
+          tier: 0,
+          label: "Stable",
+          color: "#3fb950",
+          desc: "Routine coaching and wellness support.",
+          bullets: [
+            "Standard daily check-in cadence",
+            "Green/Yellow/Red readiness model applied",
+            "Micro-commitments and habit tracking",
+            "Regular scorecard updates at scheduled intervals",
+          ],
+          action: "Continue normal coaching program with 2\u20133 daily touchpoints.",
+        },
+        {
+          tier: 1,
+          label: "Elevated",
+          color: "#d29922",
+          desc: "Increased monitoring with additional check-ins.",
+          bullets: [
+            "Additional mid-day wellness check",
+            "Sleep and stress pattern monitoring intensified",
+            "Daily Coach provides targeted coping scripts",
+            "Concierge schedules follow-up within 48 hours",
+          ],
+          action:
+            "Increase check-in frequency. Daily Coach delivers targeted stress management routines.",
+        },
+        {
+          tier: 2,
+          label: "High",
+          color: "#f0883e",
+          desc: "Clinical safety review triggered.",
+          bullets: [
+            "Clinical Safety agent activated",
+            "Case Lead notified within 1 hour",
+            "Urgent provider booking initiated",
+            "All communications classified HIGH sensitivity",
+            "Push notifications restricted to generic content",
+          ],
+          action:
+            "Clinical Safety review initiated. Urgent appointment scheduled with licensed clinician.",
+        },
+        {
+          tier: 3,
+          label: "Crisis",
+          color: "#f85149",
+          desc: "Immediate professional referral and emergency protocol.",
+          bullets: [
+            "Crisis Script delivered immediately",
+            "Emergency services recommended",
+            "Singapore crisis resources provided",
+            "Case Lead and clinical director alerted",
+            "Full incident record created",
+            "All data access audit-logged",
+          ],
+          action:
+            "CRISIS PROTOCOL: Direct user to emergency services. Notify Case Lead. Create incident record.",
+        },
+      ];
+
+      const MEASUREMENT_PHASES = [
+        {
+          id: "baseline",
+          label: "Baseline",
+          period: "Days 1\u201314",
+          metrics: [
+            { name: "Sleep Hours", value: "6.2", max: 10, pct: 62, color: "#d29922" },
+            { name: "Sleep Quality", value: "5/10", max: 10, pct: 50, color: "#d29922" },
+            { name: "Energy Level", value: "4/10", max: 10, pct: 40, color: "#f85149" },
+            { name: "Stress Level", value: "7/10", max: 10, pct: 70, color: "#f85149" },
+            { name: "Resting HR", value: "72 bpm", max: 100, pct: 72, color: "#58a6ff" },
+            { name: "HRV Trend", value: "\u2014", max: 100, pct: 50, color: "#8b949e" },
+          ],
+        },
+        {
+          id: "post",
+          label: "Immediate Post",
+          period: "\u226448 hours",
+          metrics: [
+            { name: "Sleep Hours", value: "7.1", max: 10, pct: 71, color: "#3fb950" },
+            { name: "Sleep Quality", value: "6/10", max: 10, pct: 60, color: "#d29922" },
+            { name: "Energy Level", value: "5/10", max: 10, pct: 50, color: "#d29922" },
+            { name: "Stress Level", value: "6/10", max: 10, pct: 60, color: "#d29922" },
+            { name: "Resting HR", value: "70 bpm", max: 100, pct: 70, color: "#58a6ff" },
+            { name: "Meeting Readiness", value: "Yellow", max: 100, pct: 60, color: "#d29922" },
+          ],
+        },
+        {
+          id: "hold",
+          label: "Day 7 Hold",
+          period: "Day 7",
+          metrics: [
+            { name: "Sleep Hours", value: "7.4", max: 10, pct: 74, color: "#3fb950" },
+            { name: "Sleep Quality", value: "7/10", max: 10, pct: 70, color: "#3fb950" },
+            { name: "Energy Level", value: "6/10", max: 10, pct: 60, color: "#d29922" },
+            { name: "Stress Level", value: "5/10", max: 10, pct: 50, color: "#3fb950" },
+            { name: "Adherence", value: "80%", max: 100, pct: 80, color: "#3fb950" },
+            { name: "Afternoon Crash", value: "No", max: 100, pct: 0, color: "#3fb950" },
+          ],
+        },
+        {
+          id: "maintain",
+          label: "Day 30+",
+          period: "Monthly",
+          metrics: [
+            { name: "Sleep Hours", value: "7.8", max: 10, pct: 78, color: "#3fb950" },
+            { name: "Sleep Quality", value: "8/10", max: 10, pct: 80, color: "#3fb950" },
+            { name: "Energy Level", value: "7/10", max: 10, pct: 70, color: "#3fb950" },
+            { name: "Stress Level", value: "4/10", max: 10, pct: 40, color: "#3fb950" },
+            { name: "Adherence", value: "92%", max: 100, pct: 92, color: "#3fb950" },
+            { name: "Meeting Readiness", value: "Green", max: 100, pct: 90, color: "#3fb950" },
+          ],
+        },
+      ];
+
+      const TOOL_CATEGORIES = {
+        communication: { label: "Communication", icon: "\u2709" },
+        calendar: { label: "Calendar & Scheduling", icon: "\uD83D\uDCC5" },
+        scheduling: { label: "Provider Booking", icon: "\uD83C\uDFE5" },
+        knowledge: { label: "Knowledge Retrieval", icon: "\uD83D\uDCDA" },
+        device: { label: "Device Integration", icon: "\u2328" },
+        governance: { label: "Governance & Compliance", icon: "\uD83D\uDD12" },
+        safety: { label: "Clinical Safety", icon: "\u26A0" },
+      };
+      const CONSENT_SCOPES = [
+        {
+          scope: "consent.basic_profile",
+          label: "Basic Profile",
+          desc: "Name, contact, preferences",
+          icon: "\uD83D\uDC64",
+        },
+        {
+          scope: "consent.calendar_read",
+          label: "Calendar Read",
+          desc: "View scheduled sessions and availability",
+          icon: "\uD83D\uDCC5",
+        },
+        {
+          scope: "consent.calendar_write",
+          label: "Calendar Write",
+          desc: "Create and manage wellness appointments",
+          icon: "\u270F",
+        },
+        {
+          scope: "consent.messaging",
+          label: "Secure Messaging",
+          desc: "Send encrypted wellness communications",
+          icon: "\u2709",
+        },
+        {
+          scope: "consent.wearable_data",
+          label: "Wearable Data",
+          desc: "Fitness trackers, sleep monitors, activity data",
+          icon: "\u231A",
+        },
+        {
+          scope: "consent.biometric_data",
+          label: "Biometric Data",
+          desc: "Heart rate, glucose, physiological signals",
+          icon: "\u2764",
+        },
+        {
+          scope: "consent.share_with_provider",
+          label: "Provider Sharing",
+          desc: "Share data with healthcare professionals",
+          icon: "\uD83C\uDFE5",
+        },
+        {
+          scope: "consent.cross_border_transfer",
+          label: "Cross-Border Transfer",
+          desc: "Data transfer across jurisdictions (PDPA)",
+          icon: "\uD83C\uDF10",
+        },
+      ];
+
+      // =========================================================================
+      // FETCH
+      // =========================================================================
+      async function fetchJSON(u) {
+        try {
+          const r = await fetch(u);
+          if (!r.ok) return null;
+          return r.json();
+        } catch {
+          return null;
+        }
+      }
+      async function fetchAll() {
+        const k = ["status", "agents", "tools", "sessions", "capa", "audit"],
+          u = [
+            "/api/wellness/status",
+            "/api/wellness/agents",
+            "/api/wellness/tools",
+            "/api/wellness/sessions",
+            "/api/wellness/capa",
+            "/api/wellness/audit?limit=10",
+          ];
+        const r = await Promise.allSettled(u.map(fetchJSON));
+        const d = {};
+        k.forEach((k, i) => {
+          d[k] = r[i].status === "fulfilled" ? r[i].value : null;
+        });
+        return d;
+      }
+
+      // =========================================================================
+      // HELPERS
+      // =========================================================================
+      function esc(s) {
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function formatUptime(s) {
+        if (!s) return "unknown";
+        const h = Math.floor(s / 3600),
+          m = Math.floor((s % 3600) / 60);
+        if (h > 24) {
+          const d = Math.floor(h / 24);
+          return `${d}d ${h % 24}h`;
+        }
+        return h > 0 ? `${h}h ${m}m` : `${m}m`;
+      }
+      function intentLabel(s) {
+        return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      // =========================================================================
+      // MAIN RENDER
+      // =========================================================================
+      let currentTab = "overview",
+        currentScenario = null,
+        traceStep = 0,
+        currentRisk = 0,
+        currentPhase = 0;
+
+      function render(d) {
+        const app = document.getElementById("app");
+        const s = d.status || {};
+        const agents = d.agents?.agents || [];
+        const tools = d.tools?.tools || [];
+        const capa = d.capa || { findings: [], total: 0, unresolved: 0 };
+        const audit = d.audit || { entries: [], total: 0 };
+        const statusOk = s.status === "ok";
+        const now = new Date().toLocaleTimeString();
+
+        let h = `<div class="header">
+    <div class="header-left"><img src="/img/favicon.svg" alt="" class="header-logo"/>
+      <h1>EMWCP<span>Executive Mental Wellbeing Concierge Platform \u2022 Capability Report</span></h1>
+    </div>
+    <div class="header-status"><span class="live-dot"></span> Live \u2022 ${esc(now)}</div>
+  </div>`;
+
+        // Status cards
+        h += `<div class="cards">
+    <div class="card ${statusOk ? "ok" : "crit"}"><div class="card-label">Platform</div><div class="card-value">${statusOk ? "Operational" : "Degraded"}</div><div class="card-sub">v${esc(s.version || "---")}</div></div>
+    <div class="card info"><div class="card-label">AI Agents</div><div class="card-value">${agents.length}</div><div class="card-sub">multi-agent orchestration</div></div>
+    <div class="card info"><div class="card-label">Tools</div><div class="card-value">${tools.length}</div><div class="card-sub">integrated capabilities</div></div>
+    <div class="card ok"><div class="card-label">Uptime</div><div class="card-value">${formatUptime(s.uptime)}</div><div class="card-sub">continuous operation</div></div>
+  </div>`;
+
+        // Tabs
+        const tabs = [
+          { id: "overview", label: "Overview" },
+          { id: "scenarios", label: "Interactive Scenarios" },
+          { id: "agents", label: "Agent Architecture" },
+          { id: "safety", label: "Safety & Crisis" },
+          { id: "measurement", label: "Measurement" },
+          { id: "tools", label: "Tools & Privacy" },
+          { id: "output", label: "Output Contract" },
+          { id: "live", label: "Live Status" },
+        ];
+        h += `<div class="tab-bar">`;
+        for (const t of tabs)
+          h += `<button class="tab-btn${currentTab === t.id ? " active" : ""}" onclick="switchTab('${t.id}')">${t.label}</button>`;
+        h += `</div>`;
+
+        // ---- TAB: Overview ----
+        h += `<div class="tab-panel${currentTab === "overview" ? " active" : ""}">`;
+        h += `<div class="summary">The <strong>Executive Mental Wellbeing Concierge Platform (EMWCP)</strong> is a multi-agent AI system that delivers executive-grade mental wellbeing support. It provides <strong>safe guidance</strong>, <strong>operational coordination</strong>, <strong>measured follow-up</strong>, and <strong>clinician-safe escalation pathways</strong> \u2014 all within a privacy-by-design framework aligned with Singapore\u2019s PDPA.</div>`;
+
+        // Non-negotiable boundaries
+        h += `<div class="section"><div class="section-title">Non-Negotiable Safety Boundaries</div>
+  <div class="boundary-grid">
+    <div class="boundary-card safety"><div class="boundary-title">\u26D4 No Diagnosis or Treatment</div><ul class="boundary-list"><li>Will not diagnose mental health conditions</li><li>Will not prescribe medication or change dosing</li><li>Will not claim cures or guaranteed outcomes</li><li>Provides wellness coaching only; encourages licensed clinicians</li></ul></div>
+    <div class="boundary-card crisis"><div class="boundary-title">\u26A0 Crisis Override</div><ul class="boundary-list"><li>Self-harm/suicidality \u2192 immediate Crisis Script</li><li>Emergency services recommended when indicated</li><li>Local crisis resources (Singapore) provided</li><li>Never leaves high-risk client without next action</li></ul></div>
+    <div class="boundary-card truth"><div class="boundary-title">\uD83D\uDCCA Data Truthfulness</div><ul class="boundary-list"><li>Never states biometric condition without verified data</li><li>Uses symptom-led phrasing when no data available</li><li>Describes data as trends relative to baseline</li><li>Routes clinical data questions to clinicians</li></ul></div>
+    <div class="boundary-card privacy"><div class="boundary-title">\uD83D\uDD12 PDPA Privacy-by-Design</div><ul class="boundary-list"><li>Collects only what\u2019s needed for coaching</li><li>Explicit consent for sensitive data categories</li><li>No sensitive content in push notifications</li><li>Least-privilege: minimum agents see minimum data</li></ul></div>
+    <div class="boundary-card science"><div class="boundary-title">\uD83E\uDDEA No Pseudoscience</div><ul class="boundary-list"><li>No \u201cdopamine reset\u201d or unscientific claims</li><li>No claims that neuro gadgets cure trauma</li><li>Discusses habit design in practical, evidence-based terms</li></ul></div>
+  </div></div>`;
+
+        // Data flow diagram
+        h += `<div class="section"><div class="section-title">Message Processing Pipeline</div>
+  <div class="section-body" style="margin-bottom:12px">Every user interaction follows a strict priority chain: <strong>Safety \u2192 Privacy \u2192 Correctness \u2192 User Value</strong></div>
+  <div class="flow-diagram">
+    <div class="flow-node" style="border-color:#58a6ff">\uD83D\uDCAC User Message</div><div class="flow-arrow">\u2192</div>
+    <div class="flow-node" style="border-color:#58a6ff">\uD83E\uDDE0 Orchestrator<br/><small style="color:#8b949e">Risk Triage</small></div><div class="flow-arrow">\u2192</div>
+    <div class="flow-gate">\uD83D\uDD12 Privacy Gate<br/><small>Consent Check</small></div><div class="flow-arrow">\u2192</div>
+    <div class="flow-node" style="border-color:#3fb950">\uD83C\uDFAF Specialist<br/><small style="color:#8b949e">Agent(s)</small></div><div class="flow-arrow">\u2192</div>
+    <div class="flow-node" style="border-color:#8b949e">\u2705 Evaluation<br/><small style="color:#8b949e">Quality Loop</small></div><div class="flow-arrow">\u2192</div>
+    <div class="flow-node" style="border-color:#f0f6fc">\uD83D\uDCE4 Response</div>
+  </div></div>`;
+
+        // UX principles
+        h += `<div class="section"><div class="section-title">User Experience Principles</div>
+  <div class="cards" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card info"><div class="card-label">Executive-Friendly</div><div class="card-value" style="font-size:16px">Concise & Decisive</div><div class="card-sub">Actionable guidance, no jargon</div></div>
+    <div class="card info"><div class="card-label">Minimal Burden</div><div class="card-value" style="font-size:16px">Max 2 Questions</div><div class="card-sub">2\u20133 touchpoints per day</div></div>
+    <div class="card info"><div class="card-label">One Plan at a Time</div><div class="card-value" style="font-size:16px">Clear Timing</div><div class="card-sub">\u201CDo this now for 6 minutes\u201D</div></div>
+  </div></div>`;
+        h += `</div>`;
+
+        // ---- TAB: Scenarios ----
+        h += `<div class="tab-panel${currentTab === "scenarios" ? " active" : ""}">`;
+        h += `<div class="section"><div class="section-title">Interactive Scenario Walkthroughs</div>
+  <div class="section-body" style="margin-bottom:16px">Click a scenario to see exactly how messages flow through the multi-agent system, what each agent decides, and what structured outputs are produced.</div>
+  <div class="scenario-grid">`;
+        for (const sc of SCENARIOS) {
+          h += `<div class="scenario-card${currentScenario === sc.id ? " active" : ""}" onclick="selectScenario('${sc.id}')">
+      <div class="scenario-icon">${sc.icon}</div>
+      <div class="scenario-title">${esc(sc.title)}</div>
+      <div class="scenario-desc">${esc(sc.desc)}</div>
+    </div>`;
+        }
+        h += `</div>`;
+        if (currentScenario) {
+          const sc = SCENARIOS.find((s) => s.id === currentScenario);
+          h += `<div class="trace-panel visible">`;
+          sc.trace.forEach((step, i) => {
+            h += `<div class="trace-step${i <= traceStep ? " active" : ""}">
+        <div class="step-marker" style="background:${step.color}">${i + 1}</div>
+        <div class="step-body">
+          <div class="step-agent" style="color:${step.color}">${esc(AGENT_LABELS[step.agent] || step.agent)}</div>
+          <div class="step-text">${step.text.replace(/\n/g, "<br/>")}</div>
+          ${i <= traceStep ? `<div class="step-output">${esc(step.output)}</div>` : ""}
+        </div>
+      </div>`;
+          });
+          h += `<div class="trace-controls">`;
+          if (traceStep > 0) h += `<button class="trace-btn" onclick="traceBack()">Back</button>`;
+          if (traceStep < sc.trace.length - 1)
+            h += `<button class="trace-btn primary" onclick="traceNext()">Next Step \u2192</button>`;
+          else h += `<button class="trace-btn" onclick="selectScenario(null)">Close</button>`;
+          h += `</div></div>`;
+        }
+        h += `</div></div>`;
+
+        // ---- TAB: Agents ----
+        h += `<div class="tab-panel${currentTab === "agents" ? " active" : ""}">`;
+        h += `<div class="section"><div class="section-title">Multi-Agent Orchestration Architecture</div>
+  <div class="topo-wrap" id="topo-container"></div>
+  <div class="section-body" style="margin-bottom:16px">Click any agent card below to view its system prompt, routing intents, and required outputs.</div>
+  <div class="agent-grid">`;
+        for (const agent of agents) {
+          const color = AGENT_COLORS[agent.agentId] || "#8b949e";
+          const intents = (agent.routingIntents || [])
+            .map((i) => `<span class="tag">${esc(intentLabel(i))}</span>`)
+            .join("");
+          h += `<div class="agent-card" onclick="toggleAgentDetail('${agent.agentId}')">
+      <div class="agent-header"><span class="agent-dot" style="background:${color};box-shadow:0 0 6px ${color}55"></span><span class="agent-name">${esc(agent.name)}</span></div>
+      <div class="agent-role">${esc(agent.role)}</div>
+      <div class="agent-tags">${intents}</div>
+    </div>`;
+        }
+        h += `</div>`;
+        // Agent detail panels (hidden by default)
+        for (const agent of agents) {
+          const prompt = AGENT_PROMPTS[agent.agentId] || "System prompt not available.";
+          h += `<div class="agent-detail" id="detail-${agent.agentId}">
+      <h3>${esc(agent.name)} \u2014 System Prompt</h3>
+      <div class="prompt-box">${esc(prompt)}</div>
+      <div style="font-size:12px;color:#8b949e;margin-top:8px">Temperature: ${agent.temperature} \u2022 Max tokens: ${agent.maxTokens}</div>
+    </div>`;
+        }
+        h += `</div></div>`;
+
+        // ---- TAB: Safety ----
+        h += `<div class="tab-panel${currentTab === "safety" ? " active" : ""}">`;
+        h += `<div class="section"><div class="section-title">Risk Assessment & Escalation Framework</div>
+  <div class="section-body" style="margin-bottom:12px">Click each risk tier to see the system\u2019s response protocol, agent activation, and actions taken.</div>
+  <div class="risk-tiers-interactive">`;
+        for (const r of RISK_DETAILS) {
+          h += `<button class="risk-tier-btn${currentRisk === r.tier ? " selected" : ""}" style="background:${r.color}" onclick="selectRisk(${r.tier})"><span class="tier-num">${r.tier}</span>${r.label}</button>`;
+        }
+        h += `</div>`;
+        const rd = RISK_DETAILS[currentRisk];
+        h += `<div class="risk-detail visible" style="border-left:3px solid ${rd.color}">
+    <div style="font-size:15px;font-weight:600;color:#f0f6fc;margin-bottom:6px">Tier ${rd.tier}: ${rd.label}</div>
+    <div style="font-size:13px;color:#c9d1d9;margin-bottom:10px">${rd.desc}</div>
+    <ul style="font-size:13px;color:#c9d1d9;padding-left:18px;margin-bottom:12px">`;
+        for (const b of rd.bullets) h += `<li style="margin-bottom:4px">${b}</li>`;
+        h += `</ul><div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;font-size:12px;color:${rd.color}"><strong>Action:</strong> ${rd.action}</div></div>`;
+
+        // Risk signals
+        h += `<div class="subsection"><div class="subsection-title">Monitored Risk Signals</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+        for (const sig of [
+          "Insomnia (Severe)",
+          "Panic Symptoms",
+          "Trauma Triggers",
+          "Self-Harm Ideation",
+          "Self-Harm Plan",
+          "Imminent Danger",
+          "Psychosis/Mania",
+          "Substance Withdrawal",
+          "Medical Emergency",
+        ]) {
+          h += `<span class="tag" style="border-color:#f8514944;color:#f85149">${sig}</span>`;
+        }
+        h += `</div></div>`;
+
+        // Crisis Script
+        h += `<div class="subsection"><div class="subsection-title">\u26A0 Standard Crisis Script</div>
+  <div class="crisis-flow">
+    <div class="crisis-step"><div class="crisis-num">1</div><div class="crisis-text"><strong>Ask:</strong> \u201CAre you in immediate danger right now?\u201D</div></div>
+    <div class="crisis-step"><div class="crisis-num">2</div><div class="crisis-text"><strong>If YES:</strong> \u201CPlease call local emergency services now or go to the nearest emergency department.\u201D</div></div>
+    <div class="crisis-step"><div class="crisis-num">3</div><div class="crisis-text"><strong>Provide</strong> Singapore crisis resources. Urge contacting a trusted person nearby.</div></div>
+    <div class="crisis-step"><div class="crisis-num">4</div><div class="crisis-text"><strong>Notify</strong> the Case Lead per consent and SOP. Create incident record. Log all actions.</div></div>
+  </div></div></div></div>`;
+
+        // ---- TAB: Measurement ----
+        h += `<div class="tab-panel${currentTab === "measurement" ? " active" : ""}">`;
+        h += `<div class="section"><div class="section-title">Executive Wellness Scorecard</div>
+  <div class="section-body" style="margin-bottom:16px">The measurement framework tracks outcomes across four timepoints. Click each phase to see how metrics evolve from baseline to maintenance.</div>
+  <div class="scorecard"><div class="scorecard-header">`;
+        MEASUREMENT_PHASES.forEach((p, i) => {
+          h += `<div class="scorecard-phase${currentPhase === i ? " active" : ""}" onclick="selectPhase(${i})"><strong>${p.label}</strong><br/><small>${p.period}</small></div>`;
+        });
+        h += `</div><div class="scorecard-body"><div class="metric-grid">`;
+        const phase = MEASUREMENT_PHASES[currentPhase];
+        for (const m of phase.metrics) {
+          h += `<div class="metric-card"><div class="metric-name">${m.name}</div><div class="metric-value" style="color:${m.color}">${m.value}</div><div class="metric-bar"><div class="metric-fill" style="width:${m.pct}%;background:${m.color}"></div></div></div>`;
+        }
+        h += `</div></div></div>`;
+
+        // Follow-up timeline
+        h += `<div class="subsection" style="margin-top:24px"><div class="subsection-title">Follow-Up Cadence</div>
+  <div class="timeline">
+    <div class="timeline-item active"><div class="timeline-label">Days 1\u201314</div><div class="timeline-text"><strong>Baseline Collection</strong> \u2014 Initial scorecard, self-report calibration, device onboarding</div></div>
+    <div class="timeline-item${currentPhase >= 1 ? " active" : ""}"><div class="timeline-label">\u226448 hours</div><div class="timeline-text"><strong>Immediate Post</strong> \u2014 First intervention response, adjustment check</div></div>
+    <div class="timeline-item${currentPhase >= 2 ? " active" : ""}"><div class="timeline-label">Day 7</div><div class="timeline-text"><strong>Hold Check</strong> \u2014 Routine adherence, early trend detection, coaching adjustment</div></div>
+    <div class="timeline-item${currentPhase >= 3 ? " active" : ""}"><div class="timeline-label">Day 30+</div><div class="timeline-text"><strong>Maintenance</strong> \u2014 Monthly/quarterly reviews, outcome assessment, CAPA loop</div></div>
+  </div></div></div></div>`;
+
+        // ---- TAB: Tools & Privacy ----
+        h += `<div class="tab-panel${currentTab === "tools" ? " active" : ""}">`;
+        h += `<div class="section"><div class="section-title">Tool Registry & Privacy Controls</div>
+  <div class="section-body" style="margin-bottom:16px">Each tool operates under strict constraints: <strong>least-privilege access</strong>, <strong>purpose limitation</strong>, <strong>explicit consent for sensitive data</strong>, and <strong>immutable audit logging</strong>.</div>`;
+        const toolsByCat = {};
+        for (const t of tools) {
+          const c = t.type || "other";
+          if (!toolsByCat[c]) toolsByCat[c] = [];
+          toolsByCat[c].push(t);
+        }
+        for (const [cat, catTools] of Object.entries(toolsByCat)) {
+          const ci = TOOL_CATEGORIES[cat] || { label: cat, icon: "\u2699" };
+          h += `<div class="tool-group"><div class="tool-group-title">${ci.icon} ${esc(ci.label)}</div>`;
+          for (const t of catTools) {
+            const cb = (t.requiredConsentScopes || [])
+              .map((s) => `<span class="consent-badge">${esc(s.replace("consent.", ""))}</span>`)
+              .join("");
+            const ac = (t.auditLevel || "low").toLowerCase();
+            h += `<div class="tool-row"><div class="tool-name">${esc(t.id)}</div><div class="tool-desc">${esc(t.description)}</div><div class="tool-meta">${cb}<span class="audit-dot ${ac}">Audit: ${esc(t.auditLevel || "LOW")}</span></div></div>`;
+          }
+          h += `</div>`;
+        }
+        h += `</div>`;
+
+        // Consent framework
+        h += `<div class="section"><div class="section-title">PDPA-Aligned Consent Framework</div>
+  <div class="section-body" style="margin-bottom:12px">All data access requires explicit consent. The Data Steward agent enforces these gates <strong>before</strong> any tool invocation. Consent can be revoked at any time, immediately blocking downstream data access.</div>
+  <div class="consent-grid">`;
+        for (const c of CONSENT_SCOPES)
+          h += `<div class="consent-item"><div class="consent-icon">${c.icon}</div><div><div class="consent-label">${esc(c.label)}</div><div class="consent-desc">${esc(c.desc)}</div></div></div>`;
+        h += `</div></div>`;
+
+        // Data classification
+        h += `<div class="section"><div class="section-title">Data Classification</div>
+  <div class="cards" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card ok"><div class="card-label">LOW Sensitivity</div><div class="card-value" style="font-size:14px">Operational</div><div class="card-sub">Generic coaching content, non-sensitive operational info</div></div>
+    <div class="card warn"><div class="card-label">MED Sensitivity</div><div class="card-value" style="font-size:14px">Scheduling</div><div class="card-sub">Scheduling + preferences, limited wellbeing check-ins</div></div>
+    <div class="card crit"><div class="card-label">HIGH Sensitivity</div><div class="card-value" style="font-size:14px">Clinical</div><div class="card-sub">Health/mental health details, biometrics, neuro signals, crisis indicators</div></div>
+  </div></div></div>`;
+
+        // ---- TAB: Output Contract ----
+        h += `<div class="tab-panel${currentTab === "output" ? " active" : ""}">`;
+        h += `<div class="section"><div class="section-title">Structured Output Contract</div>
+  <div class="section-body" style="margin-bottom:16px">Every agent interaction produces a validated JSON message with these required fields. This enables automated quality checks, audit trails, and downstream tool integration.</div>
+
+  <div class="summary" style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;white-space:pre-wrap;background:#0d1117">
+{
+  <span style="color:#58a6ff">"schema_version"</span>: "emwcp-agent-message.v1",
+  <span style="color:#58a6ff">"timestamp"</span>: "2026-02-16T09:00:00Z",
+  <span style="color:#58a6ff">"agent_id"</span>: "daily_coach",
+  <span style="color:#58a6ff">"privacy"</span>: {
+    <span style="color:#bc8cff">"label"</span>: "LOW",
+    <span style="color:#bc8cff">"consent"</span>: { "status": "ok", "required_scopes": ["consent.basic_profile"] }
+  },
+  <span style="color:#58a6ff">"risk"</span>: {
+    <span style="color:#f85149">"tier"</span>: 0,
+    <span style="color:#f85149">"signals"</span>: ["none"],
+    <span style="color:#f85149">"escalation"</span>: { "required": false, "crisis_script_used": false }
+  },
+  <span style="color:#58a6ff">"client_response"</span>: <span style="color:#3fb950">"Try a 6-minute body scan before your meeting..."</span>,
+  <span style="color:#58a6ff">"internal_actions"</span>: [
+    { "type": "REMINDER", "priority": "P2", "summary": "Check-in at 2pm", "due_at": "..." }
+  ],
+  <span style="color:#58a6ff">"measurement_updates"</span>: {
+    "timepoint": "ad_hoc",
+    "metrics": [{ "metric_id": "sleep_hours", "value": 5, "unit": "hours" }]
+  }
+}</div>`;
+
+        // Action types
+        h += `<div class="subsection" style="margin-top:20px"><div class="subsection-title">Internal Action Types</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">`;
+        for (const a of [
+          "TASK",
+          "BOOKING_REQUEST",
+          "ESCALATION",
+          "FLAG",
+          "REMINDER",
+          "DATA_ACCESS_LOG",
+        ]) {
+          const colors = {
+            TASK: "#58a6ff",
+            BOOKING_REQUEST: "#f0883e",
+            ESCALATION: "#f85149",
+            FLAG: "#d29922",
+            REMINDER: "#3fb950",
+            DATA_ACCESS_LOG: "#bc8cff",
+          };
+          h += `<span class="tag" style="border-color:${colors[a]}44;color:${colors[a]};font-size:12px;padding:4px 12px">${a}</span>`;
+        }
+        h += `</div></div>`;
+
+        // Metric IDs
+        h += `<div class="subsection"><div class="subsection-title">Scorecard Metric IDs</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+        for (const m of [
+          "sleep_hours",
+          "sleep_regularity",
+          "sleep_quality_score",
+          "stress_0_10",
+          "energy_0_10",
+          "resting_hr_trend",
+          "hrv_trend",
+          "afternoon_crash_flag",
+          "meeting_readiness",
+          "adherence_non_negotiables",
+          "screen_anxiety_score",
+          "screen_depression_score",
+        ]) {
+          h += `<span class="tag" style="font-size:11px">${m}</span>`;
+        }
+        h += `</div></div></div></div>`;
+
+        // ---- TAB: Live Status ----
+        h += `<div class="tab-panel${currentTab === "live" ? " active" : ""}">`;
+        h += `<div class="cards">
+    <div class="card ${statusOk ? "ok" : "crit"}"><div class="card-label">System Status</div><div class="card-value">${statusOk ? "Operational" : "Degraded"}</div><div class="card-sub">v${esc(s.version || "---")}</div></div>
+    <div class="card info"><div class="card-label">Active Sessions</div><div class="card-value">${s.activeSessions ?? 0}</div><div class="card-sub">${s.totalQueries ?? 0} total queries</div></div>
+    <div class="card ${(s.totalEscalations || 0) === 0 ? "ok" : "crit"}"><div class="card-label">Escalations</div><div class="card-value">${s.totalEscalations || 0}</div><div class="card-sub">safety triggers</div></div>
+    <div class="card ${(capa.unresolved || 0) === 0 ? "ok" : "warn"}"><div class="card-label">CAPA Findings</div><div class="card-value">${capa.unresolved || 0} open</div><div class="card-sub">${capa.total} total</div></div>
+  </div>`;
+
+        if (audit.entries.length > 0) {
+          h += `<div class="section"><div class="section-title">Recent Audit Trail</div>
+    <table class="capa-table"><thead><tr><th>Time</th><th>Tool</th><th>Agent</th><th>Result</th><th>Level</th></tr></thead><tbody>`;
+          for (const e of audit.entries) {
+            h += `<tr><td>${e.timestamp ? new Date(e.timestamp).toLocaleString() : "--"}</td><td style="font-family:monospace;font-size:12px">${esc(e.tool_id || "--")}</td><td>${esc(AGENT_LABELS[e.agent_id] || e.agent_id || "--")}</td><td>${esc(e.result || "--")}</td><td>${esc(e.audit_level || "--")}</td></tr>`;
+          }
+          h += `</tbody></table></div>`;
+        } else {
+          h += `<div class="section"><div class="section-title">Audit Trail</div><div class="empty-msg">No audit events recorded yet \u2014 system is ready for first session.</div></div>`;
+        }
+        h += `</div>`;
+
+        // Footer
+        h += `<div class="footer">OpenClaw EMWCP v${esc(s.version || "---")} \u2022 ${esc(s.stationId || "---")} \u2022 Singapore-first (PDPA) \u2022 EU-ready<br/>Report generated ${new Date().toLocaleString()} \u2022 Auto-refreshes every 60s</div>`;
+
+        app.innerHTML = h;
+        if (currentTab === "agents") renderTopology(document.getElementById("topo-container"));
+      }
+
+      // =========================================================================
+      // INTERACTIONS
+      // =========================================================================
+      function switchTab(id) {
+        currentTab = id;
+        rerender();
+      }
+      function selectScenario(id) {
+        if (currentScenario === id) {
+          currentScenario = null;
+        } else {
+          currentScenario = id;
+          traceStep = 0;
+        }
+        rerender();
+      }
+      function traceNext() {
+        const sc = SCENARIOS.find((s) => s.id === currentScenario);
+        if (sc && traceStep < sc.trace.length - 1) {
+          traceStep++;
+          rerender();
+        }
+      }
+      function traceBack() {
+        if (traceStep > 0) {
+          traceStep--;
+          rerender();
+        }
+      }
+      function selectRisk(t) {
+        currentRisk = t;
+        rerender();
+      }
+      function selectPhase(i) {
+        currentPhase = i;
+        rerender();
+      }
+      function toggleAgentDetail(id) {
+        const el = document.getElementById("detail-" + id);
+        if (el) el.classList.toggle("visible");
+      }
+
+      let _lastData = null;
+      function rerender() {
+        if (_lastData) render(_lastData);
+      }
+
+      // =========================================================================
+      // TOPOLOGY SVG
+      // =========================================================================
+      function renderTopology(container) {
+        if (!container) return;
+        const width = Math.min(container.clientWidth || 800, 900),
+          height = 380;
+        const nodeIds = Object.keys(AGENT_COLORS),
+          cx = width / 2,
+          cy = height / 2,
+          radius = Math.min(width, height) * 0.33;
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", height);
+        const defs = document.createElementNS(ns, "defs");
+        const marker = document.createElementNS(ns, "marker");
+        marker.setAttribute("id", "wr-arrow");
+        marker.setAttribute("viewBox", "0 0 10 10");
+        marker.setAttribute("refX", "28");
+        marker.setAttribute("refY", "5");
+        marker.setAttribute("markerWidth", "6");
+        marker.setAttribute("markerHeight", "6");
+        marker.setAttribute("orient", "auto-start-reverse");
+        const ap = document.createElementNS(ns, "path");
+        ap.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+        ap.setAttribute("fill", "#484f58");
+        marker.appendChild(ap);
+        defs.appendChild(marker);
+        const filter = document.createElementNS(ns, "filter");
+        filter.setAttribute("id", "wr-glow");
+        const blur = document.createElementNS(ns, "feGaussianBlur");
+        blur.setAttribute("stdDeviation", "3");
+        blur.setAttribute("result", "blur");
+        const merge = document.createElementNS(ns, "feMerge");
+        const m1 = document.createElementNS(ns, "feMergeNode");
+        m1.setAttribute("in", "blur");
+        const m2 = document.createElementNS(ns, "feMergeNode");
+        m2.setAttribute("in", "SourceGraphic");
+        merge.appendChild(m1);
+        merge.appendChild(m2);
+        filter.appendChild(blur);
+        filter.appendChild(merge);
+        defs.appendChild(filter);
+        svg.appendChild(defs);
+        const pos = {};
+        nodeIds.forEach((id, i) => {
+          const a = (2 * Math.PI * i) / nodeIds.length - Math.PI / 2;
+          pos[id] = { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
+        });
+        for (const e of TOPOLOGY_EDGES) {
+          const s = pos[e.source],
+            t = pos[e.target];
+          if (!s || !t) continue;
+          const l = document.createElementNS(ns, "line");
+          l.setAttribute("x1", s.x);
+          l.setAttribute("y1", s.y);
+          l.setAttribute("x2", t.x);
+          l.setAttribute("y2", t.y);
+          l.setAttribute("stroke", "#30363d");
+          l.setAttribute("stroke-width", "1.5");
+          l.setAttribute("marker-end", "url(#wr-arrow)");
+          svg.appendChild(l);
+        }
+        for (const id of nodeIds) {
+          const p = pos[id],
+            color = AGENT_COLORS[id],
+            label = AGENT_LABELS[id];
+          const g = document.createElementNS(ns, "g");
+          g.setAttribute("transform", `translate(${p.x},${p.y})`);
+          const glow = document.createElementNS(ns, "circle");
+          glow.setAttribute("r", "20");
+          glow.setAttribute("fill", color);
+          glow.setAttribute("opacity", "0.15");
+          glow.setAttribute("filter", "url(#wr-glow)");
+          g.appendChild(glow);
+          const circle = document.createElementNS(ns, "circle");
+          circle.setAttribute("r", "14");
+          circle.setAttribute("fill", "#0d1117");
+          circle.setAttribute("stroke", color);
+          circle.setAttribute("stroke-width", "2.5");
+          g.appendChild(circle);
+          const dot = document.createElementNS(ns, "circle");
+          dot.setAttribute("r", "4");
+          dot.setAttribute("fill", color);
+          g.appendChild(dot);
+          const text = document.createElementNS(ns, "text");
+          text.setAttribute("y", "28");
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "#c9d1d9");
+          text.setAttribute("font-size", "10");
+          text.setAttribute("font-family", "'JetBrains Mono',monospace");
+          text.textContent = label;
+          g.appendChild(text);
+          svg.appendChild(g);
+        }
+        const title = document.createElementNS(ns, "text");
+        title.setAttribute("x", "12");
+        title.setAttribute("y", "20");
+        title.setAttribute("fill", "#8b949e");
+        title.setAttribute("font-size", "11");
+        title.setAttribute("font-family", "'JetBrains Mono',monospace");
+        title.textContent = `Agent Topology \u2022 ${nodeIds.length} agents \u2022 ${TOPOLOGY_EDGES.length} edges`;
+        svg.appendChild(title);
+        container.appendChild(svg);
+      }
+
+      // =========================================================================
+      // INIT
+      // =========================================================================
+      // Default data when no backend is available (standalone deployment)
+      const STANDALONE_DEFAULTS = {
+        status: {
+          status: "ok",
+          version: "1.0.0",
+          stationId: "emwcp-sg",
+          uptime: null,
+          activeSessions: 0,
+          totalQueries: 0,
+          totalEscalations: 0,
+        },
+        agents: {
+          agents: [
+            {
+              name: "Orchestrator / Router",
+              role: "orchestrator_router",
+              color: "#58a6ff",
+              intents: [
+                "risk_triage",
+                "privacy_classification",
+                "intent_routing",
+                "response_compilation",
+              ],
+            },
+            {
+              name: "Clinical Safety & Escalation",
+              role: "clinical_safety_escalation",
+              color: "#f85149",
+              intents: [
+                "crisis_detection",
+                "risk_assessment",
+                "emergency_routing",
+                "escalation_management",
+              ],
+            },
+            {
+              name: "Data Steward (PDPA)",
+              role: "data_steward_pdpa",
+              color: "#bc8cff",
+              intents: [
+                "consent_management",
+                "access_control",
+                "data_minimization",
+                "audit_logging",
+              ],
+            },
+            {
+              name: "Daily Coach",
+              role: "daily_coach",
+              color: "#3fb950",
+              intents: [
+                "routine_guidance",
+                "readiness_assessment",
+                "micro_commitments",
+                "habit_design",
+              ],
+            },
+            {
+              name: "Concierge Operator",
+              role: "concierge_operator",
+              color: "#f0883e",
+              intents: ["scheduling", "provider_booking", "check_in_cadence", "handoff_management"],
+            },
+            {
+              name: "RAG / Knowledge",
+              role: "rag_knowledge",
+              color: "#39d2c0",
+              intents: ["sop_retrieval", "program_docs", "template_generation", "gap_analysis"],
+            },
+            {
+              name: "Device Integration",
+              role: "device_integration_optional",
+              color: "#d29922",
+              intents: [
+                "wearable_sync",
+                "trend_analysis",
+                "threshold_monitoring",
+                "data_verification",
+              ],
+            },
+            {
+              name: "Evaluation & CAPA",
+              role: "evaluation_capa",
+              color: "#8b949e",
+              intents: [
+                "quality_loop",
+                "corrective_action",
+                "preventive_action",
+                "impact_assessment",
+              ],
+            },
+          ],
+        },
+        tools: {
+          tools: [
+            {
+              tool_id: "secure_messaging.send",
+              type: "communication",
+              description: "Send secure in-app messages",
+              audit_level: "MED",
+              required_consent_scopes: ["consent.messaging"],
+            },
+            {
+              tool_id: "calendar.read",
+              type: "calendar",
+              description: "Read calendar availability",
+              audit_level: "MED",
+              required_consent_scopes: ["consent.calendar_read"],
+            },
+            {
+              tool_id: "calendar.write",
+              type: "calendar",
+              description: "Create wellbeing blocks",
+              audit_level: "MED",
+              required_consent_scopes: ["consent.calendar_write"],
+            },
+            {
+              tool_id: "scheduling.book_provider",
+              type: "scheduling",
+              description: "Book provider appointments",
+              audit_level: "HIGH",
+              required_consent_scopes: ["consent.share_with_provider"],
+            },
+            {
+              tool_id: "rag.retrieve",
+              type: "knowledge",
+              description: "Retrieve approved internal content",
+              audit_level: "LOW",
+              required_consent_scopes: [],
+            },
+            {
+              tool_id: "wearables.sync",
+              type: "device",
+              description: "Pull verified wearable summaries",
+              audit_level: "HIGH",
+              required_consent_scopes: ["consent.wearable_data", "consent.biometric_data"],
+            },
+            {
+              tool_id: "cgm.sync",
+              type: "device",
+              description: "Pull CGM summaries for pattern detection",
+              audit_level: "HIGH",
+              required_consent_scopes: ["consent.biometric_data"],
+            },
+            {
+              tool_id: "consent.check",
+              type: "governance",
+              description: "Check consent scopes",
+              audit_level: "MED",
+              required_consent_scopes: [],
+            },
+            {
+              tool_id: "audit.log_event",
+              type: "governance",
+              description: "Write audit log entries",
+              audit_level: "MED",
+              required_consent_scopes: [],
+            },
+            {
+              tool_id: "incident.create",
+              type: "safety",
+              description: "Create incident records for crisis events",
+              audit_level: "HIGH",
+              required_consent_scopes: ["consent.share_with_provider"],
+            },
+          ],
+        },
+        sessions: null,
+        capa: { findings: [], total: 0, unresolved: 0 },
+        audit: { entries: [], total: 0 },
+      };
+
+      async function init() {
+        const d = await fetchAll();
+        // Use API data if available, otherwise fall back to standalone defaults
+        const merged = {};
+        for (const k of Object.keys(STANDALONE_DEFAULTS)) {
+          merged[k] = d[k] || STANDALONE_DEFAULTS[k];
+        }
+        _lastData = merged;
+        render(merged);
+      }
+      async function refresh() {
+        try {
+          const d = await fetchAll();
+          const merged = {};
+          for (const k of Object.keys(STANDALONE_DEFAULTS)) {
+            merged[k] = d[k] || _lastData[k] || STANDALONE_DEFAULTS[k];
+          }
+          _lastData = merged;
+          render(merged);
+        } catch {}
+      }
+      init().then(() => setInterval(refresh, 60000));
+    </script>
+  </body>
+</html>
